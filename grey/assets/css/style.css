@@ -493,7 +493,7 @@ html.pt-start .pt svg{opacity:1}
 .croco{position:relative;height:330vh;background-color:var(--cb,var(--night));color:var(--cream);transition:background-color 1.1s var(--ease)}
 .croco__stick{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:grid;grid-template-columns:minmax(340px,38%) minmax(0,1fr);align-items:center}
 .croco__stage{position:relative;height:100%;display:grid;place-items:center;order:2;min-width:0}
-.croco__plate{position:relative;height:min(100svh - 28px,1100px,86vw);aspect-ratio:920/1340;max-width:none}
+.croco__plate{position:relative;height:min(100vh - 28px,1100px,86vw);height:min(100svh - 28px,1100px,86vw);aspect-ratio:920/1340;max-width:none}
 .croco__plate::before{content:"";position:absolute;z-index:0;left:-100vw;right:-100vw;bottom:65.4%;height:200vh;background:#000;pointer-events:none}
 .croco__plate::after{content:"";position:absolute;z-index:0;left:-100vw;right:-100vw;top:34.5%;height:25%;pointer-events:none;background:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.97) 10%,rgba(0,0,0,.89) 22%,rgba(0,0,0,.74) 35%,rgba(0,0,0,.5) 50%,rgba(0,0,0,.26) 65%,rgba(0,0,0,.11) 78%,rgba(0,0,0,.03) 90%,rgba(0,0,0,0) 100%)}
 .croco__lit{position:absolute;z-index:0;left:-45%;right:-45%;top:44%;bottom:-6%;pointer-events:none;background:radial-gradient(ellipse 50% 50% at 50% 54%,rgba(255,236,228,.1),rgba(255,236,228,.04) 45%,rgba(255,236,228,0) 72%)}
@@ -528,7 +528,7 @@ html.pt-start .pt svg{opacity:1}
   .croco{height:300vh}
   .croco__stick{grid-template-columns:1fr;grid-template-rows:auto auto;align-content:space-between}
   .croco__stage{order:0;height:auto;padding-top:8px}
-  .croco__plate{height:min(100svh - 318px,138vw,640px)}
+  .croco__plate{height:min(100vh - 318px,138vw,640px);height:min(100svh - 318px,138vw,640px)}
   .croco__txt{order:1;padding:0 var(--gut) calc(58px + env(safe-area-inset-bottom));gap:9px}
   .croco__clr{font-size:clamp(54px,16vw,84px)}
   .croco__facts{font-size:12px}
@@ -538,10 +538,10 @@ html.pt-start .pt svg{opacity:1}
   .croco__prog{left:var(--gut);bottom:calc(28px + env(safe-area-inset-bottom))}
   .croco__name{font-size:10.5px}
 }
-@media (min-width:768px) and (max-width:899px){.croco__prog{bottom:60px}.croco__txt{padding-bottom:92px}.croco__plate{height:min(100svh - 352px,138vw,640px)}}
+@media (min-width:768px) and (max-width:899px){.croco__prog{bottom:60px}.croco__txt{padding-bottom:92px}.croco__plate{height:min(100vh - 352px,138vw,640px);height:min(100svh - 352px,138vw,640px)}}
 @media (max-width:899px) and (max-height:640px){
   .croco__facts,.croco__txt>.lnk{display:none}
-  .croco__plate{height:min(100svh - 258px,138vw)}
+  .croco__plate{height:min(100vh - 258px,138vw);height:min(100svh - 258px,138vw)}
 }
 
 /* ============ home · kolekce jako přehlídka (runway) ============ */

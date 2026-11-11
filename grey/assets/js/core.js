@@ -217,10 +217,35 @@ GX.LOGO = {"strokes": ["M47.95 15.09 L47.92 14.19 L47.83 13.30 L47.68 12.41 L47.
       return r.z === 'akorat' ? 'v pase akorát' : (r.z === 'volne' ? 'v pase volnější' : (r.z === 'velke' ? 'v pase velké' : 'v pase těsné'));
     },
     // výběr velikosti na dvě klepnutí (sdílené na úvodu i v detailu)
+    // v8: u velikostí i evropské číslo, u střihu malá silueta, otázky celými větami
+    EU: { XS: 34, S: 36, M: 38, L: 40, XL: 42 },
+    icon(k) {
+      const w = { prilehave: 5.5, akorat: 8, volne: 10.5 }[k] || 8; const L = 20 - w, R = 20 + w;
+      return `<svg viewBox="0 0 40 30" aria-hidden="true"><path d="M16 4.5Q20 8 24 4.5L${R + 5} 6.5L${R + 8.5} 12.5L${R + 4} 14.5L${R} 11.5V27H${L}V11.5L${L - 4} 14.5L${L - 8.5} 12.5L${L - 5} 6.5Z"/></svg>`;
+    },
     picker(prof, o = {}) {
       prof = prof || {};
-      return `<div class="szp${o.cls ? ' ' + o.cls : ''}"><div class="szp__row" role="group" aria-label="Jakou velikost běžně nosíte?"><span class="szp__q">${o.q || 'Běžně nosím'}</span><div class="szp__opts">${GX.size.LIST.map((x) => `<button type="button" class="szp__b" data-me="${x}" aria-pressed="${prof.s === x}">${x}</button>`).join('')}</div></div>
-        <div class="szp__row" role="group" aria-label="Jak to nosíte raději?"><span class="szp__q">${o.q2 || 'Nosím raději'}</span><div class="szp__opts">${GX.size.PREFS.map(([k, l]) => `<button type="button" class="szp__b szp__b--w" data-pref="${k}" aria-pressed="${(prof.p || 'akorat') === k}">${l}</button>`).join('')}</div></div></div>`;
+      const q = o.q || 'Jakou velikost běžně nosíte?', q2 = o.q2 || 'Jak to nosíte nejradši?';
+      return `<div class="szp${o.cls ? ' ' + o.cls : ''}"><div class="szp__row" role="group" aria-label="${q}"><span class="szp__q">${q}</span><div class="szp__opts">${GX.size.LIST.map((x) => `<button type="button" class="szp__b" data-me="${x}" aria-pressed="${prof.s === x}"><span>${x}</span><small>EU${NB}${GX.size.EU[x]}</small></button>`).join('')}</div></div>
+        <div class="szp__row" role="group" aria-label="${q2}"><span class="szp__q">${q2}</span><div class="szp__opts">${GX.size.PREFS.map(([k, l]) => `<button type="button" class="szp__b szp__b--w" data-pref="${k}" aria-pressed="${(prof.p || 'akorat') === k}">${GX.size.icon(k)}<span>${l}</span></button>`).join('')}</div></div></div>`;
+    },
+    // v8: měřidlo „jak to sedne“ – pásma od těsného po oversized, tečky jsou velikosti kousku, plná je vybraná
+    meter(a, sel, o = {}) {
+      if (!a || !a.rows.length) return '';
+      sel = sel || a.rec;
+      const Z = a.type === 'top'
+        ? [['tesne', 'těsné', -10, -2], ['prilehave', 'přiléhavé', -2, 4], ['akorat', 'akorát', 4, 12], ['volne', 'volné', 12, 24], ['oversized', 'oversized', 24, 44]]
+        : [['tesne', 'těsné', -8, -2], ['akorat', 'akorát', -2, 4], ['volne', 'volnější', 4, 10], ['velke', 'velké', 10, 20]];
+      const n = Z.length;
+      const pos = (r) => { const k = Math.max(0, Z.findIndex((z) => z[0] === r.z)); const lo = Z[k][2], hi = Z[k][3]; const f = Math.max(0.12, Math.min(0.88, (r.e - lo) / (hi - lo))); return ((k + f) / n) * 100; };
+      const ms = a.rows.map((r) => ({ r, x: pos(r) }));
+      // popisky velikostí se nesmí překrývat: vybraná velikost má přednost
+      const shown = [ms.find((m) => m.r === sel)].filter(Boolean);
+      ms.filter((m) => m.r !== sel).sort((p1, p2) => Math.abs(p1.x - (shown[0] ? shown[0].x : 0)) - Math.abs(p2.x - (shown[0] ? shown[0].x : 0)))
+        .forEach((m) => { if (shown.every((s2) => Math.abs(s2.x - m.x) >= 13)) shown.push(m); });
+      const zi = Math.max(0, Z.findIndex((z) => z[0] === sel.z));
+      const say = `${GX.size.short(sel.s)}: ${Z[zi][1]}`;
+      return `<div class="fm${o.cls ? ' ' + o.cls : ''}" role="img" aria-label="${esc(say)}"><div class="fm__marks">${ms.map((m) => `<span class="fm__m${m.r === sel ? ' is-on' : ''}${m.r.ok ? '' : ' is-out'}${shown.includes(m) ? '' : ' no-l'}" style="left:${m.x.toFixed(1)}%"><em>${esc(GX.size.short(m.r.s))}</em><i></i></span>`).join('')}</div><div class="fm__bar">${Z.map((z, i) => `<span class="fm__z${i === zi ? ' is-on' : ''}"><b>${z[1]}</b></span>`).join('')}</div></div>`;
     },
     // stupnice od „těsněji“ po „volněji“: kde na ní leží jednotlivé velikosti produktu
     scale(a) {
@@ -609,14 +634,18 @@ GX.LOGO = {"strokes": ["M47.95 15.09 L47.92 14.19 L47.83 13.30 L47.68 12.41 L47.
     f.innerHTML = `<div class="wrap">
       <div class="ftr__top"><div><p class="ftr__claim">vše skladem.</p><p>${esc(S.dispatch)} ${esc(S.drop.text)}.</p></div>
         <div class="ftr__cols">
-          <div><h4>Nakupování</h4><ul><li><a href="${S.shop}/jak-nakupovat/">Jak nakupovat</a></li><li><a href="${S.shop}/vraceni-reklamace/">Vrácení zboží a reklamace</a></li><li><a href="${S.shop}/obchodni-podminky/">Obchodní podmínky</a></li><li><a href="${S.shop}/podminky-ochrany-osobnich-udaju/">Ochrana osobních údajů</a></li><li><a href="${catUrl('vouchery')}">Dárkové vouchery</a></li></ul></div>
-          <div><h4>Doprava a platba</h4><ul><li>Zásilkovna – výdejní místo ${S.shipping[0].cz}${NB}Kč</li><li>Zásilkovna – na adresu ${S.shipping[1].cz}${NB}Kč</li><li>Slovensko ${S.shipping[0].sk} / ${S.shipping[1].sk}</li><li>${S.payments.join(', ')}</li><li>${esc(S.dispatch)}</li></ul></div>
-          <div><h4>Kontakt</h4><ul><li><a href="mailto:${S.email}">${S.email}</a></li><li>${esc(S.hours)}</li><li><a href="${S.ig}">Instagram ${S.igHandle}</a></li><li><a href="${S.fb}">Facebook</a></li><li>${S.company}, IČO ${S.ico}</li><li>${S.seat}</li></ul></div>
+          <details class="ftr__g" data-g="nakup" open><summary><h4>Nakupování</h4></summary><ul><li><a href="${S.shop}/jak-nakupovat/">Jak nakupovat</a></li><li><a href="${S.shop}/vraceni-reklamace/">Vrácení zboží a reklamace</a></li><li><a href="${S.shop}/obchodni-podminky/">Obchodní podmínky</a></li><li><a href="${S.shop}/podminky-ochrany-osobnich-udaju/">Ochrana osobních údajů</a></li><li><a href="${catUrl('vouchery')}">Dárkové vouchery</a></li></ul></details>
+          <details class="ftr__g" data-g="doprava" open><summary><h4>Doprava a platba</h4></summary><ul><li>Zásilkovna – výdejní místo ${S.shipping[0].cz}${NB}Kč</li><li>Zásilkovna – na adresu ${S.shipping[1].cz}${NB}Kč</li><li>Slovensko ${S.shipping[0].sk} / ${S.shipping[1].sk}</li><li>${S.payments.join(', ')}</li><li>${esc(S.dispatch)}</li></ul></details>
+          <details class="ftr__g" data-g="kontakt" open><summary><h4>Kontakt</h4></summary><ul><li><a href="mailto:${S.email}">${S.email}</a></li><li>${esc(S.hours)}</li><li><a href="${S.ig}">Instagram ${S.igHandle}</a></li><li><a href="${S.fb}">Facebook</a></li><li>${S.company}, IČO ${S.ico}</li><li>${S.seat}</li></ul></details>
         </div></div>
       <div class="ftr__mark" aria-hidden="true">${GX.logoSVG()}</div>
       <div class="ftr__legal"><span>© 2026 ${S.company}</span><span>Neoficiální návrh studia MALUS/01. Fotky, produkty a texty patří GREY. · <a href="mailto:hello@malus01.com">hello@malus01.com</a></span></div>
     </div>`;
     document.body.append(f);
+    // v8: na mobilu jsou skupiny v patičce sbalené (kromě kontaktu), na počítači vždy otevřené
+    const ftrMq = matchMedia('(max-width:899px)');
+    const ftrSync = () => $$('.ftr__g', f).forEach((d) => { d.open = !ftrMq.matches || d.dataset.g === 'kontakt'; });
+    ftrSync(); if (ftrMq.addEventListener) ftrMq.addEventListener('change', ftrSync);
 
     // události
     cart.render();

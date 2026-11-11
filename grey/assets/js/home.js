@@ -112,21 +112,35 @@
     if (Y0 + base * ratio > top - gap) Y0 = Math.max(r.bottom + 8, top - gap - base * ratio);
     mast.style.width = base + 'px'; mast.style.marginLeft = (-base / 2) + 'px';
     MS = r.width / base;
-    upd();
+    upd(true);
   };
-  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  const upd = () => {
-    const p = Math.min(1, Math.max(0, window.scrollY / (innerHeight * 0.5))); const e = ease(p);
-    const y = Y0 + (DY - Y0) * e; const s = 1 + (MS - 1) * e;
-    mast.style.transform = `translate3d(${(DX * e).toFixed(2)}px,${y.toFixed(2)}px,0) scale(${s.toFixed(5)})`;
-    const docked = p >= 1;
-    mast.classList.toggle('is-docked', docked); hLogo.classList.toggle('is-hidden', !docked);
+  // v8: logo do hlavičky nedojíždí podle scrollu (to na mobilu sekalo), ale po prvním posunutí stránky
+  // proběhne jako plynulý přechod v prohlížeči; zpět nahoře se zase zvětší
+  let docked = null, dockT = 0;
+  const setDock = (on, instant) => {
+    if (on === docked && !instant) return;
+    docked = on; clearTimeout(dockT);
+    mast.style.transition = instant || reduce ? 'none' : '';
+    mast.classList.remove('is-docked'); hLogo.classList.add('is-hidden');
+    mast.style.transform = on
+      ? `translate3d(${DX.toFixed(2)}px,${DY.toFixed(2)}px,0) scale(${MS.toFixed(5)})`
+      : `translate3d(0px,${Y0.toFixed(2)}px,0) scale(1)`;
+    const done = () => { if (docked) { mast.classList.add('is-docked'); hLogo.classList.remove('is-hidden'); } };
+    if (on) { if (instant || reduce) done(); else dockT = setTimeout(done, 780); }
+    if (instant) void mast.offsetWidth;
+  };
+  const upd = (instant) => {
+    const y = window.scrollY, T = Math.min(64, innerHeight * 0.06);
+    setDock(docked ? y > T * 0.5 : y > T, instant === true);
     // text úvodu se při scrollu rozplyne, aby se nepletl s hlavičkou
+    const p = Math.min(1, Math.max(0, y / (innerHeight * 0.5)));
     const f = Math.max(0, 1 - p * 1.35).toFixed(3);
     if (fadeEls[0] && !hero.classList.contains('is-intro')) fadeEls.forEach((el) => { el.style.opacity = f; el.style.visibility = +f === 0 ? 'hidden' : ''; });
   };
   let q = 0; window.addEventListener('scroll', () => { if (!q) q = requestAnimationFrame(() => { q = 0; upd(); }); }, { passive: true });
-  window.addEventListener('resize', layout);
+  // na mobilu se při scrollu mění výška okna (lišta prohlížeče); rozvržení loga se přepočítá jen při změně šířky
+  let lw = innerWidth, lh = innerHeight;
+  window.addEventListener('resize', () => { if (innerWidth !== lw || Math.abs(innerHeight - lh) > 160) { lw = innerWidth; lh = innerHeight; layout(); } });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   layout();
   const endIntro = () => { if (!hero.classList.contains('is-intro')) return; hero.classList.remove('is-intro'); revealTitle(st.i); ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((t) => window.removeEventListener(t, endIntro)); };
@@ -223,16 +237,16 @@
   });
 
   /* ================= KOLEKCE · runway: postavy vedle sebe, uprostřed ostrá, klepnutím look s čísly ================= */
-  // postavy jsou vyříznuté z fotek GREY; čísla ukazují jen kousky, u kterých víme, že to jsou produkty z fotky
+  // původní fotky GREY oříznuté na 2:3; čísla ukazují jen kousky, u kterých víme, že to jsou produkty z fotky
   const RW = 'assets/img/runway/';
   const LOOKS = [
-    { k: 'saty', r: 0.5793, pins: [['denim-oversized-saty', 'khaki', 38, 34]] },
-    { k: 'kalhoty', r: 0.5551, pins: [['zebrovane-dziny', 'beige', 43, 70]] },
-    { k: 'kabaty', r: 0.5146, pins: [['3-4-oversized-trench-coat', 'red', 55, 33]] },
-    { k: 'saka', r: 0.505, pins: [['boxy-oversized-sako', 'dark-grey', 57, 31], ['siroke-oblekove-kalhoty', 'dark-grey', 44, 74]] },
-    { k: 'svetry', r: 0.4554, pins: [['upletovy-svetrik-s-podilem-vlny', 'brown', 50, 30]] },
-    { k: 'topy', r: 0.5121, pins: [['heavy-cotton-triko-s-vycpavkami', 'grey', 52, 31]] },
-    { k: 'sety', r: 0.4875, pins: [['oblekovy-komplet-sako-a-kalhoty', 'light-grey', 56, 33]] }
+    { k: 'saty', pins: [['denim-oversized-saty', 'khaki', 39.3, 42.6]] },
+    { k: 'kalhoty', pins: [['zebrovane-dziny', 'beige', 37.7, 71.2]] },
+    { k: 'kabaty', pins: [['3-4-oversized-trench-coat', 'red', 53.3, 41.2]] },
+    { k: 'saka', pins: [['boxy-oversized-sako', 'dark-grey', 52.2, 31.7], ['siroke-oblekove-kalhoty', 'dark-grey', 42.5, 73.8]] },
+    { k: 'svetry', pins: [['upletovy-svetrik-s-podilem-vlny', 'brown', 45.7, 29.4]] },
+    { k: 'topy', pins: [['heavy-cotton-triko-s-vycpavkami', 'grey', 50.2, 29.9]] },
+    { k: 'sety', pins: [['oblekovy-komplet-sako-a-kalhoty', 'light-grey', 58.3, 34.2]] }
   ].filter((l) => GX.cats[l.k] && GX.cats[l.k].n && l.pins.every(([pid]) => GX.p(pid)));
   const MORE = ['kabelky', 'rukavice', 'saly', 'silonky', 'boty', 'sperky', 'leginy', 'heavy-cotton', 'christmas', 'vouchery'].filter((k) => GX.cats[k] && GX.cats[k].n);
   const RN = LOOKS.length;
@@ -240,9 +254,9 @@
   const cname = (l) => GX.cats[l.k].l.toLowerCase();
   main.insertAdjacentHTML('beforeend', `
     <section class="rw" id="kolekce" aria-label="Kolekce">
-      <div class="wrap rw__head"><h2 class="d2">${GX.lines(['vyberte kolekci'])}</h2><p class="lead rv">${RN} looků z fotek GREY. Klepněte na postavu uprostřed a uvidíte, co má na sobě.</p></div>
+      <div class="wrap rw__head"><h2 class="d2">${GX.lines(['vyberte kolekci'])}</h2><p class="lead rv">${RN} looků z fotek GREY. Klepněte na fotku uprostřed a uvidíte, co má na sobě.</p></div>
       <div class="rw__stage" data-rw tabindex="0" aria-label="Kolekce jako přehlídka. Šipkami vybíráte, Enter otevře look.">
-        ${LOOKS.map((l, i) => `<button type="button" class="rw__f" data-rwf="${i}" style="--r:${l.r}" aria-label="${esc(GX.cats[l.k].l)}"><span class="rw__fig"><img class="rw__b" src="${RW}${l.k}-b.webp" alt="" draggable="false"><img class="rw__s" data-src="${RW}${l.k}.webp" alt="" draggable="false">${l.pins.map((p, j) => `<span class="rw__pin" style="left:${p[2]}%;top:${p[3]}%;--j:${j}" data-pin="${j}" aria-hidden="true">${j + 1}</span>`).join('')}</span></button>`).join('')}
+        ${LOOKS.map((l, i) => `<button type="button" class="rw__f" data-rwf="${i}" aria-label="${esc(GX.cats[l.k].l)}"><span class="rw__fig"><img class="rw__s" data-src="${RW}${l.k}.webp" alt="" draggable="false" decoding="async">${l.pins.map((p, j) => `<span class="rw__pin" style="left:${p[2]}%;top:${p[3]}%;--j:${j}" data-pin="${j}" aria-hidden="true">${j + 1}</span>`).join('')}</span></button>`).join('')}
         <button type="button" class="rw__nav rw__nav--p" data-rwp aria-label="Předchozí kolekce">${GX.ICON.prev}</button>
         <button type="button" class="rw__nav rw__nav--n" data-rwn aria-label="Další kolekce">${GX.ICON.next}</button>
         <div class="rw__look" data-rwl></div>
@@ -258,17 +272,19 @@
   const rOff = (i) => { let d = i - rw.a; if (d > RN / 2) d -= RN; if (d < -RN / 2) d += RN; return d; };
   const prevD = figs.map((_, i) => rOff(i));
   const place = (instant) => {
-    const W = stage.clientWidth, H = stage.clientHeight, m = W < 900;
-    const sp = m ? W * 0.43 : Math.min(W * 0.165, 330);
+    const W = stage.clientWidth, m = W < 900;
+    const cw = figs[0] ? figs[0].offsetWidth : 0;
+    const S = [1, 0.8, 0.66, 0.55], gap = m ? 12 : Math.min(W * 0.02, 28);
+    const pos = [0]; for (let k = 1; k < S.length; k++) pos[k] = pos[k - 1] + (cw * S[k - 1]) / 2 + gap + (cw * S[k]) / 2;
     figs.forEach((f, i) => {
-      const d = rOff(i), ad = Math.abs(d);
-      let x = d * sp * (ad > 1 ? 0.95 : 1), s = [1, 0.8, 0.67, 0.56][Math.min(ad, 3)], y = -ad * H * 0.018;
-      let op = ad === 0 ? 1 : (ad === 1 ? 0.95 : (ad === 2 && !m ? 0.6 : 0));
-      // v looku: postava vlevo od středu, panel začíná hned za středem (dvojice drží pohromadě i na širokém monitoru)
-      if (rw.look) { if (ad === 0) { s = m ? 0.94 : 1.03; x = m ? 0 : -(f.offsetWidth * s) / 2 - (W < 1200 ? W * 0.06 : 64); y = 0; } else op = 0; }
+      const d = rOff(i), ad = Math.abs(d), k = Math.min(ad, S.length - 1);
+      let x = Math.sign(d) * pos[k], s = S[k];
+      let op = ad <= (m ? 1 : 2) ? 1 : 0;
+      // v looku: fotka vlevo od středu, panel začíná hned za středem (dvojice drží pohromadě i na širokém monitoru)
+      if (rw.look) { if (ad === 0) { s = 1; x = m ? 0 : -(cw / 2) - (W < 1200 ? W * 0.05 : 56); } else op = 0; }
       const wrap = Math.abs(d - prevD[i]) > RN / 2; prevD[i] = d;
       f.style.transition = instant || wrap || reduce ? 'none' : '';
-      f.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px),${y.toFixed(1)}px,0) scale(${s})`;
+      f.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px),0,0) scale(${s})`;
       f.style.opacity = op; f.style.zIndex = 10 - ad;
       f.classList.toggle('is-on', ad === 0);
       f.tabIndex = op > 0 ? 0 : -1; f.setAttribute('aria-hidden', op === 0 ? 'true' : 'false');
@@ -304,7 +320,7 @@
   };
   const openLook = (on) => { rw.look = on; renderLook(); place(); if (on && mob()) setTimeout(() => window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - 70, behavior: reduce ? 'auto' : 'smooth' }), 60); };
   place(true); renderNow(); GX.typo($('[data-rwnow]'));
-  // ostré fotky postav se načtou, až se sekce blíží
+  // fotky looků se načtou, až se sekce blíží
   const loadSharp = () => $$('.rw__s[data-src]', stage).forEach((im) => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
   if ('IntersectionObserver' in window) { const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { loadSharp(); io.disconnect(); } }, { rootMargin: '900px 0px' }); io.observe(stage); } else loadSharp();
   let rwRT = 0; window.addEventListener('resize', () => { clearTimeout(rwRT); rwRT = setTimeout(() => { if (rw.look) { rw.look = false; renderLook(); } place(true); }, 120); });
@@ -422,7 +438,7 @@
       <div class="wrap">
         <div class="fitx__top">
           <h2 class="d2">${GX.lines(['sedne mi to?'])}</h2>
-          <div class="fitx__pick"><p class="lead">Vyberte, jakou velikost běžně nosíte. U každého kousku pak uvidíte, jak vám sedne – spočítané z jeho skutečných rozměrů.</p><div data-fitx-pick></div></div>
+          <div class="fitx__pick"><p class="lead">Dvě klepnutí a u každého kousku uvidíte, jakou velikost vzít a jak vám sedne. Počítáme to z jeho skutečných rozměrů.</p><div data-fitx-pick></div></div>
         </div>
         <div class="fitx__grid" data-fitx-grid></div>
       </div>
@@ -430,14 +446,16 @@
   const fitEl = $('#sedne');
   const renderFit = () => {
     const prof = GX.size.get(); const demo = !prof || !prof.s; const use = demo ? { s: 'M', p: 'akorat' } : prof;
-    $('[data-fitx-pick]', fitEl).innerHTML = GX.size.picker(prof) + `<p class="fitx__note" aria-live="polite">${demo ? 'Ukázka pro M. Klepněte na svou velikost.' : '✓ Uloženo. Doporučení uvidíte u každého produktu i v rychlém přidání.'}</p>`;
+    const pl = (GX.size.PREFS.find((x) => x[0] === use.p) || ['', 'Akorát'])[1].toLowerCase();
+    $('[data-fitx-pick]', fitEl).innerHTML = GX.size.picker(prof) + `<p class="fitx__note${demo ? ' is-demo' : ''}" aria-live="polite">${demo ? 'Zatím ukázka pro M. Klepněte na svou velikost a doporučení se přepočítají.' : `✓ Uloženo: nosíte ${esc(use.s)}, ${esc(pl)}. Doporučenou velikost uvidíte i u produktů a v rychlém přidání.`}</p>`;
     $('[data-fitx-grid]', fitEl).innerHTML = fitItems.map(({ p, v }) => {
       const a = GX.size.assess(p, v, use); if (!a) return '';
-      return `<a class="fitx__it${demo ? ' is-demo' : ''}" href="${GX.href(p, v)}">${GX.pic(p, v, 0, { alt: p.name })}
-        <span class="fitx__n">${esc(ty(p.name))}</span>
-        <span class="fitx__r"><span>Pro ${esc(use.s)}</span><b>${esc(GX.size.short(a.rec.s))}</b><em>${/^one size/i.test(a.rec.s) ? 'one size · ' : ''}${esc(a.zone)}</em></span>
-        ${GX.size.scale(a)}
-        <span class="fitx__t">${esc(ty(a.text))}</span></a>`;
+      const eu = p.eu && p.eu[a.rec.s];
+      return `<a class="fitx__it${demo ? ' is-demo' : ''}" href="${GX.href(p, v)}"><span class="fitx__ph">${GX.pic(p, v, 0, { alt: p.name })}</span>
+        <span class="fitx__bd"><span class="fitx__n">${esc(ty(p.name))}</span>
+        <span class="fitx__r"><span class="fitx__k">${demo ? 'Pro M' : 'Vaše velikost'}</span><b>${esc(GX.size.short(a.rec.s))}</b>${eu ? `<small>EU${NB}${esc(eu)}</small>` : (/^one size/i.test(a.rec.s) ? '<small>one size</small>' : '')}</span></span>
+        ${GX.size.meter(a)}
+        <span class="fitx__t">${esc(ty(a.text))} <span>${esc(a.detail.replace(/^./, (c) => c.toUpperCase()))}.</span></span></a>`;
     }).join('');
     GX.pics(fitEl); GX.typo($('[data-fitx-grid]', fitEl));
   };
@@ -480,15 +498,15 @@
         <div class="hc__media cur">${GX.catPic('heavy-cotton', { alt: 'Heavy cotton triko s vycpávkami, beige' })}</div>
         <div>
           <h2 class="d2">${GX.lines(['heavy cotton'])}</h2>
-          <div class="hc__prod" style="margin-top:36px">
+          <div class="hc__prod">
             <a href="${GX.href(hc, hc.v[0])}" data-hc-link data-hc-pic>${GX.pic(hc, hc.v[0], 0)}</a>
-            <div>
-              <h3 class="d3" style="font-size:24px">${esc(ty(hc.name))}</h3>
-              <p class="mut" style="margin-top:12px;font-size:14px">${esc(ty(hc.desc.split('. ').slice(0, 2).join('. ')))}.</p>
+            <div class="hc__info">
+              <h3 class="d3 hc__h">${esc(ty(hc.name))}</h3>
+              <p class="mut hc__d">${esc(ty(hc.desc.split('. ').slice(0, 2).join('. ')))}.</p>
               <dl class="hc__facts"><div><dt>Šířka</dt><dd>${hcFit && hcFit.w ? hcFit.w[hcS] + NB + 'cm' : ''}</dd></div><div><dt>Délka</dt><dd>${hcFit && hcFit.l ? hcFit.l[hcS] + NB + 'cm' : ''}</dd></div><div><dt>Materiál</dt><dd>${esc(hc.material)}</dd></div><div><dt>Velikost</dt><dd>${esc(hcS)}</dd></div></dl>
-              <p style="font-size:13px;margin-bottom:10px">Barva: <b data-hc-clr>${esc(hc.v[0].label)}</b></p>
+              <p class="hc__c">Barva: <b data-hc-clr>${esc(hc.v[0].label)}</b></p>
               ${GX.swatches(hc, hc.v[0], 'sws--lg')}
-              <div style="display:flex;flex-wrap:wrap;gap:16px 22px;align-items:center;margin-top:24px"><button class="btn" type="button" data-hc-add><span class="bt"></span></button><b class="num" style="font-weight:300;font-size:20px">${money(hc.price)}</b></div>
+              <div class="hc__buy"><button class="btn" type="button" data-hc-add><span class="bt"></span></button><b class="num" style="font-weight:300;font-size:20px">${money(hc.price)}</b></div>
             </div>
           </div>
           <div style="margin-top:34px"><a class="lnk" href="${GX.catUrl('heavy-cotton')}">Celá kolekce Heavy cotton · ${GX.cats['heavy-cotton'].n}</a></div>

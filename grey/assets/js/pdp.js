@@ -110,13 +110,14 @@
   const fitHTML = () => {
     const f = GX.fitOf(p, v); if (!f || p.voucher) return '';
     const prof = GX.size.get(); const a = prof && prof.s ? GX.size.assess(p, v) : null;
-    const panel = `<div class="fitp" data-fitp${st.fitOpen ? '' : ' hidden'}>${GX.size.picker(prof, { cls: 'szp--sm', q: 'Běžně nosím', q2: 'Raději' })}<p class="fitp__n">Doporučení počítáme ze skutečných rozměrů kousku.</p></div>`;
-    if (!a) return `<div class="fitl" data-fitl><button type="button" class="fitl__q" data-fit-open aria-expanded="${!!st.fitOpen}">Nevíte, jakou velikost? <u>Sedne mi to?</u></button>${panel}</div>`;
+    const panel = `<div class="fitp" data-fitp${st.fitOpen ? '' : ' hidden'}>${GX.size.picker(prof, { cls: 'szp--sm' })}<p class="fitp__n">Doporučení počítáme ze skutečných rozměrů kousku.</p></div>`;
+    if (!a) return `<div class="fitl" data-fitl><button type="button" class="fitl__cta" data-fit-open aria-expanded="${!!st.fitOpen}">${GX.size.icon('akorat')}<span><b>Sedne mi to?</b> Najděte svou velikost na dvě klepnutí</span></button>${panel}</div>`;
     const sel = a.rows.find((r) => r.s === st.size) || a.rec;
     const multi = sizesNow().length > 1;
     const pref = prof.p === 'volne' ? ', raději volně' : (prof.p === 'prilehave' ? ', raději přiléhavě' : '');
     return `<div class="fitl" data-fitl aria-live="polite">
       <p class="fitl__t"><b>${esc(sel.s)}:</b> ${esc(GX.size.say(a, sel))}. <span>${esc(sel.detail.replace(/^./, (c) => c.toUpperCase()))}${model() ? `, modelka měří ${model()}${NB}cm` : ''}.</span></p>
+      ${GX.size.meter(a, sel, { cls: 'fm--sm' })}
       ${!a.exact ? `<p class="fitl__t">Vaši ${esc(prof.s)} v této barvě nemáme.</p>` : ''}
       ${multi && sel !== a.rec ? `<p class="fitl__t">Pro vaši ${esc(prof.s)} doporučujeme ${esc(a.rec.s)}. <button type="button" class="fitl__pick" data-pick="${esc(a.rec.s)}">Vybrat ${esc(a.rec.s)}</button></p>` : ''}
       <button type="button" class="fitl__ch" data-fit-open aria-expanded="${!!st.fitOpen}">Nosím ${esc(prof.s)}${pref} · změnit</button>

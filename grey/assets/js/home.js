@@ -188,7 +188,7 @@
   main.insertAdjacentHTML('beforeend', `
     <section class="croco on-dark" id="kabelky" aria-label="${esc(cp.name)}">
       <div class="croco__stick">
-        <div class="croco__stage"><div class="croco__plate">${cv.map((v, i) => `<div class="pic${i === 0 ? ' is-on' : ''}"><img src="assets/img/croco/${v.id}.webp" alt="${esc(`${cp.name}, ${v.label}`)}" decoding="async"${i ? ' loading="lazy"' : ''}></div>`).join('')}</div></div>
+        <div class="croco__stage"><div class="croco__plate"><i class="croco__lit" aria-hidden="true"></i>${cv.map((v, i) => `<div class="pic${i === 0 ? ' is-on' : ''}"><img src="assets/img/croco9/${v.id}.webp" width="920" height="1340" alt="${esc(`${cp.name}, ${v.label}`)}" decoding="async"${i ? ' loading="lazy"' : ''}></div>`).join('')}</div></div>
         <div class="croco__txt">
           <p class="croco__name">${esc(ty(cp.name))}</p>
           <h2 class="croco__clr"><span class="sr" data-croco-sr>${esc(cv[0].label)}</span><span class="croco__roll" aria-hidden="true">${cv.map((v) => `<span>${esc(v.label)}</span>`).join('')}</span></h2>
@@ -237,16 +237,16 @@
   });
 
   /* ================= KOLEKCE · runway: postavy vedle sebe, uprostřed ostrá, klepnutím look s čísly ================= */
-  // původní fotky GREY oříznuté na 2:3; čísla ukazují jen kousky, u kterých víme, že to jsou produkty z fotky
-  const RW = 'assets/img/runway/';
+  // postavy jsou vyříznuté z fotek GREY, celé od hlavy po boty; čísla ukazují jen kousky, u kterých víme, že to jsou produkty z fotky
+  const RW = 'assets/img/rw9/';
   const LOOKS = [
-    { k: 'saty', pins: [['denim-oversized-saty', 'khaki', 39.3, 42.6]] },
-    { k: 'kalhoty', pins: [['zebrovane-dziny', 'beige', 37.7, 71.2]] },
-    { k: 'kabaty', pins: [['3-4-oversized-trench-coat', 'red', 53.3, 41.2]] },
-    { k: 'saka', pins: [['boxy-oversized-sako', 'dark-grey', 52.2, 31.7], ['siroke-oblekove-kalhoty', 'dark-grey', 42.5, 73.8]] },
-    { k: 'svetry', pins: [['upletovy-svetrik-s-podilem-vlny', 'brown', 45.7, 29.4]] },
-    { k: 'topy', pins: [['heavy-cotton-triko-s-vycpavkami', 'grey', 50.2, 29.9]] },
-    { k: 'sety', pins: [['oblekovy-komplet-sako-a-kalhoty', 'light-grey', 58.3, 34.2]] }
+    { k: 'saty', r: 0.4895, pins: [['maxi-saty-s-modrou-kresbou-a-podilem-lnu', 'white', 64, 56]] },
+    { k: 'kalhoty', r: 0.5515, pins: [['zebrovane-dziny', 'beige', 44, 68]] },
+    { k: 'kabaty', r: 0.5151, pins: [['3-4-oversized-trench-coat', 'red', 56, 34]] },
+    { k: 'saka', r: 0.5049, pins: [['boxy-oversized-sako', 'dark-grey', 56, 32], ['siroke-oblekove-kalhoty', 'dark-grey', 46, 74]] },
+    { k: 'svetry', r: 0.4482, pins: [['upletovy-svetrik-s-podilem-vlny', 'brown', 50, 30]] },
+    { k: 'topy', r: 0.5131, pins: [['heavy-cotton-triko-s-vycpavkami', 'grey', 53, 30]] },
+    { k: 'sety', r: 0.4879, pins: [['oblekovy-komplet-sako-a-kalhoty', 'light-grey', 56, 33]] }
   ].filter((l) => GX.cats[l.k] && GX.cats[l.k].n && l.pins.every(([pid]) => GX.p(pid)));
   const MORE = ['kabelky', 'rukavice', 'saly', 'silonky', 'boty', 'sperky', 'leginy', 'heavy-cotton', 'christmas', 'vouchery'].filter((k) => GX.cats[k] && GX.cats[k].n);
   const RN = LOOKS.length;
@@ -254,9 +254,9 @@
   const cname = (l) => GX.cats[l.k].l.toLowerCase();
   main.insertAdjacentHTML('beforeend', `
     <section class="rw" id="kolekce" aria-label="Kolekce">
-      <div class="wrap rw__head"><h2 class="d2">${GX.lines(['vyberte kolekci'])}</h2><p class="lead rv">${RN} looků z fotek GREY. Klepněte na fotku uprostřed a uvidíte, co má na sobě.</p></div>
+      <div class="wrap rw__head"><h2 class="d2">${GX.lines(['vyberte kolekci'])}</h2><p class="lead rv">${RN} looků z fotek GREY. Klepněte na postavu uprostřed a uvidíte, co má na sobě.</p></div>
       <div class="rw__stage" data-rw tabindex="0" aria-label="Kolekce jako přehlídka. Šipkami vybíráte, Enter otevře look.">
-        ${LOOKS.map((l, i) => `<button type="button" class="rw__f" data-rwf="${i}" aria-label="${esc(GX.cats[l.k].l)}"><span class="rw__fig"><img class="rw__s" data-src="${RW}${l.k}.webp" alt="" draggable="false" decoding="async">${l.pins.map((p, j) => `<span class="rw__pin" style="left:${p[2]}%;top:${p[3]}%;--j:${j}" data-pin="${j}" aria-hidden="true">${j + 1}</span>`).join('')}</span></button>`).join('')}
+        ${LOOKS.map((l, i) => `<button type="button" class="rw__f" data-rwf="${i}" style="--r:${l.r}" aria-label="${esc(GX.cats[l.k].l)}"><span class="rw__fig"><img class="rw__b" src="${RW}${l.k}-b.webp" alt="" draggable="false"><img class="rw__s" data-src="${RW}${l.k}.webp" alt="" draggable="false">${l.pins.map((p, j) => `<span class="rw__pin" style="left:${p[2]}%;top:${p[3]}%;--j:${j}" data-pin="${j}" aria-hidden="true">${j + 1}</span>`).join('')}</span></button>`).join('')}
         <button type="button" class="rw__nav rw__nav--p" data-rwp aria-label="Předchozí kolekce">${GX.ICON.prev}</button>
         <button type="button" class="rw__nav rw__nav--n" data-rwn aria-label="Další kolekce">${GX.ICON.next}</button>
         <div class="rw__look" data-rwl></div>
@@ -272,19 +272,17 @@
   const rOff = (i) => { let d = i - rw.a; if (d > RN / 2) d -= RN; if (d < -RN / 2) d += RN; return d; };
   const prevD = figs.map((_, i) => rOff(i));
   const place = (instant) => {
-    const W = stage.clientWidth, m = W < 900;
-    const cw = figs[0] ? figs[0].offsetWidth : 0;
-    const S = [1, 0.8, 0.66, 0.55], gap = m ? 12 : Math.min(W * 0.02, 28);
-    const pos = [0]; for (let k = 1; k < S.length; k++) pos[k] = pos[k - 1] + (cw * S[k - 1]) / 2 + gap + (cw * S[k]) / 2;
+    const W = stage.clientWidth, H = stage.clientHeight, m = W < 900;
+    const sp = m ? W * 0.43 : Math.min(W * 0.165, 330);
     figs.forEach((f, i) => {
-      const d = rOff(i), ad = Math.abs(d), k = Math.min(ad, S.length - 1);
-      let x = Math.sign(d) * pos[k], s = S[k];
-      let op = ad <= (m ? 1 : 2) ? 1 : 0;
-      // v looku: fotka vlevo od středu, panel začíná hned za středem (dvojice drží pohromadě i na širokém monitoru)
-      if (rw.look) { if (ad === 0) { s = 1; x = m ? 0 : -(cw / 2) - (W < 1200 ? W * 0.05 : 56); } else op = 0; }
+      const d = rOff(i), ad = Math.abs(d);
+      let x = d * sp * (ad > 1 ? 0.95 : 1), s = [1, 0.8, 0.67, 0.56][Math.min(ad, 3)], y = -ad * H * 0.018;
+      let op = ad === 0 ? 1 : (ad === 1 ? 0.95 : (ad === 2 && !m ? 0.6 : 0));
+      // v looku: postava vlevo od středu, panel začíná hned za středem (dvojice drží pohromadě i na širokém monitoru)
+      if (rw.look) { if (ad === 0) { s = m ? 0.94 : 1.03; x = m ? 0 : -(f.offsetWidth * s) / 2 - (W < 1200 ? W * 0.06 : 64); y = 0; } else op = 0; }
       const wrap = Math.abs(d - prevD[i]) > RN / 2; prevD[i] = d;
       f.style.transition = instant || wrap || reduce ? 'none' : '';
-      f.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px),0,0) scale(${s})`;
+      f.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px),${y.toFixed(1)}px,0) scale(${s})`;
       f.style.opacity = op; f.style.zIndex = 10 - ad;
       f.classList.toggle('is-on', ad === 0);
       f.tabIndex = op > 0 ? 0 : -1; f.setAttribute('aria-hidden', op === 0 ? 'true' : 'false');
@@ -320,7 +318,7 @@
   };
   const openLook = (on) => { rw.look = on; renderLook(); place(); if (on && mob()) setTimeout(() => window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - 70, behavior: reduce ? 'auto' : 'smooth' }), 60); };
   place(true); renderNow(); GX.typo($('[data-rwnow]'));
-  // fotky looků se načtou, až se sekce blíží
+  // ostré fotky postav se načtou, až se sekce blíží
   const loadSharp = () => $$('.rw__s[data-src]', stage).forEach((im) => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
   if ('IntersectionObserver' in window) { const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { loadSharp(); io.disconnect(); } }, { rootMargin: '900px 0px' }); io.observe(stage); } else loadSharp();
   let rwRT = 0; window.addEventListener('resize', () => { clearTimeout(rwRT); rwRT = setTimeout(() => { if (rw.look) { rw.look = false; renderLook(); } place(true); }, 120); });

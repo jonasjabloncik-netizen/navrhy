@@ -252,10 +252,12 @@
   document.addEventListener('gx:size', () => { const a = GX.size.assess(p, v); if (a && a.rec.ok && sizesNow().length > 1) st.size = a.rec.s; else autoSize(); renderSizes(); renderBtn(); renderLook(); GX.typo($('[data-info]')); });
   document.addEventListener('keydown', (e) => { if (zoom.classList.contains('is-on') || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return; if (e.key === 'ArrowRight') stepImg(1); if (e.key === 'ArrowLeft') stepImg(-1); });
 
-  /* lepicí lišta: na mobilu pořád po ruce, na počítači když hlavní tlačítko zmizí */
-  const stk = $('[data-stk]'); const mainBtn = $('.buy [data-padd]');
-  const setStk = (on) => { stk.classList.toggle('is-on', on); stk.setAttribute('aria-hidden', !on); $('[data-stk-btn]').tabIndex = on ? 0 : -1; document.body.classList.toggle('stk-on', on); };
-  if ('IntersectionObserver' in window) new IntersectionObserver(([en]) => { setStk(mob() ? !en.isIntersecting : (!en.isIntersecting && en.boundingClientRect.top < 0)); }, { threshold: 0 }).observe(mainBtn);
+  /* lepicí lišta: až když hlavní tlačítko odjede nahoru z obrazovky (nepřekrývá fotku), a nikdy přes patičku */
+  const stk = $('[data-stk]'); const mainBtn = $('.buy [data-padd]'); const ftrEl = $('.ftr');
+  const setStk = (on) => { if (stk.classList.contains('is-on') === on) return; stk.classList.toggle('is-on', on); stk.setAttribute('aria-hidden', !on); $('[data-stk-btn]').tabIndex = on ? 0 : -1; document.body.classList.toggle('stk-on', on); };
+  const updStk = () => { const r = mainBtn.getBoundingClientRect(); const ft = ftrEl ? ftrEl.getBoundingClientRect().top : Infinity; setStk(r.bottom < 56 && ft > innerHeight - 24); };
+  let stkQ = 0; const stkTick = () => { if (!stkQ) stkQ = requestAnimationFrame(() => { stkQ = 0; updStk(); }); };
+  window.addEventListener('scroll', stkTick, { passive: true }); window.addEventListener('resize', stkTick); updStk();
 
   /* ---------- fotky přes celou obrazovku ---------- */
   const zoom = $('[data-zoom]'); let zi = 0;

@@ -186,7 +186,8 @@
       '<header class="hdr"><div class="hdr__in">' +
       '<div class="hdr__l"><button class="icon-btn burger" type="button" aria-label="Menu" aria-expanded="false">' + ICON.menu + '</button>' +
       '<button class="icon-btn hdr__search-m" type="button" data-search aria-label="Hledat">' + ICON.search + '</button>' +
-      '<nav class="hdr__nav" aria-label="Hlavní menu">' + NAV.map((n) => '<a href="' + n[1] + '" data-pri="' + n[3] + '"' + (n[2] ? ' class="is-ext" target="_blank" rel="noopener"' : '') + '>' + n[0] + '</a>').join('') + '</nav></div>' +
+      '<nav class="hdr__nav" aria-label="Hlavní menu">' + NAV.map((n) => '<a href="' + n[1] + '" data-pri="' + n[3] + '"' + (n[2] ? ' class="is-ext" target="_blank" rel="noopener"' : '') + '>' + n[0] + '</a>').join('') + '</nav>' +
+      '<div class="hdr__more" hidden><button class="hdr__more-btn" type="button" aria-expanded="false" aria-controls="hdr-more">Další<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></svg></button><div class="hdr__more-menu" id="hdr-more" hidden></div></div></div>' +
       '<a class="hdr__logo' + (document.getElementById('hero') ? ' is-away' : '') + '" href="index.html" aria-label="Caki·Cak – úvod"><img src="assets/img/brand/logo-cakicak.svg" alt="Caki·Cak Kids Boutique" width="150" height="53"></a>' +
       '<div class="hdr__tools"><button class="baby-pill" type="button" data-baby>' + '<i class="hrt" aria-hidden="true"></i><span class="lbl">Moje miminko</span></button>' +
       '<button class="icon-btn" type="button" data-search aria-label="Hledat">' + ICON.search + '</button>' +
@@ -202,15 +203,29 @@
     updHeader();
     // menu se musí vejít do levé poloviny, aby logo zůstalo přesně uprostřed; co se nevejde, schová se podle priority
     const hdr = $('.hdr', h), nav = $('.hdr__nav', h), col = $('.hdr__l', h);
+    const more = $('.hdr__more', h), moreBtn = $('.hdr__more-btn', h), moreMenu = $('.hdr__more-menu', h);
+    const moreOpen = (on, focus) => { moreMenu.hidden = !on; moreBtn.setAttribute('aria-expanded', String(on)); if (on && focus) { const a = $('a', moreMenu); a && a.focus(); } };
     const fitNav = () => {
       const items = [...nav.children];
-      items.forEach((a) => a.classList.remove('is-cut')); hdr.classList.remove('hdr--tight');
+      items.forEach((a) => a.classList.remove('is-cut')); hdr.classList.remove('hdr--tight'); more.hidden = true; moreOpen(false);
       if (getComputedStyle(nav).display === 'none') return;
-      const room = col.clientWidth - 40; // aspoň 40 px vzduchu před logem
-      const used = () => nav.scrollWidth;
-      for (const a of items.slice().sort((x, y) => y.dataset.pri - x.dataset.pri)) { if (used() <= room) break; if (+a.dataset.pri > 1) a.classList.add('is-cut'); }
-      if (used() > room) hdr.classList.add('hdr--tight');
+      const room = col.clientWidth - 8; // s mezerou mřížky zbyde před logem aspoň ~28 px
+      const used = () => (more.hidden ? nav.scrollWidth : more.getBoundingClientRect().right - nav.getBoundingClientRect().left);
+      if (used() > room) {
+        more.hidden = false;
+        for (const a of items.slice().sort((x, y) => y.dataset.pri - x.dataset.pri)) { if (used() <= room) break; if (+a.dataset.pri > 1) a.classList.add('is-cut'); }
+      }
+      if (used() > room) { hdr.classList.add('hdr--tight'); more.hidden = true; return; }
+      // schované položky v původním pořadí
+      moreMenu.innerHTML = items.filter((a) => a.classList.contains('is-cut')).map((a) => a.outerHTML.replace(' class="is-cut"', '').replace('class="is-ext is-cut"', 'class="is-ext"')).join('');
+      if (!moreMenu.children.length) more.hidden = true;
     };
+    moreBtn.addEventListener('click', () => moreOpen(moreMenu.hidden));
+    moreBtn.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown') { e.preventDefault(); moreOpen(true, true); } });
+    more.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !moreMenu.hidden) { moreOpen(false); moreBtn.focus(); } });
+    more.addEventListener('focusout', (e) => { if (!more.contains(e.relatedTarget)) moreOpen(false); });
+    document.addEventListener('click', (e) => { if (!more.contains(e.target)) moreOpen(false); });
+    moreMenu.addEventListener('click', (e) => { if (e.target.closest('a')) moreOpen(false); });
     let fq = 0; window.addEventListener('resize', () => { if (!fq) fq = requestAnimationFrame(() => { fq = 0; fitNav(); }); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
     fitNav();

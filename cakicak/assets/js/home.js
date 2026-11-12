@@ -396,6 +396,44 @@
     on('baby', (src) => { if (src === mmRoot || mmRoot.contains(document.activeElement)) return; X.MM.mount(mmRoot, { compact: window.innerWidth < 760 }); });
   }
 
+  /* ---------- Logo z cedulky v úvodu se při scrollu přestěhuje do hlavičky ---------- */
+  // Nahoře je logo jen na cedulce ve švu. Po prvním posunutí stránky odletí na střed hlavičky, nahoře se zase vrátí.
+  // Let sleduje živou polohu cedulky i hlavičky, takže sedí, i když se stránka během něj ještě posouvá. Jen transform.
+  function logoDock() {
+    const hero = $('#hero'), src = hero && $('.label__in > svg', hero), hl = $('.hdr__logo'), hImg = hl && $('img', hl);
+    if (!src || !hImg) return;
+    const fly = document.createElement('div'); fly.className = 'logo-fly'; fly.setAttribute('aria-hidden', 'true');
+    fly.innerHTML = '<img src="' + hImg.getAttribute('src') + '" alt="">';
+    document.body.appendChild(fly);
+    let W = 1, H = 1, docked = null, raf = 0, cur = null;
+    const size = () => { W = hImg.offsetWidth || 125; H = hImg.offsetHeight || 44; fly.style.width = W + 'px'; fly.style.height = H + 'px'; };
+    const at = (el) => { const r = el.getBoundingClientRect(), k = r.width / W; return { x: r.left, y: r.top + (r.height - H * k) / 2, s: k }; };
+    const put = (b) => { fly.style.transform = 'translate3d(' + b.x.toFixed(2) + 'px,' + b.y.toFixed(2) + 'px,0) scale(' + b.s.toFixed(4) + ')'; };
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const rest = () => { cur = null; fly.classList.remove('on'); hl.classList.toggle('is-away', !docked); hero.classList.toggle('logo-out', !!docked); };
+    function go(on, instant) {
+      if (on === docked) return;
+      const was = docked; docked = on; cancelAnimationFrame(raf);
+      const r = src.getBoundingClientRect(), onScreen = r.width > 0 && r.bottom > 0 && r.top < innerHeight;
+      if (instant || RM || was === null || (!onScreen && !cur)) { rest(); return; }
+      size();
+      const from = cur || at(on ? src : hImg);
+      hl.classList.add('is-away'); hero.classList.add('logo-out'); put(from); fly.classList.add('on');
+      const t0 = performance.now(), D = 720;
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / D), e = ease(k), b = at(on ? hImg : src);
+        cur = { x: from.x + (b.x - from.x) * e, y: from.y + (b.y - from.y) * e, s: from.s + (b.s - from.s) * e };
+        put(cur);
+        if (k < 1) raf = requestAnimationFrame(step); else rest();
+      };
+      raf = requestAnimationFrame(step);
+    }
+    const T = () => { const tb = $('.topbar'); return (tb ? tb.offsetHeight : 0) + 24; };
+    const check = () => { const y = window.scrollY; go(docked ? y > T() * 0.5 : y > T()); };
+    let q = 0; window.addEventListener('scroll', () => { if (!q) q = requestAnimationFrame(() => { q = 0; check(); }); }, { passive: true });
+    go(window.scrollY > T(), true);
+  }
+
   /* ---------- Krátký výběr: dvě řady, zbytek kategorie na klik ---------- */
   const LOGO = 'https://storage.googleapis.com/cakicak258424/Caki_Cak_-_logo_kruh.jpg', MONIKA = 'assets/img/brand/monika-avatar.webp';
   const colsOf = (g) => getComputedStyle(g).gridTemplateColumns.split(' ').length; // 4 / 3 / 2 podle šířky
@@ -531,6 +569,6 @@
     io.observe(tl);
   }
 
-  hero(); picks(); gifts(); storyLine();
+  hero(); logoDock(); picks(); gifts(); storyLine();
   X.reveal();
 })();

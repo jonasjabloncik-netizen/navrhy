@@ -129,7 +129,7 @@
   }
   const mq = window.matchMedia('(max-width:760px)');
   let barOn = null, tick = 0;
-  function barVis(show) { if (show === barOn) return; barOn = show; bar.classList.toggle('on', show); bar.setAttribute('aria-hidden', String(!show)); document.body.classList.toggle('has-bar', show && mq.matches); }
+  function barVis(show) { if (show === barOn) return; barOn = show; bar.classList.toggle('on', show); bar.setAttribute('aria-hidden', String(!show)); document.body.classList.toggle('has-bar', show && mq.matches); document.body.classList.toggle('bar-on', show); }
   function checkBar() {
     tick = 0;
     const b = $('[data-buy]', info); if (!b) return;

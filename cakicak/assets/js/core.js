@@ -91,15 +91,16 @@
 
   /* ---------- Toast ---------- */
   let toastT;
+  function hideToast() { clearTimeout(toastT); const t = $('.toast'); if (t) t.classList.remove('on'); }
   function toast(html) {
     let t = $('.toast');
     if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
     t.innerHTML = html;
     requestAnimationFrame(() => t.classList.add('on'));
     clearTimeout(toastT);
-    toastT = setTimeout(() => t.classList.remove('on'), 4200);
+    toastT = setTimeout(hideToast, 3500);
     const b = t.querySelector('[data-open-cart]');
-    if (b) b.addEventListener('click', () => { t.classList.remove('on'); Drawer.open(); });
+    if (b) b.addEventListener('click', () => Drawer.open());
   }
   function added(p, sizeLabel) {
     toast('<span>✓ V košíku: ' + esc(p.short || p.name) + (sizeLabel ? ' · ' + esc(sizeLabel) : '') + '</span><button type="button" data-open-cart>Zobrazit košík (' + Cart.count() + ')</button>');
@@ -174,29 +175,45 @@
   }
 
   /* ---------- Hlavička, patička ---------- */
+  // 4. hodnota = priorita: když se menu nevejde vedle loga, schová se nejdřív položka s vyšším číslem (logo zůstává na středu)
   const NAV = [
-    ['Novorozenci', 'index.html#darky'], ['Pro holčičky', 'index.html#vyber?pro=holcicky'], ['Pro chlapečky', 'index.html#vyber?pro=chlapecky'],
-    ['Sety', 'index.html#darky'], ['Doplňky', 'index.html#vyber?pro=doplnky'], ['GEOX', CC.SHOP + 'geox-3/', 1], ['Novinky', 'index.html#vyber']
+    ['Novorozenci', 'index.html#darky', 0, 1], ['Pro holčičky', 'index.html#vyber?pro=holcicky', 0, 1], ['Pro chlapečky', 'index.html#vyber?pro=chlapecky', 0, 1],
+    ['Sety', 'index.html#darky', 0, 3], ['Doplňky', 'index.html#vyber?pro=doplnky', 0, 2], ['GEOX', CC.SHOP + 'geox-3/', 1, 5], ['Novinky', 'index.html#vyber', 0, 4]
   ];
   function header() {
     const h = $('#hdr'); if (!h) return;
     h.innerHTML = '<div class="topbar"><span class="tb-concept">Koncept od MALUS/01</span><span>Doručujeme po Česku i na Slovensko</span><span>Doprava od 79' + NB + 'Kč</span><span>Vrácení do 14 dnů</span></div>' +
       '<header class="hdr"><div class="hdr__in">' +
-      '<button class="icon-btn burger" type="button" aria-label="Menu" aria-expanded="false">' + ICON.menu + '</button>' +
-      '<a class="hdr__logo" href="index.html" aria-label="Caki·Cak – úvod"><img src="assets/img/brand/logo-cakicak.svg" alt="Caki·Cak Kids Boutique" width="150" height="53"></a>' +
-      '<nav class="hdr__nav" aria-label="Hlavní menu">' + NAV.map((n) => '<a href="' + n[1] + '"' + (n[2] ? ' class="is-ext" target="_blank" rel="noopener"' : '') + '>' + n[0] + '</a>').join('') + '</nav>' +
+      '<div class="hdr__l"><button class="icon-btn burger" type="button" aria-label="Menu" aria-expanded="false">' + ICON.menu + '</button>' +
+      '<button class="icon-btn hdr__search-m" type="button" data-search aria-label="Hledat">' + ICON.search + '</button>' +
+      '<nav class="hdr__nav" aria-label="Hlavní menu">' + NAV.map((n) => '<a href="' + n[1] + '" data-pri="' + n[3] + '"' + (n[2] ? ' class="is-ext" target="_blank" rel="noopener"' : '') + '>' + n[0] + '</a>').join('') + '</nav></div>' +
+      '<a class="hdr__logo' + (document.getElementById('hero') ? ' is-away' : '') + '" href="index.html" aria-label="Caki·Cak – úvod"><img src="assets/img/brand/logo-cakicak.svg" alt="Caki·Cak Kids Boutique" width="150" height="53"></a>' +
       '<div class="hdr__tools"><button class="baby-pill" type="button" data-baby>' + '<i class="hrt" aria-hidden="true"></i><span class="lbl">Moje miminko</span></button>' +
       '<button class="icon-btn" type="button" data-search aria-label="Hledat">' + ICON.search + '</button>' +
       '<button class="icon-btn" type="button" data-cart aria-label="Košík">' + ICON.bag + '<span class="lbl">Košík</span><span class="cart-count">0</span></button></div>' +
       '</div><div class="mnav" hidden></div></header>';
     $('[data-cart]', h).addEventListener('click', () => Drawer.open());
-    $('[data-search]', h).addEventListener('click', () => Search.open());
+    $$('[data-search]', h).forEach((b) => b.addEventListener('click', () => Search.open()));
     $('[data-baby]', h).addEventListener('click', () => MM.openModal());
     const bur = $('.burger', h); const mnav = $('.mnav', h);
     mnav.innerHTML = NAV.map((n) => '<a href="' + n[1] + '"' + (n[2] ? ' target="_blank" rel="noopener"' : '') + '>' + n[0] + '</a>').join('') + '<a href="index.html#pribeh">Můj příběh</a>';
     bur.addEventListener('click', () => { const o = mnav.hidden; mnav.hidden = !o; bur.setAttribute('aria-expanded', String(o)); });
     mnav.addEventListener('click', (e) => { if (e.target.closest('a')) { mnav.hidden = true; bur.setAttribute('aria-expanded', 'false'); } });
     updHeader();
+    // menu se musí vejít do levé poloviny, aby logo zůstalo přesně uprostřed; co se nevejde, schová se podle priority
+    const hdr = $('.hdr', h), nav = $('.hdr__nav', h), col = $('.hdr__l', h);
+    const fitNav = () => {
+      const items = [...nav.children];
+      items.forEach((a) => a.classList.remove('is-cut')); hdr.classList.remove('hdr--tight');
+      if (getComputedStyle(nav).display === 'none') return;
+      const room = col.clientWidth - 40; // aspoň 40 px vzduchu před logem
+      const used = () => nav.scrollWidth;
+      for (const a of items.slice().sort((x, y) => y.dataset.pri - x.dataset.pri)) { if (used() <= room) break; if (+a.dataset.pri > 1) a.classList.add('is-cut'); }
+      if (used() > room) hdr.classList.add('hdr--tight');
+    };
+    let fq = 0; window.addEventListener('resize', () => { if (!fq) fq = requestAnimationFrame(() => { fq = 0; fitNav(); }); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+    fitNav();
   }
   function updHeader() {
     const c = $('.cart-count'); if (c) { c.textContent = Cart.count(); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 350); }
@@ -261,7 +278,7 @@
         '<button class="btn btn--block" type="button" data-checkout>Pokračovat k objednávce</button>' +
         '<p class="note drawer__demo" hidden>Tohle je návrh, objednávka se tu neodesílá. V hotovém e-shopu sem naváže pokladna Shoptetu.</p>';
     },
-    open() { Drawer.el.classList.add('on'); Drawer.scrim.classList.add('on'); Drawer.el.setAttribute('aria-hidden', 'false'); setTimeout(() => $('[data-x]', Drawer.el).focus(), 50); },
+    open() { hideToast(); Drawer.el.classList.add('on'); Drawer.scrim.classList.add('on'); Drawer.el.setAttribute('aria-hidden', 'false'); setTimeout(() => $('[data-x]', Drawer.el).focus(), 50); },
     close() { Drawer.el.classList.remove('on'); Drawer.scrim.classList.remove('on'); Drawer.el.setAttribute('aria-hidden', 'true'); }
   };
 

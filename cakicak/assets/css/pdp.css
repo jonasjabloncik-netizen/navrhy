@@ -65,7 +65,8 @@
 .acc__body li+li{margin-top:4px}
 .acc__body table{width:100%;border-collapse:collapse;font-size:14.5px}
 .acc__body td{padding:7px 0;border-bottom:1px solid var(--line)}
-.acc__body td:last-child{text-align:right;color:var(--ink);font-weight:700;white-space:nowrap}
+.acc__body td:first-child{padding-right:14px}
+.acc__body td:last-child{text-align:right;color:var(--ink);font-weight:700}
 .inset{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .inset span{padding:8px 11px;border-radius:8px;background:var(--milk);color:var(--ink);font-size:14px}
 .pdp-more{padding-top:0}

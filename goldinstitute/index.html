@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Návrh webu GOLD Institute</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="GOLD Institute s.r.o. – lešení na mosty, zavěšené lešení na vlastní konstrukci, podpěrné konstrukce, fasády a festivaly. Primárně PERI. Neoficiální koncept webu od MALUS/01.">
+<meta name="theme-color" content="#ECEBE6">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2316191C'/%3E%3Cpath d='M8 6v20M24 6v20M8 8h16M8 24h16M8 24L24 8' stroke='%23E2A62A' stroke-width='2.4' fill='none'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<p class="concept" role="note">Neoficiální koncept · <b>MALUS/01</b></p>
+
+<header class="hdr" id="hdr">
+  <div class="hdr__in">
+    <a class="brand" href="#top" aria-label="GOLD Institute, na začátek prezentace">
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M7 4v24M25 4v24M7 7h18M7 25h18M7 25L25 7"/>
+        <rect x="5.4" y="5.4" width="3.2" height="3.2"/><rect x="23.4" y="5.4" width="3.2" height="3.2"/>
+        <rect x="5.4" y="23.4" width="3.2" height="3.2"/><rect x="23.4" y="23.4" width="3.2" height="3.2"/>
+      </svg>
+      <span class="brand__word"><b>GOLD</b> Institute</span>
+    </a>
+    <nav class="chap" aria-label="Kapitoly prezentace">
+      <a href="#mosty" data-chap="mosty"><span class="mono">01</span>Mosty</a>
+      <a href="#kampus" data-chap="kampus"><span class="mono">02</span>Kampus</a>
+      <a href="#festivaly" data-chap="festivaly"><span class="mono">03</span>Festivaly</a>
+      <a href="#zakazky" data-chap="zakazky"><span class="mono">04</span>Zakázky</a>
+      <a href="#mapa" data-chap="mapa"><span class="mono">05</span>Mapa</a>
+      <a href="#kontakt" data-chap="kontakt"><span class="mono">06</span>Kontakt</a>
+    </nav>
+    <a class="btn btn--ink hdr__cta" href="#poptavka"><span>Poptat lešení</span><i class="btn__node" aria-hidden="true"></i></a>
+    <span class="hdr__tag">Neoficiální<br><b>koncept MALUS/01</b></span>
+    <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="mnav"><span class="hdr__menu-t">Menu</span><i aria-hidden="true"></i></button>
+  </div>
+  <div class="hdr__bar" aria-hidden="true"><i id="hdr-bar"></i></div>
+  <nav class="mnav" id="mnav" aria-label="Menu" hidden>
+    <a href="#mosty"><span class="mono">01</span>Mosty</a>
+    <a href="#kampus"><span class="mono">02</span>Kampus</a>
+    <a href="#festivaly"><span class="mono">03</span>Festivaly</a>
+    <a href="#zakazky"><span class="mono">04</span>Zakázky</a>
+    <a href="#mapa"><span class="mono">05</span>Mapa</a>
+    <a href="#poptavka"><span class="mono">06</span>Poptávka</a>
+    <a href="#kontakt"><span class="mono">07</span>Kontakt</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- 01 · MOSTY: 3D průchod modelem Žďákovského mostu -->
+  <section class="tour" id="mosty" data-chapter="mosty" aria-labelledby="hero-title" data-step="0">
+    <div class="tour__stage" id="tour-stage">
+      <canvas aria-hidden="true"></canvas>
+      <img class="tour__fallback" src="assets/img/model-most-1440.webp" alt="" aria-hidden="true" width="1440" height="900">
+      <svg class="dims" aria-hidden="true">
+        <g class="dim" data-dim="lenL lenR" data-side="-1" data-s="1"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="middle">543 m</text></g>
+        <g class="dim" data-dim="hB hT" data-side="1" data-s="1"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="start">≈ 50 m</text></g>
+        <g class="dim" data-dim="towerBase towerTop" data-side="1" data-s="3"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="start" id="tower-h">45 m</text></g>
+      </svg>
+      <span class="mk" data-mark="beam" data-s="2"><i></i><b>Nosník vlastní konstrukce</b></span>
+      <span class="mk mk--down" data-mark="hanger" data-s="2"><i></i><b>Závěsy</b></span>
+      <span class="mk mk--down" data-mark="platform" data-s="2"><i></i><b>Pracovní podlaha</b></span>
+      <span class="mk" data-mark="tower" data-s="3"><i></i><b>Věž z PERI UP</b></span>
+      <p class="sr-only">Animace: 3D model Žďákovského mostu. Při načtení vyroste lešení kolem pilířů a začne se stavět zavěšené lešení pod mostovkou. Při scrollování se kamera přesouvá k jednotlivým částem a lešení se dostaví.</p>
+    </div>
+
+    <div class="tour__steps">
+      <!-- úvod -->
+      <div class="step step--hero" data-i="0">
+        <div class="hero">
+          <p class="kicker"><span class="kicker__dot" aria-hidden="true"></span>Lešenáři z Prahy · Česko a Slovensko</p>
+          <h1 class="display" id="hero-title"><span class="hl"><span>Lešení, které</span></span> <span class="hl"><span>jiní nepostaví.</span></span></h1>
+          <p class="lede hero__lede">Specialisté na mosty a zavěšené lešení na vlastní konstrukci. Stavíme hlavně z&nbsp;PERI a&nbsp;rychle.</p>
+          <div class="hero__cta">
+            <a class="btn btn--ink" href="#poptavka"><span>Poptat lešení</span><i class="btn__node" aria-hidden="true"></i></a>
+            <a class="btn btn--line" href="#krok-1"><span>Projít prezentaci</span><i class="btn__down" aria-hidden="true"></i></a>
+          </div>
+        </div>
+        <div class="hero__meta">
+          <dl class="tally" aria-label="Postavené díly lešení v modelu">
+            <div><dt>Stojky</dt><dd data-tally="stojky">0</dd></div>
+            <div><dt>Podélníky</dt><dd data-tally="podelniky">0</dd></div>
+            <div><dt>Závěsy</dt><dd data-tally="zavesy">0</dd></div>
+            <div><dt>Dílů celkem</dt><dd data-tally="celkem">0</dd></div>
+          </dl>
+          <p class="hero__cap mono">Model: Žďákovský most · lešení v modelu je ilustrační <button class="btn-text" type="button" id="rebuild">Postavit znovu</button></p>
+        </div>
+      </div>
+
+      <!-- 543 m -->
+      <div class="step step--low" data-i="1" id="krok-1">
+        <article class="card">
+          <p class="card__no mono">01 · Mosty</p>
+          <p class="card__big"><b>543</b> m</p>
+          <h2 class="card__t">Žďákovský most</h2>
+          <p>Ocelový obloukový most přes Orlickou nádrž. Mostovka je zhruba 50 metrů nad hladinou a pod většinou mostu je voda. Lešení ze země tu všude postavit nejde.</p>
+        </article>
+      </div>
+
+      <!-- zavěšené lešení -->
+      <div class="step" data-i="2">
+        <article class="card">
+          <p class="card__no mono">Naše specialita</p>
+          <h2 class="card__t card__t--l">Zavěšené lešení na vlastní konstrukci</h2>
+          <p>Máme vlastní konstrukci vyrobenou na míru. Zavěsíme ji přímo pod mostovku a pracovní podlaha pak visí nad vodou i nad provozem. Ze země nepotřebuje žádnou oporu.</p>
+          <div class="build" aria-live="off">
+            <p class="build__hint mono"><i aria-hidden="true"></i>Scrollujte, lešení se pod mostem dostaví</p>
+            <dl class="build__nums">
+              <div><dt>Nosníky na míru</dt><dd><b data-tally="nosniky">0</b> / <span data-total="nosniky">0</span></dd></div>
+              <div><dt>Závěsy</dt><dd><b data-tally="zavesy">0</b> / <span data-total="zavesy">0</span></dd></div>
+            </dl>
+            <span class="build__bar" aria-hidden="true"><i id="build-bar"></i></span>
+          </div>
+        </article>
+      </div>
+
+      <!-- věž -->
+      <div class="step" data-i="3">
+        <article class="card">
+          <p class="card__no mono">Od paty pilíře</p>
+          <h2 class="card__t card__t--l">Věže až pod mostovku</h2>
+          <p>Kolem pilířů stavíme věže z PERI UP. Slouží jako přístup k nosné konstrukci i jako podpěra. Jedna logika dílů od paty pilíře po podlahu pod mostem.</p>
+        </article>
+      </div>
+
+      <!-- rychlost -->
+      <div class="step" data-i="4">
+        <article class="card card--speed">
+          <p class="card__no mono">Rychlost montáže</p>
+          <h2 class="card__t card__t--l">Montáž v řádu dnů</h2>
+          <p>Díky vlastní konstrukci na míru stavíme lešení na mosty výrazně rychleji. Zakázku, na které montáž u jiné firmy trvala přibližně měsíc, jsme dokončili za několik dní.</p>
+          <div class="bars" role="img" aria-label="Srovnání doby montáže: běžně přibližně měsíc, GOLD Institute několik dní.">
+            <div class="bar"><span class="bar__who">Běžná montáž</span><span class="bar__track"><span class="bar__fill"></span></span><span class="bar__val">≈ 1 měsíc</span></div>
+            <div class="bar bar--gold"><span class="bar__who">GOLD Institute</span><span class="bar__track"><span class="bar__fill"></span></span><span class="bar__val">několik dní</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- další mosty -->
+  <section class="more" aria-labelledby="more-t">
+    <div class="wrap more__grid">
+      <div class="more__text">
+        <h2 class="h2 split" id="more-t">Na mostech jsme doma.</h2>
+        <ul class="blist" id="blist"></ul>
+      </div>
+      <figure class="more__fig curtain">
+        <img src="assets/img/most-uhrineves-1200.webp" srcset="assets/img/most-uhrineves-640.webp 640w, assets/img/most-uhrineves-1200.webp 1200w" sizes="(min-width: 1024px) 30vw, 100vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Rozestavěný ocelový obloukový most s podpěrnými věžemi pod obloukem">
+        <figcaption class="mono">Podpěrné věže pod obloukem · Praha-Uhříněves, 2026</figcaption>
+      </figure>
+      <figure class="more__fig more__fig--2 curtain">
+        <img src="assets/img/most-shora-1200.webp" srcset="assets/img/most-shora-640.webp 640w, assets/img/most-shora-1200.webp 1200w" sizes="(min-width: 1024px) 30vw, 100vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Pohled z oblouku mostu na lešenáře na lešení podél mostovky">
+        <figcaption class="mono">Montáž podél mostovky · Praha-Uhříněves, 2026</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 02 · KAMPUS -->
+  <section class="kampus" id="kampus" data-chapter="kampus" aria-labelledby="kampus-t">
+    <div class="wrap">
+      <header class="chead">
+        <p class="chead__no mono">02 · Kampus</p>
+        <p class="kicker">Kampus České spořitelny · Smíchov City, Praha</p>
+        <h2 class="h1 split" id="kampus-t">Stavíme na jedné z největších staveb v&nbsp;Česku.</h2>
+      </header>
+      <div class="kampus__grid">
+        <div class="kampus__text">
+          <p class="lede">Na Smíchově vzniká nové sídlo České spořitelny. Stavíme tu podpěrné konstrukce pod stropy i fasádní lešení.</p>
+          <dl class="facts" id="kampus-fakta"></dl>
+          <p class="note mono">Smíchov City je podle developera největší výstavba v Praze od dob Vinohrad.</p>
+        </div>
+        <div class="kampus__media" id="kampus-media"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · FESTIVALY -->
+  <section class="fest" id="festivaly" data-chapter="festivaly" aria-labelledby="fest-t">
+    <div class="wrap">
+      <header class="chead chead--night">
+        <p class="chead__no mono">03 · Festivaly</p>
+        <h2 class="h1 split" id="fest-t">Stage, tribuny a terasy pro velké festivaly.</h2>
+        <p class="lede">Konstrukce pro festivaly v Česku i na Slovensku. Scrollujte a stage se postaví.</p>
+      </header>
+    </div>
+    <div class="stagex" id="stagex">
+      <div class="stagex__stage" id="stage-3d">
+        <canvas aria-hidden="true"></canvas>
+        <p class="sr-only">Animace: při scrollování se z lešení postaví festivalová stage. Nejdřív podlaha pódia, potom věže, zadní stěna, střecha a PA křídla. Nakonec se rozsvítí světla a LED stěna.</p>
+      </div>
+      <div class="stagex__steps">
+        <div class="sstep"><article class="card card--night">
+          <p class="card__no mono">Podlaha pódia</p>
+          <h3 class="card__t">Rovná podlaha na jakémkoli terénu</h3>
+          <p>Nosná konstrukce pódia z modulového lešení. Výšku srovnají stavitelné patky.</p>
+        </article></div>
+        <div class="sstep"><article class="card card--night">
+          <p class="card__no mono">Věže a střecha</p>
+          <h3 class="card__t">Nesou střechu, světla i zvuk</h3>
+          <p>Věže, zadní stěna a střešní nosníky. K tomu PA křídla pro reproduktory a LED obrazovky.</p>
+        </article></div>
+        <div class="sstep"><article class="card card--night">
+          <p class="card__no mono">Hotovo</p>
+          <h3 class="card__t">Show může začít</h3>
+          <p>Stage, tribuny i VIP terasy předáváme v termínu festivalu.</p>
+        </article></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="wall" aria-labelledby="wall-t">
+        <p class="wall__head mono" id="wall-t"><span>Stavěli jsme pro</span><span>Česko · Slovensko</span></p>
+        <ul class="wall__grid" id="wall"></ul>
+      </div>
+      <div class="fmedia" id="fest-media"></div>
+      <div class="fest__ctl">
+        <button class="btn btn--ghost" type="button" id="video-toggle" aria-pressed="false">Pozastavit videa</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · ZAKÁZKY -->
+  <section class="special" id="zakazky" data-chapter="zakazky" aria-labelledby="special-t">
+    <div class="wrap">
+      <header class="chead">
+        <p class="chead__no mono">04 · Zakázky</p>
+        <h2 class="h1 split" id="special-t">Zakázky, které většina firem nezvládne.</h2>
+      </header>
+      <ol class="sp" id="sp-list"></ol>
+      <div class="svc">
+        <h3 class="h3">Co postavíme</h3>
+        <ul class="svc__list" id="svc-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- systém -->
+  <section class="sys" aria-labelledby="sys-t">
+    <div class="wrap sys__grid">
+      <div class="node3d" id="node-3d">
+        <canvas aria-hidden="true"></canvas>
+        <span class="nm" data-nm="stojka" data-at="0.02"><b>Stojka Ø 48,3 mm</b></span>
+        <span class="nm" data-nm="rozeta" data-at="0.04"><b>Rozeta</b></span>
+        <span class="nm" data-nm="podelnik" data-at="0.3"><b>Podélník</b></span>
+        <span class="nm" data-nm="klin" data-at="0.42"><b>Klín</b></span>
+        <p class="node3d__cap mono">Rozetový uzel · ilustrace · otočte tažením</p>
+      </div>
+      <div class="sys__text">
+        <h2 class="h2 split" id="sys-t">Stavíme hlavně z PERI.</h2>
+        <p class="lede">Většinu zakázek stavíme z modulového systému PERI UP. Když to stavba potřebuje, postavíme i HAKI a další systémy.</p>
+        <ul class="brands" id="brands" aria-label="Systémy lešení"></ul>
+        <dl class="spec">
+          <div><dt>PERI UP</dt><dd>Modulové lešení s rozetovými uzly. Jedna logika od fasády po podpěrnou věž.</dd></div>
+          <div><dt>HAKI a další</dt><dd>Když stavba nebo investor vyžaduje konkrétní systém, postavíme ho.</dd></div>
+          <div><dt>Vlastní konstrukce</dt><dd>Vyrobená na míru pro zavěšené lešení pod mosty.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · MAPA -->
+  <section class="map" id="mapa" data-chapter="mapa" aria-labelledby="map-t">
+    <div class="wrap">
+      <header class="chead">
+        <p class="chead__no mono">05 · Mapa</p>
+        <h2 class="h1 split" id="map-t">Od Prahy po Trenčín.</h2>
+        <p class="lede">Mosty, stavby, festivaly i filmové natáčení. Stavíme po celé ČR a na Slovensku.</p>
+      </header>
+      <div class="chips" role="group" aria-label="Filtrovat reference" id="refs-filter"></div>
+      <div class="map__grid">
+        <div class="map__svg" id="refs-map"></div>
+        <ul class="refs" id="refs-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- POPTÁVKA -->
+  <section class="inq" id="poptavka" data-chapter="kontakt" aria-labelledby="inq-t">
+    <div class="wrap">
+      <header class="chead">
+        <p class="chead__no mono">Poptávka</p>
+        <h2 class="h1 split" id="inq-t">Postavte si poptávku.</h2>
+        <p class="lede">Vyberte, co stavíme, a nastavte rozměry. Výkres a text poptávky se skládají s vámi. Text zkopírujete a pošlete nám ho s fotkami stavby.</p>
+      </header>
+      <div class="inq__grid">
+        <form class="inq__form" id="inq" novalidate>
+          <fieldset class="q">
+            <legend class="q__t"><span class="mono">1</span>Co stavíme</legend>
+            <div class="opts" id="inq-types"></div>
+          </fieldset>
+          <fieldset class="q">
+            <legend class="q__t"><span class="mono">2</span>Rozměry</legend>
+            <label class="range" for="inq-len"><span class="range__l" id="inq-len-l">Délka</span><output class="range__v" for="inq-len" id="inq-len-v">24 m</output><input id="inq-len" type="range" min="2" max="300" step="1" value="24"></label>
+            <label class="range" for="inq-hgt"><span class="range__l" id="inq-hgt-l">Výška</span><output class="range__v" for="inq-hgt" id="inq-hgt-v">12 m</output><input id="inq-hgt" type="range" min="2" max="80" step="1" value="12"></label>
+          </fieldset>
+          <fieldset class="q">
+            <legend class="q__t"><span class="mono">3</span>Kde a kdy</legend>
+            <label class="field" for="inq-place"><span class="sr-only">Místo stavby</span><input id="inq-place" type="text" autocomplete="off" placeholder="Místo stavby, např. Praha 5"></label>
+            <div class="opts opts--small" id="inq-when" role="group" aria-label="Termín"></div>
+          </fieldset>
+        </form>
+        <div class="inq__out">
+          <figure class="sheet" id="inq-sheet">
+            <figcaption class="sheet__head mono"><span>3D náhled · orientační</span><span class="sheet__hint">Otočte tažením</span><span id="inq-scale" hidden></span></figcaption>
+            <div class="cfg" id="inq-3d">
+              <canvas aria-hidden="true"></canvas>
+              <svg class="cfg__dims" aria-hidden="true">
+                <g class="dim" data-d="L"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="middle" id="cfg-l">24 m</text></g>
+                <g class="dim" data-d="H"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="middle" id="cfg-h">12 m</text></g>
+              </svg>
+            </div>
+            <svg class="draw" id="inq-draw" viewBox="0 0 640 400" role="img" aria-label="Orientační výkres lešení podle zadaných rozměrů"></svg>
+          </figure>
+          <div class="tag" id="inq-tag">
+            <p class="tag__head"><span class="mono">Zadání</span><b>GOLD Institute</b></p>
+            <dl class="tag__rows" id="inq-rows"></dl>
+            <p class="tag__text" id="inq-text" aria-live="polite"></p>
+            <div class="tag__act">
+              <button class="btn btn--gold" type="button" id="inq-copy"><span>Zkopírovat text poptávky</span></button>
+              <span class="tag__status" id="inq-status" role="status"></span>
+            </div>
+          </div>
+          <p class="inq__hint">Přesnou cenu a termín řekneme po prohlídce stavby nebo podle výkresů.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · KONTAKT -->
+  <section class="end" id="kontakt" data-chapter="kontakt" aria-labelledby="end-t">
+    <div class="wrap end__grid">
+      <div class="end__text">
+        <p class="chead__no mono">06 · Kontakt</p>
+        <h2 class="h1 split" id="end-t">Postavíme to.</h2>
+        <p class="lede">Pošlete fotky nebo výkresy a napište, kdy potřebujete začít. Stavíme po celé ČR a na Slovensku.</p>
+      </div>
+      <div class="vcard" aria-label="Vizitka GOLD Institute">
+        <svg class="vcard__bg" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v24M25 4v24M7 7h18M7 25h18M7 25L25 7"/></svg>
+        <div class="vcard__top">
+          <svg class="vcard__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v24M25 4v24M7 7h18M7 25h18M7 25L25 7"/><rect x="5.4" y="5.4" width="3.2" height="3.2"/><rect x="23.4" y="5.4" width="3.2" height="3.2"/><rect x="5.4" y="23.4" width="3.2" height="3.2"/><rect x="23.4" y="23.4" width="3.2" height="3.2"/></svg>
+          <p class="vcard__name"><b>GOLD</b> Institute</p>
+          <p class="vcard__what mono">Lešení · mosty · zavěšené konstrukce</p>
+        </div>
+        <dl class="vcard__rows" id="vcard-rows"></dl>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap ftr__in">
+    <p class="ftr__brand"><b>GOLD</b> Institute s.r.o.</p>
+    <nav class="ftr__nav" aria-label="Patička">
+      <a href="#mosty">Mosty</a><a href="#kampus">Kampus</a><a href="#festivaly">Festivaly</a><a href="#zakazky">Zakázky</a><a href="#mapa">Mapa</a><a href="#poptavka">Poptávka</a><a href="#kontakt">Kontakt</a>
+    </nav>
+    <p class="ftr__legal">Neoficiální návrh studia MALUS/01. Fotky a videa patří GOLD Institute a pocházejí z jeho realizací. Model Žďákovského mostu je ilustrační, lešení na něm neodpovídá konkrétní zakázce. Názvy festivalů a firem patří jejich vlastníkům.</p>
+  </div>
+</footer>
+
+<a class="mcta" href="#poptavka" id="mcta" aria-hidden="true" tabindex="-1"><span>Poptat lešení</span><i class="btn__node" aria-hidden="true"></i></a>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/vendor/three.gold.min.js"></script>
+<script src="assets/js/gl-scaffold.js"></script>
+<script src="assets/js/gl-bridge.js"></script>
+<script src="assets/js/gl-kit.js"></script>
+<script src="assets/js/gl-config.js"></script>
+<script src="assets/js/gl-stage.js"></script>
+<script src="assets/js/gl-node.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/tour.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/scenes.js"></script>
+<script src="assets/js/fx.js"></script>
+</body>
+</html>

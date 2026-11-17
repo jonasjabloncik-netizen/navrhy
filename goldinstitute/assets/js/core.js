@@ -33,10 +33,10 @@
     if (mcta) mcta.classList.toggle('is-on', ctaOn);
   }
   window.addEventListener('resize', measure);
-  measure();
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   window.addEventListener('resize', update);
-  update();
+  /* první měření až v prvním snímku: skript tak nevynucuje rozvržení stránky a úvod se vykreslí dřív */
+  requestAnimationFrame(function () { measure(); update(); });
 
   /* Mobilní menu */
   var btn = doc.querySelector('.hdr__menu'), menu = doc.getElementById('mnav');
@@ -73,8 +73,11 @@
   var heads = Array.prototype.slice.call(doc.querySelectorAll('.split'));
   heads.forEach(split);
   function staggerAll() { heads.forEach(stagger); }
-  staggerAll();
-  if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(staggerAll);
+  /* až v prvním snímku: čtení pozic slov i document.fonts.ready by jinak vynutily rozvržení celé stránky */
+  requestAnimationFrame(function () {
+    staggerAll();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { requestAnimationFrame(staggerAll); });
+  });
 
   /* Odhalování: jednou, při vstupu do obrazu */
   var targets = doc.querySelectorAll('.split, .curtain, .rv');
@@ -92,6 +95,42 @@
   }
   if (!window.GOLDUI.observe) window.GOLDUI.observe = function (el, cb) { cb(el); };
 
-  /* Úvodní nadpis */
-  requestAnimationFrame(function () { doc.body.classList.add('is-ready'); });
+  /* Úvodní nadpis: vyjede, jakmile je načtené jeho písmo (nejdéle po 0,7 s), aby nepřeskakoval z náhradního písma */
+  requestAnimationFrame(function () {
+    var done = false;
+    function go() { if (!done) { done = true; requestAnimationFrame(function () { doc.body.classList.add('is-ready'); }); } }
+    try { if (doc.fonts && doc.fonts.load) { doc.fonts.load('800 1em Archivo').then(go, go); setTimeout(go, 700); } else go(); } catch (e) { go(); }
+  });
+
+  /* Obsah dalších kapitol (app.js, fx.js) se staví, zatímco se úvodní 3D model připravuje
+     a prohlížeč překládá shadery; nejpozději ale 1 s po prvním vykreslení. Úvod má přednost. */
+  var laterQ = [], laterGo = false;
+  function laterRun() {
+    var fn = laterQ.shift();
+    if (!fn) return;
+    try { fn(); } catch (e) { /* zbytek stránky běží dál */ }
+    if (laterQ.length) setTimeout(laterRun, 0);
+  }
+  function laterFlush() { if (!laterGo) { laterGo = true; setTimeout(laterRun, 0); } }
+  window.GOLDUI.later = function (fn) { laterQ.push(fn); if (laterGo && laterQ.length === 1) setTimeout(laterRun, 0); };
+  window.addEventListener('gold:hero-prep', laterFlush);
+  requestAnimationFrame(function () { setTimeout(laterFlush, 1000); });
+
+  /* Fronta na chvíle klidu: 3D scény níž na stránce se připraví předem a postupně, až doběhne
+     úvodní stavba mostu, aby se při scrollu nemusely zakládat a nic nesekalo. */
+  var idleQ = [], idleBusy = false, idleGo = false;
+  function idlePump() {
+    if (!idleGo || idleBusy || !idleQ.length) return;
+    idleBusy = true;
+    var run = function () {
+      var fn = idleQ.shift();
+      try { if (fn) fn(); } catch (e) { /* scéna se připojí až při scrollu */ }
+      setTimeout(function () { idleBusy = false; idlePump(); }, 500);
+    };
+    if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 2000 }); else setTimeout(run, 150);
+  }
+  function idleStart() { if (!idleGo) { idleGo = true; idlePump(); } }
+  window.GOLDUI.idle = function (fn) { idleQ.push(fn); idlePump(); };
+  window.addEventListener('gold:hero', function () { setTimeout(idleStart, 300); });
+  window.addEventListener('load', function () { setTimeout(idleStart, 6000); });
 })();

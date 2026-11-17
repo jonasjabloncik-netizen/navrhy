@@ -179,17 +179,88 @@
   };
 
   /* ---------- Statická geometrie: kvádr mezi body ---------- */
+  /* Každý kvádr si rovnou nese svých 12 hran (userData.edges), takže obrysy modelu
+     není potřeba dopočítávat drahým EdgesGeometry nad sloučenou geometrií. */
+  var CORN = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
+  var EDG = [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7];
+  var _v = new T.Vector3();
+  function boxEdges(m, hx, hy, hz) {
+    var P = new Array(24), out = new Array(72), i;
+    for (i = 0; i < 8; i++) { _v.set(CORN[i][0] * hx, CORN[i][1] * hy, CORN[i][2] * hz).applyMatrix4(m); P[i * 3] = _v.x; P[i * 3 + 1] = _v.y; P[i * 3 + 2] = _v.z; }
+    for (i = 0; i < 24; i++) { var c = EDG[i] * 3; out[i * 3] = P[c]; out[i * 3 + 1] = P[c + 1]; out[i * 3 + 2] = P[c + 2]; }
+    return out;
+  }
+  var _one = new T.Vector3(1, 1, 1);
   function beamBetween(A, B, w, h) {
     var a = new T.Vector3(A[0], A[1], A[2]), b = new T.Vector3(B[0], B[1], B[2]);
     var len = a.distanceTo(b);
     var g = new T.BoxGeometry(w, len, h);
     var q = new T.Quaternion().setFromUnitVectors(UP, b.clone().sub(a).normalize());
-    var m = new T.Matrix4().compose(a.clone().add(b).multiplyScalar(0.5), q, new T.Vector3(1, 1, 1));
+    var m = new T.Matrix4().compose(a.clone().add(b).multiplyScalar(0.5), q, _one);
     g.applyMatrix4(m);
+    g.userData.edges = boxEdges(m, w / 2, len / 2, h / 2);
     return g;
   }
   function boxAt(cx, cy, cz, sx, sy, sz) {
-    var g = new T.BoxGeometry(sx, sy, sz); g.translate(cx, cy, cz); return g;
+    var g = new T.BoxGeometry(sx, sy, sz); g.translate(cx, cy, cz);
+    g.userData.edges = boxEdges(new T.Matrix4().makeTranslation(cx, cy, cz), sx / 2, sy / 2, sz / 2);
+    return g;
+  }
+  /* Rychlá sada kvádrů pro statické modely (most): vrcholy, normály i hrany se píšou rovnou do polí,
+     bez stovek BoxGeometry a jejich slučování. Plochy jsou proti směru hodin při pohledu zvenku. */
+  var FACES = [[[1, 0, 0], [1, 2, 6, 5]], [[-1, 0, 0], [0, 4, 7, 3]], [[0, 1, 0], [3, 7, 6, 2]],
+               [[0, -1, 0], [0, 1, 5, 4]], [[0, 0, 1], [4, 5, 6, 7]], [[0, 0, -1], [0, 3, 2, 1]]];
+  var _bm = new T.Matrix4(), _bq = new T.Quaternion(), _bp = new T.Vector3(), _bd = new T.Vector3();
+  function BoxSet() { this.p = []; this.n = []; this.e = []; }
+  BoxSet.prototype.add = function (m, hx, hy, hz, q) {   // q = natočení (kvůli normálám), bez měřítka
+    var C = [], i, f, k;
+    for (i = 0; i < 8; i++) { _v.set(CORN[i][0] * hx, CORN[i][1] * hy, CORN[i][2] * hz).applyMatrix4(m); C.push(_v.x, _v.y, _v.z); }
+    for (f = 0; f < 6; f++) {
+      var fc = FACES[f][1]; _bd.fromArray(FACES[f][0]); if (q) _bd.applyQuaternion(q);
+      [fc[0], fc[1], fc[2], fc[0], fc[2], fc[3]].forEach(function (c) { this.p.push(C[c * 3], C[c * 3 + 1], C[c * 3 + 2]); this.n.push(_bd.x, _bd.y, _bd.z); }, this);
+    }
+    for (k = 0; k < 24; k++) { var c3 = EDG[k] * 3; this.e.push(C[c3], C[c3 + 1], C[c3 + 2]); }
+  };
+  BoxSet.prototype.at = function (cx, cy, cz, sx, sy, sz) { this.add(_bm.makeTranslation(cx, cy, cz), sx / 2, sy / 2, sz / 2); };
+  BoxSet.prototype.between = function (A, B, w, h) {
+    _bd.set(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+    var len = _bd.length();
+    _bq.setFromUnitVectors(UP, _bd.normalize());
+    _bp.set((A[0] + B[0]) / 2, (A[1] + B[1]) / 2, (A[2] + B[2]) / 2);
+    this.add(_bm.compose(_bp, _bq, _one), w / 2, len / 2, h / 2, _bq);
+  };
+  /* geometrie kvádrů + případné další neindexované geometrie (pozice a normály) */
+  BoxSet.prototype.geometry = function (extra) {
+    var P = this.p, N = this.n, n = P.length;
+    (extra || []).forEach(function (g) { n += g.attributes.position.array.length; });
+    var pos = new Float32Array(n), nor = new Float32Array(n), o = 0, i;
+    for (i = 0; i < P.length; i++) { pos[i] = P[i]; nor[i] = N[i]; }
+    o = P.length;
+    (extra || []).forEach(function (g) { pos.set(g.attributes.position.array, o); nor.set(g.attributes.normal.array, o); o += g.attributes.position.array.length; });
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+    geo.setAttribute('normal', new T.BufferAttribute(nor, 3));
+    return geo;
+  };
+  BoxSet.prototype.edgeGeometry = function (extra) {
+    var n = this.e.length, o = this.e.length;
+    (extra || []).forEach(function (a) { n += a.length; });
+    var arr = new Float32Array(n); arr.set(this.e);
+    (extra || []).forEach(function (a) { arr.set(a, o); o += a.length; });
+    var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(arr, 3));
+    return geo;
+  };
+
+  /* obrysové čáry: hrany všech kvádrů v seznamu + případné další úsečky (pole x,y,z,x,y,z…) */
+  function edges(list, extra) {
+    var n = 0, i, k;
+    list.forEach(function (g) { if (g.userData.edges) n += g.userData.edges.length; });
+    (extra || []).forEach(function (a) { n += a.length; });
+    var arr = new Float32Array(n), o = 0;
+    list.forEach(function (g) { var e = g.userData.edges; if (e) { for (k = 0; k < e.length; k++) arr[o++] = e[k]; } });
+    (extra || []).forEach(function (a) { for (i = 0; i < a.length; i++) arr[o++] = a[i]; });
+    var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(arr, 3));
+    return geo;
   }
   function strip(g) { // jednotné atributy pro mergeGeometries
     var n = g.index ? g.toNonIndexed() : g;
@@ -198,8 +269,21 @@
   }
   function merge(list) { return T.mergeGeometries(list.map(strip), false); }
 
+  /* Shadery předem: kde prohlížeč umí paralelní překlad, běží mimo hlavní vlákno;
+     jinak aspoň v samostatném kroku před prvním snímkem. Pak teprve done(). */
+  function prepare(renderer, scene, camera, done) {
+    var fired = false;
+    function fin() { if (!fired) { fired = true; done(); } }
+    try {
+      if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) { renderer.compileAsync(scene, camera).then(fin, fin); return; }
+      renderer.compile(scene, camera);
+    } catch (e) { /* první snímek si shadery přeloží sám */ }
+    setTimeout(fin, 0);
+  }
+
+  /* GoldGL.noGL = true, když se WebGL nepodařilo založit (další scény to už nezkoušejí) */
   window.GoldGL = {
     shared: shared, materials: materials, Set: Set,
-    beamBetween: beamBetween, boxAt: boxAt, merge: merge, strip: strip
+    beamBetween: beamBetween, boxAt: boxAt, merge: merge, strip: strip, edges: edges, prepare: prepare, BoxSet: BoxSet
   };
 })();

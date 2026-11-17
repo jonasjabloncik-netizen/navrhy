@@ -7,9 +7,16 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="GOLD Institute s.r.o. – lešení na mosty, zavěšené lešení na vlastní konstrukci, podpěrné konstrukce, fasády a festivaly. Primárně PERI. Neoficiální koncept webu od MALUS/01.">
 <meta name="theme-color" content="#ECEBE6">
+<script>
+document.documentElement.classList.add('js');
+/* Na webu (ne ze souboru) si prohlížeč řekne o obě písma hned, souběžně se styly, ať úvod naskočí rovnou ve správném písmu */
+if (/^https?:$/.test(location.protocol)) ['archivo-core', 'ibm-plex-sans-core'].forEach(function (f) {
+  var l = document.createElement('link'); l.rel = 'preload'; l.as = 'font'; l.type = 'font/woff2'; l.crossOrigin = 'anonymous';
+  l.href = 'assets/fonts/' + f + '.woff2'; document.head.appendChild(l);
+});
+</script>
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2316191C'/%3E%3Cpath d='M8 6v20M24 6v20M8 8h16M8 24h16M8 24L24 8' stroke='%23E2A62A' stroke-width='2.4' fill='none'/%3E%3C/svg%3E">
-<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -55,7 +62,7 @@
   <section class="tour" id="mosty" data-chapter="mosty" aria-labelledby="hero-title" data-step="0">
     <div class="tour__stage" id="tour-stage">
       <canvas aria-hidden="true"></canvas>
-      <img class="tour__fallback" src="assets/img/model-most-1440.webp" alt="" aria-hidden="true" width="1440" height="900">
+      <img class="tour__fallback" src="assets/img/model-most-1440.webp" alt="" aria-hidden="true" width="1440" height="900" loading="lazy" decoding="async">
       <svg class="dims" aria-hidden="true">
         <g class="dim" data-dim="lenL lenR" data-side="-1" data-s="1"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="middle">543 m</text></g>
         <g class="dim" data-dim="hB hT" data-side="1" data-s="1"><line class="dim__l"/><line class="dim__t"/><line class="dim__t"/><text text-anchor="start">≈ 50 m</text></g>
@@ -150,11 +157,11 @@
         <ul class="blist" id="blist"></ul>
       </div>
       <figure class="more__fig curtain">
-        <img src="assets/img/most-uhrineves-1200.webp" srcset="assets/img/most-uhrineves-640.webp 640w, assets/img/most-uhrineves-1200.webp 1200w" sizes="(min-width: 1024px) 30vw, 100vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Rozestavěný ocelový obloukový most s podpěrnými věžemi pod obloukem">
+        <img src="assets/img/most-uhrineves-1200.webp" srcset="assets/img/most-uhrineves-640.webp 640w, assets/img/most-uhrineves-880.webp 880w, assets/img/most-uhrineves-1200.webp 1200w" sizes="(min-width: 1024px) 27vw, 48vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Rozestavěný ocelový obloukový most s podpěrnými věžemi pod obloukem">
         <figcaption class="mono">Podpěrné věže pod obloukem · Praha-Uhříněves, 2026</figcaption>
       </figure>
       <figure class="more__fig more__fig--2 curtain">
-        <img src="assets/img/most-shora-1200.webp" srcset="assets/img/most-shora-640.webp 640w, assets/img/most-shora-1200.webp 1200w" sizes="(min-width: 1024px) 30vw, 100vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Pohled z oblouku mostu na lešenáře na lešení podél mostovky">
+        <img src="assets/img/most-shora-1200.webp" srcset="assets/img/most-shora-640.webp 640w, assets/img/most-shora-880.webp 880w, assets/img/most-shora-1200.webp 1200w" sizes="(min-width: 1024px) 27vw, 48vw" width="1200" height="1500" loading="lazy" decoding="async" alt="Pohled z oblouku mostu na lešenáře na lešení podél mostovky">
         <figcaption class="mono">Montáž podél mostovky · Praha-Uhříněves, 2026</figcaption>
       </figure>
     </div>
@@ -363,7 +370,11 @@
 
 <a class="mcta" href="#poptavka" id="mcta" aria-hidden="true" tabindex="-1"><span>Poptat lešení</span><i class="btn__node" aria-hidden="true"></i></a>
 
+<!-- Nejdřív obsah stránky (text, fotky, ovládání), 3D knihovna a scény až za ním -->
 <script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/fx.js"></script>
 <script src="assets/vendor/three.gold.min.js"></script>
 <script src="assets/js/gl-scaffold.js"></script>
 <script src="assets/js/gl-bridge.js"></script>
@@ -371,10 +382,7 @@
 <script src="assets/js/gl-config.js"></script>
 <script src="assets/js/gl-stage.js"></script>
 <script src="assets/js/gl-node.js"></script>
-<script src="assets/js/core.js"></script>
 <script src="assets/js/tour.js"></script>
-<script src="assets/js/app.js"></script>
 <script src="assets/js/scenes.js"></script>
-<script src="assets/js/fx.js"></script>
 </body>
 </html>

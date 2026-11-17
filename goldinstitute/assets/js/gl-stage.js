@@ -33,7 +33,10 @@
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     var renderer;
-    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' }); } catch (e) { wrap.classList.add('no-gl'); return null; }
+    var small = !fine || Math.min(window.innerWidth, window.innerHeight) < 600;
+    if (GL.noGL) { wrap.classList.add('no-gl'); return null; }
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true }); } catch (e) { GL.noGL = true; wrap.classList.add('no-gl'); return null; }
+    renderer.debug.checkShaderErrors = false;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
     renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
     renderer.outputColorSpace = T.SRGBColorSpace;
@@ -42,7 +45,7 @@
     scene.background = bg; scene.fog = new T.Fog(bg, 55, 150);
     var hemi = new T.HemisphereLight('#9fb1c9', '#0c0d0e', 0.55); scene.add(hemi);
     var moon = new T.DirectionalLight('#b9c8de', 1.1);
-    moon.position.set(-30, 40, -24); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048);
+    moon.position.set(-30, 40, -24); moon.castShadow = true; moon.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
     var sc = moon.shadow.camera; sc.left = -30; sc.right = 30; sc.top = 30; sc.bottom = -30; sc.near = 1; sc.far = 120;
     moon.shadow.bias = -0.0005; moon.shadow.normalBias = 0.05;
     scene.add(moon); scene.add(moon.target);
@@ -110,7 +113,7 @@
     }
     function lerp3(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
 
-    var W = 1, Hh = 1, prog = reduce ? 1 : 0, cur = null, tB = reduce ? SPAN : 0, visible = false, running = false, lastNow = 0;
+    var W = 1, Hh = 1, prog = reduce ? 1 : 0, cur = null, tB = reduce ? SPAN : 0, visible = false, running = false, lastNow = 0, ready = false;
     var mx = 0, my = 0, mxT = 0, myT = 0, lastShadow = -1, stack = !!opts.stack;
 
     function frame(nowMs) {
@@ -146,12 +149,16 @@
       if (visible && (!settled || (light > 0 && !reduce))) requestAnimationFrame(frame);
       else { running = false; lastNow = 0; }
     }
-    function kick() { if (!running && visible) { running = true; requestAnimationFrame(frame); } }
+    function kick() { if (ready && !running && visible) { running = true; requestAnimationFrame(frame); } }
+    var lastSize = '';
     function resize() {
       var r = wrap.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return;
       W = r.width; Hh = r.height;
-      renderer.setPixelRatio(Math.max(1, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(3.0e6 / (W * Hh)))));
+      var pr = Math.max(1, Math.min(window.devicePixelRatio || 1, small ? 1.6 : 2, Math.sqrt(3.0e6 / (W * Hh))));
+      if (W + 'x' + Hh + '@' + pr === lastSize) return;
+      lastSize = W + 'x' + Hh + '@' + pr;
+      renderer.setPixelRatio(pr);
       renderer.setSize(W, Hh, false);
       renderer.shadowMap.needsUpdate = true;
       kick();
@@ -161,6 +168,15 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) kick(); }, { rootMargin: '100px 0px' }).observe(wrap);
     else visible = true;
     resize();
+
+    /* shadery se přeloží předem (mimo hlavní vlákno, kde to jde), pak jeden zahřívací snímek a plynulé roztmívnutí */
+    function go() {
+      if (ready) return;
+      ready = true; running = true; lastNow = 0;
+      try { frame(performance.now()); } catch (e) { running = false; }
+      wrap.classList.add('is-gl');
+    }
+    GL.prepare(renderer, scene, camera, go);
 
     return {
       setProgress: function (p) { if (!reduce && Math.abs(p - prog) > 0.0005) { prog = p; kick(); } },

@@ -4,31 +4,35 @@
   var doc = document;
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
   var stackMQ = window.matchMedia('(max-width: 899px), (max-aspect-ratio: 1/1)');
-  /* 3D scény se zakládají až před vstupem do obrazu, aby úvod stránky nezatěžovaly */
+  /* 3D scény nezatěžují úvod: připraví se v klidu po doběhnutí úvodní stavby (GOLDUI.idle),
+     nebo nejpozději kus před vstupem do obrazu, když návštěvník scrolluje rychle. */
+  var idle = (window.GOLDUI && window.GOLDUI.idle) || function () {};
   function lazy(el, fn) {
     if (!('IntersectionObserver' in window)) { fn(); return; }
-    var io = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { io.disconnect(); fn(); } }, { rootMargin: '700px 0px' });
+    var io = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { io.disconnect(); fn(); } }, { rootMargin: '1400px 0px' });
     io.observe(el);
+    idle(fn);
   }
+  function once(fn) { var done = false; return function () { if (!done) { done = true; fn(); } }; }
 
   /* festivalová stage: připnutá scéna, stavba podle průchodu sekcí */
   var sx = doc.getElementById('stagex'), stEl = doc.getElementById('stage-3d'), stage = null;
   var steps = sx ? Array.prototype.slice.call(sx.querySelectorAll('.sstep')) : [];
-  if (sx) lazy(sx, function () {
+  if (sx) lazy(sx, once(function () {
     if (window.THREE && window.GoldStage) { try { stage = window.GoldStage.mount(stEl, { stack: stackMQ.matches }); } catch (e) { stage = null; } }
     if (!stage) { sx.classList.add('no-gl'); return; }
     var mq = function () { stage.setStack(stackMQ.matches); };
     if (stackMQ.addEventListener) stackMQ.addEventListener('change', mq); else stackMQ.addListener(mq);
     update();
-  });
+  }));
 
   /* rozetový uzel: díly zapadnou podle polohy sekce */
   var nd = doc.getElementById('node-3d'), node = null;
-  if (nd) lazy(nd, function () {
+  if (nd) lazy(nd, once(function () {
     if (window.THREE && window.GoldNode) { try { node = window.GoldNode.mount(nd); } catch (e) { node = null; } }
     if (!node) { nd.classList.add('no-gl'); return; }
     update();
-  });
+  }));
 
   var cur = -2, ticking = false;
   function update() {
@@ -49,5 +53,5 @@
   }
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   window.addEventListener('resize', update);
-  update();
+  requestAnimationFrame(update);
 })();

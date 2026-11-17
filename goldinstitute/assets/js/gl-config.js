@@ -13,7 +13,10 @@
     var canvas = wrap.querySelector('canvas'), svg = wrap.querySelector('.cfg__dims');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var renderer;
-    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true }); } catch (e) { return null; }
+    if (GL.noGL) return null;
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true }); } catch (e) { GL.noGL = true; return null; }
+    renderer.debug.checkShaderErrors = false;
+    var small = !window.matchMedia('(hover: hover) and (pointer: fine)').matches || Math.min(window.innerWidth, window.innerHeight) < 600;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.shadowMap.autoUpdate = false;
@@ -24,7 +27,7 @@
     scene.background = bg;
     scene.add(new T.HemisphereLight('#ffffff', '#bab3a3', 1.35));
     var sun = new T.DirectionalLight('#fff4e2', 2.9);
-    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.35;
+    sun.castShadow = true; sun.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.35;
     scene.add(sun); scene.add(sun.target);
 
     var mWhite = new T.MeshStandardMaterial({ color: '#F6F5F1', roughness: 0.82 });
@@ -44,7 +47,7 @@
     var set = null, known = {}, lastTyp = '', meta = null, endT = 0, pending = null;
     var yaw = -0.62, yawT = -0.62, pitch = 0.36, pitchT = 0.36, dist = 80, distT = 80;
     var tgt = new T.Vector3(0, 6, 0), tgtT = new T.Vector3(0, 6, 0), first = true;
-    var drag = null, vel = 0, lastInteract = -1e9, visible = true, running = false, lastNow = 0;
+    var drag = null, vel = 0, lastInteract = -1e9, visible = true, running = false, lastNow = 0, ready = false, compiling = false;
 
     function now() { return (performance.now() - t0clock) / 1000; }
     function disposeGroup(g) { while (g.children.length) { var c = g.children.pop(); if (c.geometry) c.geometry.dispose(); } }
@@ -67,7 +70,7 @@
       if (K.ctx.length) {
         var g = GL.merge(K.ctx), m = new T.Mesh(g, mWhite);
         m.castShadow = true; m.receiveShadow = true; ctx.add(m);
-        ctx.add(new T.LineSegments(new T.EdgesGeometry(g, 30), mEdge));
+        ctx.add(new T.LineSegments(GL.edges(K.ctx), mEdge));
       }
       if (K.dark.length) { var md = new T.Mesh(GL.merge(K.dark), mDark); md.receiveShadow = true; ctx.add(md); }
       /* podstavec, mřížka po 5 m, voda */
@@ -132,13 +135,17 @@
       if (visible && (idle || moving || drag || t < endT || pending)) requestAnimationFrame(frame);
       else { running = false; lastNow = 0; }
     }
-    function kick() { if (!running && visible) { running = true; requestAnimationFrame(frame); } }
+    function kick() { if (ready && !running && visible) { running = true; requestAnimationFrame(frame); } }
 
+    var lastSize = '';
     function resize() {
       var r = wrap.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return;
       W = r.width; H = r.height;
-      renderer.setPixelRatio(Math.max(1, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(2.2e6 / (W * H)))));
+      var pr = Math.max(1, Math.min(window.devicePixelRatio || 1, small ? 1.6 : 2, Math.sqrt(2.2e6 / (W * H))));
+      if (W + 'x' + H + '@' + pr === lastSize) return;
+      lastSize = W + 'x' + H + '@' + pr;
+      renderer.setPixelRatio(pr);
       renderer.setSize(W, H, false);
       camera.aspect = W / H; camera.updateProjectionMatrix();
       if (meta) { var b = meta.bbox, r2 = 0.5 * Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]); var vf = camera.fov * Math.PI / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * (W / H)); distT = r2 / Math.sin(Math.min(vf, hf) / 2) * 0.8; }
@@ -162,8 +169,21 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(wrap);
     resize();
 
+    /* první model se postaví hned, shadery se přeloží předem, pak zahřívací snímek a roztmívnutí */
+    function go() {
+      if (ready) return;
+      ready = true; running = true; lastNow = 0;
+      try { frame(performance.now()); } catch (e) { running = false; }
+      wrap.classList.add('is-gl');
+    }
+
     return {
-      set: function (typ, L, Hh) { pending = [typ, L, Hh]; kick(); },
+      set: function (typ, L, Hh) {
+        if (ready || compiling) { pending = [typ, L, Hh]; kick(); return; }
+        compiling = true;
+        build(typ, L, Hh);
+        GL.prepare(renderer, scene, camera, go);
+      },
       counts: function () { return set ? set.count : null; }
     };
   }

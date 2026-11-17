@@ -5,7 +5,7 @@
 */
 (function () {
   'use strict';
-  var T = window.THREE;
+  var T = window.THREE, GL = window.GoldGL;
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
   function eOut(t) { return 1 - Math.pow(1 - t, 3); }
   function eBack(t) { var c1 = 1.70158, c3 = c1 + 1, u = t - 1; return 1 + c3 * u * u * u + c1 * u * u; }
@@ -25,7 +25,9 @@
     var canvas = wrap.querySelector('canvas');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var renderer;
-    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false }); } catch (e) { wrap.classList.add('no-gl'); return null; }
+    if (GL.noGL) { wrap.classList.add('no-gl'); return null; }
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false }); } catch (e) { GL.noGL = true; wrap.classList.add('no-gl'); return null; }
+    renderer.debug.checkShaderErrors = false;
     renderer.toneMapping = T.NeutralToneMapping; renderer.outputColorSpace = T.SRGBColorSpace;
     var scene = new T.Scene(); scene.background = new T.Color(opts.bg || '#E3E2DB');
     try { var pm = new T.PMREMGenerator(renderer); scene.environment = pm.fromScene(new T.RoomEnvironment(), 0.04).texture; } catch (e) { /* bez odlesků */ }
@@ -70,7 +72,7 @@
     var camera = new T.PerspectiveCamera(32, 1, 0.1, 200);
     var labels = Array.prototype.slice.call(wrap.querySelectorAll('[data-nm]'));
     var anchors = { stojka: [0, 2.4, 0], rozeta: [0.44, 0.05, -0.44], podelnik: [3.8, 0.25, 0], klin: [0.44, 0.45, 0] };
-    var W = 1, H = 1, prog = reduce ? 1 : 0, p = prog, visible = false, running = false, lastNow = 0, yaw = 0.5, drag = null, yawUser = 0, yawUserT = 0;
+    var W = 1, H = 1, prog = reduce ? 1 : 0, p = prog, visible = false, running = false, lastNow = 0, yaw = 0.5, drag = null, yawUser = 0, yawUserT = 0, ready = false;
     var v3 = new T.Vector3(), flash = [0, 0, 0, 0];
 
     function apply(pp, dt) {
@@ -109,12 +111,16 @@
       if (visible && (!settled || !reduce)) requestAnimationFrame(frame);
       else { running = false; lastNow = 0; }
     }
-    function kick() { if (!running && visible) { running = true; requestAnimationFrame(frame); } }
+    function kick() { if (ready && !running && visible) { running = true; requestAnimationFrame(frame); } }
+    var lastSize = '';
     function resize() {
       var r = wrap.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return;
       W = r.width; H = r.height;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      var pr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(2.4e6 / (W * H))));
+      if (W + 'x' + H + '@' + pr === lastSize) return;
+      lastSize = W + 'x' + H + '@' + pr;
+      renderer.setPixelRatio(pr);
       renderer.setSize(W, H, false);
       camera.aspect = W / H; camera.updateProjectionMatrix();
       kick();
@@ -126,6 +132,14 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) kick(); }, { rootMargin: '80px 0px' }).observe(wrap);
     else visible = true;
     resize();
+    /* shadery předem, pak zahřívací snímek a roztmívnutí */
+    function go() {
+      if (ready) return;
+      ready = true; running = true; lastNow = 0;
+      try { frame(performance.now()); } catch (e) { running = false; }
+      wrap.classList.add('is-gl');
+    }
+    GL.prepare(renderer, scene, camera, go);
     return { setProgress: function (v) { if (reduce) return; prog = clamp(v); kick(); } };
   }
   window.GoldNode = { mount: mount };

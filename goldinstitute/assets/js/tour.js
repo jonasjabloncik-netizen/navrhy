@@ -9,6 +9,7 @@
   var stackMQ = window.matchMedia('(max-width: 899px), (max-aspect-ratio: 1/1)');
   var buildBar = doc.getElementById('build-bar');
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function num(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); } // české oddělení tisíců (2 055) bez načítání Intl
 
   /* Kamera: na každém kroku chvíli stojí, mezi kroky přelétá */
   var KEYS = [
@@ -21,16 +22,20 @@
   /* zavěšené lešení se dostaví mezi p = 0,34 a 0,55 */
   var SC_FROM = 0.34, SC_TO = 0.55;
 
-  var api = null;
-  if (window.THREE && window.GoldBridge) {
-    try { api = window.GoldBridge.mount(stage, { stack: stackMQ.matches, keys: KEYS }); } catch (e) { api = null; }
-  }
-  var curStep = -1;
-  if (!api) {
-    stage.classList.add('no-gl');
-  } else {
+  var api = null, curStep = -1;
+  /* 3D model se začne připravovat až po prvním vykreslení stránky, aby úvodní text naskočil hned */
+  function start() {
+    if (window.THREE && window.GoldBridge) {
+      try { api = window.GoldBridge.mount(stage, { stack: stackMQ.matches, keys: KEYS }); } catch (e) { api = null; }
+    }
+    if (!api) {
+      stage.classList.add('no-gl');
+      var rb = doc.getElementById('rebuild'); if (rb) rb.hidden = true;
+      update();
+      return;
+    }
     Object.keys(api.counts).forEach(function (k) {
-      Array.prototype.forEach.call(doc.querySelectorAll('[data-total="' + k + '"]'), function (el) { el.textContent = api.counts[k].toLocaleString('cs-CZ'); });
+      Array.prototype.forEach.call(doc.querySelectorAll('[data-total="' + k + '"]'), function (el) { el.textContent = num(api.counts[k]); });
     });
     var th = doc.getElementById('tower-h');
     if (th && api.towerH) th.textContent = '≈ ' + api.towerH + ' m';
@@ -38,8 +43,8 @@
     var mq = function () { api.setStack(stackMQ.matches); };
     if (stackMQ.addEventListener) stackMQ.addEventListener('change', mq); else stackMQ.addListener(mq);
     doc.getElementById('rebuild').addEventListener('click', function () { api.replay(); });
+    update();
   }
-  if (!api) { var rb = doc.getElementById('rebuild'); if (rb) rb.hidden = true; }
 
   var ticking = false;
   function update() {
@@ -59,5 +64,6 @@
   }
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   window.addEventListener('resize', update);
-  update();
+  requestAnimationFrame(update);
+  requestAnimationFrame(function () { setTimeout(start, 0); });
 })();

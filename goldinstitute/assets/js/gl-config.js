@@ -88,13 +88,35 @@
       /* kamera: celý model v záběru */
       var r = 0.5 * Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]);
       tgtT.set(cx, (b[1] + b[4]) * 0.4, cz);
-      var vf = camera.fov * Math.PI / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * (W / H));
-      distT = r / Math.sin(Math.min(vf, hf) / 2) * 0.8;
+      distT = fitDist();
       if (first) { dist = distT; tgt.copy(tgtT); first = false; }
       var R = r * 1.25;
       sun.position.set(cx + R * 0.9, R * 1.6 + 10, cz - R * 1.2); sun.target.position.set(cx, 0, cz);
       var sc = sun.shadow.camera; sc.left = -R; sc.right = R; sc.top = R; sc.bottom = -R; sc.near = 1; sc.far = R * 5 + 60; sc.updateProjectionMatrix();
       renderer.shadowMap.needsUpdate = true;
+    }
+
+    /* Kamera: celý model i s kótami v záběru, i když se v klidu pomalu natáčí sem a tam.
+       Promítne rohy modelu pro krajní natočení a vzdálenost upraví, aby se vešly s okrajem na kóty. */
+    var fitCam = new T.PerspectiveCamera(34, 1, 0.3, 5000), fitV = new T.Vector3();
+    function fitDist() {
+      var b = meta.bbox, C = [], i, k, c, it;
+      for (i = 0; i < 8; i++) C.push([i & 1 ? b[3] : b[0], i & 2 ? b[4] : b[1], i & 4 ? b[5] : b[2]]);
+      fitCam.fov = camera.fov; fitCam.aspect = W / H; fitCam.updateProjectionMatrix();
+      var mx = Math.max(0.55, 1 - 2 * 48 / W), my = Math.max(0.55, 1 - 2 * 38 / H);
+      var r = 0.5 * Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]);
+      var d = r / Math.sin(camera.fov * Math.PI / 360) * 1.2;
+      var yaws = [-0.96, -0.62, -0.28];
+      for (it = 0; it < 6; it++) {
+        var ext = 0;
+        for (k = 0; k < yaws.length; k++) {
+          fitCam.position.set(tgtT.x + Math.sin(yaws[k]) * Math.cos(pitchT) * d, tgtT.y + Math.sin(pitchT) * d, tgtT.z - Math.cos(yaws[k]) * Math.cos(pitchT) * d);
+          fitCam.lookAt(tgtT); fitCam.updateMatrixWorld(true);
+          for (c = 0; c < 8; c++) { fitV.set(C[c][0], C[c][1], C[c][2]).project(fitCam); ext = Math.max(ext, Math.abs(fitV.x) / mx, Math.abs(fitV.y) / my); }
+        }
+        d *= ext;
+      }
+      return d;
     }
 
     /* kóty */
@@ -148,7 +170,7 @@
       renderer.setPixelRatio(pr);
       renderer.setSize(W, H, false);
       camera.aspect = W / H; camera.updateProjectionMatrix();
-      if (meta) { var b = meta.bbox, r2 = 0.5 * Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]); var vf = camera.fov * Math.PI / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * (W / H)); distT = r2 / Math.sin(Math.min(vf, hf) / 2) * 0.8; }
+      if (meta) distT = fitDist();
       renderer.shadowMap.needsUpdate = true;
       kick();
     }

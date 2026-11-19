@@ -5,6 +5,21 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.GOLDUI = { reduce: reduce };
 
+  /* Česká typografie: jednopísmenné předložky a spojky (v, z, k, s, o, u, a, i) nezůstanou na konci řádku */
+  var VLNA = /(^|[\s(„])([vzksouaiVZKSOUAI]) +/g;
+  function vlna(root) {
+    if (!root) return;
+    var w = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
+    while ((n = w.nextNode())) {
+      var p = n.parentNode.nodeName;
+      if (p !== 'SCRIPT' && p !== 'STYLE' && p !== 'TEXTAREA' && /(^|[\s(„])[vzksouaiVZKSOUAI] /.test(n.nodeValue)) list.push(n);
+    }
+    // dvakrát kvůli dvojicím jako „a v“
+    list.forEach(function (t) { t.nodeValue = t.nodeValue.replace(VLNA, '$1$2 ').replace(VLNA, '$1$2 '); });
+  }
+  window.GOLDUI.vlna = vlna;
+  vlna(doc.body);
+
   /* Hlavička: pozadí po odscrollování, noční režim nad festivaly, průběh prezentace, aktivní kapitola */
   var hdr = doc.getElementById('hdr'), bar = doc.getElementById('hdr-bar');
   var night = Array.prototype.slice.call(doc.querySelectorAll('.fest, .ftr'));
@@ -21,7 +36,8 @@
     var cur = '';
     chapters.forEach(function (s) { if (s.getBoundingClientRect().top <= vh * 0.45) cur = s.getAttribute('data-chapter'); });
     var ir = inq.getBoundingClientRect();
-    var ctaOn = y > vh * 0.9 && !(ir.top < vh && ir.bottom > 0);
+    /* tlačítko dole na telefonu: od poptávky až do konce stránky už není potřeba (a nepřekryje patičku) */
+    var ctaOn = y > vh * 0.9 && ir.top >= vh;
 
     hdr.classList.toggle('is-scrolled', y > 8);
     hdr.classList.toggle('is-night', isNight);
@@ -33,6 +49,8 @@
     if (mcta) mcta.classList.toggle('is-on', ctaOn);
   }
   window.addEventListener('resize', measure);
+  var restag = 0;
+  window.addEventListener('resize', function () { clearTimeout(restag); restag = setTimeout(staggerAll, 150); });
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   window.addEventListener('resize', update);
   /* první měření až v prvním snímku: skript tak nevynucuje rozvržení stránky a úvod se vykreslí dřív */
@@ -64,10 +82,19 @@
       if (i < arr.length - 1) el.appendChild(doc.createTextNode(' '));
     });
   }
-  function stagger(el) {
-    var tops = [], spans = el.querySelectorAll('.w');
+  /* Velké písmeno s háčkem nebo čárkou (Č, Ž, Ř, Ú…) na druhém a dalším řádku by se dotklo řádku nad sebou:
+     takový nadpis dostane větší řádkování (.lh-caps). Zalomení se tím nemění, jen svislé rozestupy. */
+  var CAPDIA = /[ÁČĎÉĚÍŇÓŘŠŤÚŮÝŽÄÔĽĹŔ]/;
+  function lines(spans) {
+    var tops = [];
     spans.forEach(function (s) { var t = s.offsetTop; if (tops.indexOf(t) < 0) tops.push(t); });
-    tops.sort(function (a, b) { return a - b; });
+    return tops.sort(function (a, b) { return a - b; });
+  }
+  function stagger(el) {
+    var spans = el.querySelectorAll('.w'), tops = lines(spans);
+    var caps = false;
+    spans.forEach(function (s) { if (tops.indexOf(s.offsetTop) > 0 && CAPDIA.test(s.textContent)) caps = true; });
+    if (caps !== el.classList.contains('lh-caps')) { el.classList.toggle('lh-caps', caps); tops = lines(spans); }
     spans.forEach(function (s) { s.firstChild.style.setProperty('--d', (tops.indexOf(s.offsetTop) * 90) + 'ms'); });
   }
   var heads = Array.prototype.slice.call(doc.querySelectorAll('.split'));

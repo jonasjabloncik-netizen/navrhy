@@ -470,6 +470,13 @@
         el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
         var off = v3.z > 1 || x < -60 || x > W + 60 || y < -60 || y > H + 60;
         if (el._off !== off) { el._off = off; el.classList.toggle('is-off', off); }
+        if (off) return;
+        /* popisek u okraje scény (úzký telefon) posunout dovnitř, nožička dál ukazuje na bod */
+        if (!el._bw) { el._b = el.querySelector('b'); el._bw = el._b ? el._b.offsetWidth : 0; }
+        if (!el._bw) return;
+        var sh = Math.min(0, W - 8 - (x - 12 + el._bw));
+        sh = Math.round(Math.max(sh, 8 - (x - 12)));
+        if (sh !== el._sh) { el._sh = sh; el._b.style.setProperty('--sh', sh + 'px'); }
       });
       if (!dims.length || !showDims()) return;
       dims.forEach(function (g) {
@@ -558,6 +565,7 @@
       var r = wrap.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return;
       W = r.width; H = r.height;
+      labels.forEach(function (el) { el._bw = 0; });
       /* rozpočet pixelů: nejvýš cca 3,2 Mpx, aby animace držela 60 fps i na běžném notebooku */
       var pr = Math.max(1, Math.min(window.devicePixelRatio || 1, dprMax, Math.sqrt(3.2e6 / (W * H))));
       var key = W + 'x' + H + '@' + pr;
@@ -583,6 +591,8 @@
       new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(wrap);
     }
     resize();
+    /* šířky popisků změřit znovu, až se načte písmo */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { labels.forEach(function (el) { el._bw = 0; }); kick(); });
 
     /* Příprava po krocích (terén → most → lešení → shadery). Mezi kroky stránka dýchá,
        shadery se překládají mimo hlavní vlákno (kde to prohlížeč umí) a první snímek

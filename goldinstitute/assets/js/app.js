@@ -54,7 +54,9 @@
     var kf = $('kampus-fakta');
     D.kampus.fakta.forEach(function (x) {
       var d = el('div', 'rv');
-      d.innerHTML = '<dt><span data-count="' + x.cislo.replace(/\s/g, '') + '">' + esc(x.cislo) + '</span>' + (x.jednotka ? '<small>' + esc(x.jednotka) + '</small>' : '') + '</dt><dd>' + esc(x.popis) + '</dd>';
+      // číslo se nesmí zalomit (75 000 m²); neviditelná kopie drží šířku, aby se při načítání čísla nic nehýbalo
+      var shown = esc(x.cislo).replace(/ /g, '&nbsp;');
+      d.innerHTML = '<dt><span class="cnt"><span class="cnt__g" aria-hidden="true">' + shown + '</span><span data-count="' + x.cislo.replace(/\s/g, '') + '">' + shown + '</span></span>' + (x.jednotka ? '<small>' + esc(x.jednotka) + '</small>' : '') + '</dt><dd>' + esc(x.popis) + '</dd>';
       kf.appendChild(d);
     });
     function countUp(span) {
@@ -97,8 +99,23 @@
       });
       observe(br, function (n) { n.classList.add('is-in'); });
     }
-    var fm = $('fest-media');
-    D.festMedia.forEach(function (m) { fm.appendChild(mediaFig(m, '<b>' + esc(m.kde) + '</b> · ' + esc(m.co), '(min-width: 1000px) 30vw, 68vw')); });
+    if ($('wall-n')) $('wall-n').textContent = D.festivaly.length;
+
+    /* Festivaly ze stavby: název, místo, co jsme stavěli a záběry. Bez vodorovného posouvání,
+       na telefonu ve dvou sloupcích jako kampus. Logo se doplní z pole festivaly. */
+    var fm = $('fcases');
+    (D.festPripady || []).forEach(function (c) {
+      var f = D.festivaly.filter(function (x) { return x.nazev === c.festival; })[0] || {};
+      var li = el('li', 'fcase rv');
+      li.innerHTML = '<div class="fcase__info">' +
+        (f.logo ? '<span class="fcase__logo">' + FRAME + '<span class="wp__plate">' + plate(c.festival, f.logo, '') + '</span></span>' : '') +
+        '<h3 class="fcase__t">' + esc(c.festival) + '</h3><p class="fcase__where mono">' + esc(c.misto) + '</p><p class="fcase__what">' + esc(c.co) + '</p></div>';
+      var grid = el('div', 'fcase__media fcase__media--' + c.media.length);
+      c.media.forEach(function (m) { grid.appendChild(mediaFig(m, '<b>' + esc(m.popis) + '</b>', '(min-width: 1000px) 22vw, 46vw')); });
+      li.appendChild(grid);
+      fm.appendChild(li);
+      observe(li, function (n) { n.classList.add('is-in'); });
+    });
 
     /* Videa: hrají jen v obraze, jde je pozastavit, při omezeném pohybu nehrají samy */
     var vt = $('video-toggle');
@@ -118,8 +135,7 @@
         });
       }, { rootMargin: '120px 0px', threshold: 0.15 });
       videos.forEach(function (v) { vo.observe(v); });
-      /* plakáty se načtou pro celou galerii najednou, když se k ní návštěvník blíží
-         (v mobilní vodorovné galerii by jinak naskočily až při posunutí) */
+      /* plakáty se načtou pro celou skupinu záběrů najednou, když se k ní návštěvník blíží */
       var po = new IntersectionObserver(function (en) {
         en.forEach(function (e) {
           if (!e.isIntersecting) return;
@@ -223,7 +239,8 @@
       }
       var rl = $('refs-list');
       D.reference.forEach(function (r) {
-        var li = el('li', 'ref', '<b>' + esc(r.nazev) + '</b><span>' + esc(r.misto) + '</span>' + (r.pin ? '<span class="mono">' + esc(D.pinNazvy[r.pin]) + '</span>' : ''));
+        /* název a místo; ke špendlíku na mapě řádek vede zvýraznění (najetí, klepnutí na špendlík) */
+        var li = el('li', 'ref', '<b>' + esc(r.nazev) + '</b><span>' + esc(r.misto) + '</span>');
         li.setAttribute('data-pin', r.pin || ''); li.setAttribute('data-kat', r.kat);
         rl.appendChild(li);
       });
@@ -283,7 +300,7 @@
     /* ---------- Poptávka: výkres a štítek se skládají podle zadání ---------- */
     (function () {
       var P = D.poptavka;
-      var st = { typ: P.typy[0], L: 24, H: 12, misto: '', kdy: P.terminy[1] };
+      var st = { typ: P.typy[0], L: 24, H: 12, misto: '', kdy: P.terminy[1], jmeno: '', tel: '', mail: '', pozn: '' };
       var types = $('inq-types'), when = $('inq-when');
       var inL = $('inq-len'), inH = $('inq-hgt'), outL = $('inq-len-v'), outH = $('inq-hgt-v');
       var place = $('inq-place'), svg = $('inq-draw');
@@ -328,6 +345,10 @@
       inL.addEventListener('input', function () { st.L = +inL.value; fill(inL); render(false); });
       inH.addEventListener('input', function () { st.H = +inH.value; fill(inH); render(false); });
       place.addEventListener('input', function () { st.misto = place.value.trim(); render(false); });
+      var fName = $('inq-name'), fTel = $('inq-phone'), fMail = $('inq-mail'), fNote = $('inq-note'), err = $('inq-err');
+      [[fName, 'jmeno'], [fTel, 'tel'], [fMail, 'mail'], [fNote, 'pozn']].forEach(function (x) {
+        x[0].addEventListener('input', function () { st[x[1]] = x[0].value.trim(); if (!err.hidden && (st.tel || st.mail)) err.hidden = true; render(false); });
+      });
       fill(inL); fill(inH);
 
       /* výkres: díly mají klíče, nově přidané se postaví s animací */
@@ -435,12 +456,58 @@
           '<div><dt>Plocha přibližně</dt><dd class="is-big">' + (showA ? num(A) + ' m²' : 'upřesníme') + '</dd></div>' +
           '<div><dt>Místo</dt><dd>' + (st.misto ? esc(st.misto) : '—') + '</dd></div>' +
           '<div><dt>Termín</dt><dd>' + esc(st.kdy) + '</dd></div>';
-        $('inq-text').textContent = 'Dobrý den, poptáváme ' + t.veta + ': ' + lower(t.delka) + ' ' + st.L + ' m, ' + lower(t.vyska) + ' ' + st.H + ' m' + (showA ? ' (plocha zhruba ' + num(A) + ' m²)' : '') +
-          (st.misto ? ', místo stavby ' + st.misto : '') + ', termín ' + st.kdy + '. Fotky stavby posíláme v příloze.';
+        $('inq-text').textContent = message();
+        $('inq-sum').textContent = t.nazev + ' · ' + st.L + ' × ' + st.H + ' m' + (showA ? ' · ≈ ' + num(A) + ' m²' : '');
         if (cfg) { cfg.set(t.id, st.L, st.H); $('cfg-l').textContent = st.L + ' m'; $('cfg-h').textContent = st.H + ' m'; }
         else draw(typeChanged);
       }
+      /* text poptávky: věta o zakázce, místo a termín, pak kontakt a poznámka */
+      function message() {
+        var t = st.typ, A = Math.round(st.L * st.H), showA = t.id !== 'zavesene' && t.id !== 'podpery';
+        var txt = 'Dobrý den, poptáváme ' + t.veta + ': ' + lower(t.delka) + ' ' + st.L + ' m, ' + lower(t.vyska) + ' ' + st.H + ' m' + (showA ? ' (plocha zhruba ' + num(A) + ' m²)' : '') +
+          (st.misto ? ', místo stavby ' + st.misto : '') + ', termín ' + st.kdy + '. Fotky nebo výkresy stavby rádi pošleme.';
+        if (st.pozn) txt += '\n\nPoznámka: ' + st.pozn;
+        var k = [st.jmeno, st.tel, st.mail].filter(Boolean);
+        if (k.length) txt += '\n\nKontakt: ' + k.join(', ');
+        return txt;
+      }
+      function subject() { return 'Poptávka lešení: ' + st.typ.nazev + ' ' + st.L + ' × ' + st.H + ' m' + (st.misto ? ', ' + st.misto : ''); }
       render(true);
+
+      /* Odeslání: služba pro formuláře (posílá přímo), jinak e-mail návštěvníka s připravenou zprávou.
+         Dokud GOLD Institute nedoplní e-mail (data.js), je to jen ukázka: nic se neodešle. */
+      var OD = P.odeslani || {}, toMail = OD.email || D.firma.email || '', service = OD.formular || '';
+      var mode = service ? 'form' : toMail ? 'mail' : 'demo';
+      $('inq-how').textContent = mode === 'form' ? 'Poptávka odejde přímo GOLD Institute. Ozveme se vám zpátky.'
+        : mode === 'mail' ? 'Otevře se váš e-mail s připravenou zprávou. Fotky stavby můžete rovnou přiložit.'
+        : 'Ukázka: odesílání zapneme, až GOLD Institute doplní e-mail pro poptávky. Zatím se nic neodešle.';
+      var sent = $('inq-sent'), form = $('inq');
+      function validContact() {
+        var tel = st.tel.replace(/[^0-9]/g, ''), mailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.mail);
+        return (tel.length >= 9) || mailOk;
+      }
+      function showSent(html) { sent.innerHTML = html; sent.hidden = false; }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!validContact()) { err.hidden = false; (st.tel || !st.mail ? fTel : fMail).focus(); return; }
+        err.hidden = true;
+        var body = message();
+        if (mode === 'mail') {
+          window.location.href = 'mailto:' + encodeURIComponent(toMail) + '?subject=' + encodeURIComponent(subject()) + '&body=' + encodeURIComponent(body);
+          showSent('<p><b>Otevřeli jsme váš e-mail.</b> Zpráva je připravená, stačí ji odeslat.</p>');
+        } else if (mode === 'form') {
+          var btn = $('inq-send'); btn.disabled = true;
+          fetch(service, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ predmet: subject(), zprava: body, jmeno: st.jmeno, telefon: st.tel, email: st.mail, typ: st.typ.nazev, delka: st.L, vyska: st.H, misto: st.misto, termin: st.kdy }) })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); showSent('<p><b>✓ Poptávka odeslána.</b> Ozveme se vám zpátky.</p>'); })
+            .catch(function () { showSent('<p><b>Poptávku se nepodařilo odeslat.</b> Zkuste to prosím znovu, nebo text zkopírujte a pošlete e-mailem.</p>'); })
+            .then(function () { btn.disabled = false; });
+        } else {
+          showSent('<p class="mono">Ukázka · nic se neodeslalo</p><dl><dt>Komu</dt><dd>GOLD Institute <span class="is-todo">e-mail doplníme</span></dd><dt>Předmět</dt><dd>' + esc(subject()) +
+            '</dd><dt>Text</dt><dd>jako v zadání výše</dd></dl>');
+        }
+        sent.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      });
       var status = $('inq-status'), stTimer = 0;
       $('inq-copy').addEventListener('click', function () {
         var txt = $('inq-text').textContent;
@@ -462,6 +529,9 @@
       ['E-mail', F.email ? '<a href="mailto:' + esc(F.email) + '">' + esc(F.email) + '</a>' : '<span class="is-todo">doplní GOLD Institute</span>']
     ];
     $('vcard-rows').innerHTML = rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
+
+    /* předložky v obsahu vytvořeném tady (seznamy, festivaly, mapa) */
+    if (UI.vlna) UI.vlna(doc.querySelector('main'));
 
     /* Odhalení prvků vytvořených tady */
     Array.prototype.forEach.call(doc.querySelectorAll('.rv:not(.is-in)'), function (n) { observe(n, function (x) { x.classList.add('is-in'); }); });

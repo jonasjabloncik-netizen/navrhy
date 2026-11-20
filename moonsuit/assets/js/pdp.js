@@ -1,4 +1,4 @@
-/* MOONSUIT · concept by MALUS/01 · v2 · product page */
+/* MOONSUIT · concept by MALUS/01 · v3 · product page */
 (function () {
   'use strict';
   var M = window.MS, K = window.MSK;
@@ -83,7 +83,7 @@
     var sg = suggestions();
     if (!sg.length) return '';
     var total = p.price + sg.reduce(function (a, x) { return a + x.p.price; }, 0);
-    return '<div class="pset"><div class="opt__head"><span class="label">Complete the set</span><span class="val num">' + fmt(total) + ' together</span></div><div class="pset__list">' +
+    return '<div class="pset"><div class="opt__head"><span>Complete the set</span><span class="val num">' + fmt(total) + ' together</span></div><div class="pset__list">' +
       sg.map(function (x) {
         var av = K.availSizes(x.p, x.c);
         if (!setSizes[x.p.handle]) {
@@ -104,36 +104,46 @@
   function accHTML() {
     var g = M.sizeGuide;
     return '<div class="acc">' +
-      '<details open><summary class="label">Details</summary><div class="acc__body"><p>' + esc(p.tagline) + '</p><ul>' + p.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></div></details>' +
-      '<details><summary class="label">Fabric &amp; care</summary><div class="acc__body"><p>' + esc(M.fabric) + '</p><p>' + esc(M.care) + '</p></div></details>' +
-      (p.oneSize ? '' : '<details><summary class="label">Size &amp; fit</summary><div class="acc__body"><p>' + esc(g.note) + '</p>' + K.chartHTML((K.Fit.get() || {}).size) + '</div></details>') +
-      '<details><summary class="label">Delivery &amp; payment</summary><div class="acc__body"><p>' + esc(M.shipping.free) + '.</p><p>' + esc(M.shipping.casablanca) + '. ' + esc(M.shipping.nationwide) + '.</p><p>' + esc(M.shipping.payment) + '.</p></div></details>' +
-      '<details><summary class="label">Returns</summary><div class="acc__body"><p>' + esc(M.shipping.returns) + '</p><p>Questions? WhatsApp ' + esc(M.brand.whatsapp) + ' or ' + esc(M.brand.email) + '.</p></div></details>' +
+      '<details open><summary class="cap">Details</summary><div class="acc__body"><p>' + esc(p.tagline) + '</p><ul>' + p.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></div></details>' +
+      '<details><summary class="cap">Fabric &amp; care</summary><div class="acc__body"><p>' + esc(M.fabric) + '</p><p>' + esc(M.care) + '</p></div></details>' +
+      (p.oneSize ? '' : '<details><summary class="cap">Size &amp; fit</summary><div class="acc__body"><p>' + esc(g.note) + '</p>' + K.chartHTML((K.Fit.get() || {}).size) + '</div></details>') +
+      '<details><summary class="cap">Delivery &amp; payment</summary><div class="acc__body"><p>' + esc(M.shipping.free) + '.</p><p>' + esc(M.shipping.casablanca) + '. ' + esc(M.shipping.nationwide) + '.</p><p>' + esc(M.shipping.payment) + '.</p></div></details>' +
+      '<details><summary class="cap">Returns</summary><div class="acc__body"><p>' + esc(M.shipping.returns) + '</p><p>Questions? WhatsApp ' + esc(M.brand.whatsapp) + ' or ' + esc(M.brand.email) + '.</p></div></details>' +
       '</div>';
+  }
+  function availHTML() {
+    var d = delivText(), st = size ? K.sizeState(p, color, size) : null;
+    var stock = p.oneSize ? '<b>In stock</b>' : (size && st === 'in' ? '<b>In stock</b> in ' + esc(size) : (K.availSizes(p, color).some(function (s2) { return K.sizeState(p, color, s2) === 'in'; }) ? 'Pick a size to see stock' : '<b>Sold out</b> in ' + esc(color)));
+    return '<ul class="avail">' +
+      '<li class="is-in"><span>' + stock + ' · Casablanca 1–3 days, rest of Morocco 3–7 business days</span></li>' +
+      '<li><span>' + d.t + '</span></li>' +
+      '<li><span>Cash on delivery or bank transfer</span></li>' +
+      '<li><span>Returns within 24 h of delivery, as store credit</span></li></ul>';
+  }
+  function swatchHTML(c) {
+    var im = c.img[0];
+    var any = Object.keys(c.sizes).some(function (s2) { return c.sizes[s2] === 'in'; });
+    return '<button type="button" data-color="' + esc(c.name) + '" class="' + (c.name === color ? 'is-on' : '') + '" aria-pressed="' + (c.name === color) + '" aria-label="' + esc(c.name) + (any ? '' : ', sold out') + '" title="' + esc(c.name) + '">' +
+      (im ? '<img src="' + K.img(im) + '" alt="" loading="lazy">' : '<span class="swi__c" style="--c:' + K.hex(c.name) + '"></span>') + '</button>';
   }
   function drawInfo() {
     var revs = M.productReviews[p.handle] || [];
     var flags = (p.compare ? '<span class="is-sale">' + K.pct(p) + '% off</span>' : '') + (p.summer ? '<span>Summer Edition</span>' : '') + (p.isNew ? '<span>New</span>' : '');
-    var d = delivText();
+    var shown = K.media(p, color).shown;
     $('#info').innerHTML =
+      '<p class="cap info__type">' + esc(TYPE[p.type]) + '</p>' +
       (flags ? '<div class="info__flags">' + flags + '</div>' : '') +
       '<h1>' + esc(p.name) + '</h1>' +
       '<div class="info__sub">' + K.priceHTML(p) + (p.compare ? '<span class="price"><span class="save">You save ' + fmt(p.compare - p.price) + '</span></span>' : '') +
       (revs.length ? '<span class="info__rating">' + (p.rating && p.rating.value ? '<span class="stars" aria-hidden="true">★★★★★</span><span>' + p.rating.value + '</span>' : '') + '<a href="#reviews">' + revs.length + (revs.length === 1 ? ' review' : ' reviews') + '</a></span>' : '') + '</div>' +
       '<p class="info__tag">' + esc(p.tagline) + '</p>' +
-      '<div class="opt"><div class="opt__head"><span class="label">Colour</span><span class="val">' + esc(color) + (K.media(p, color).shown ? ' · photo shows ' + esc(K.media(p, color).shown) : '') + '</span></div><div class="swl" role="group" aria-label="Colour">' +
-      p.colors.map(function (c) {
-        var any = Object.keys(c.sizes).some(function (s) { return c.sizes[s] === 'in'; });
-        return '<button type="button" data-color="' + esc(c.name) + '" class="' + (c.name === color ? 'is-on' : '') + '" aria-pressed="' + (c.name === color) + '" aria-label="' + esc(c.name) + (any ? '' : ', sold out') + '" title="' + esc(c.name) + '"><span class="sw" style="--c:' + K.hex(c.name) + '"></span></button>';
-      }).join('') + '</div></div>' +
-      '<div class="opt" id="sizes-opt"><div class="opt__head"><span class="label">Size</span>' + (p.oneSize ? '' : '<button type="button" class="textbtn" data-open="fitd">Find my size</button>') + '</div>' +
+      '<div class="opt"><div class="opt__head"><span>Colour <b>' + esc(color) + '</b>' + (shown ? ' <span class="mut">· photo shows ' + esc(shown) + '</span>' : '') + '</span><span class="mut">' + p.colors.length + (p.colors.length === 1 ? ' colour' : ' colours') + '</span></div>' +
+      '<div class="swi" role="group" aria-label="Colour">' + p.colors.map(swatchHTML).join('') + '</div></div>' +
+      '<div class="opt" id="sizes-opt"><div class="opt__head"><span>Size' + (size ? ' <b>' + esc(size) + '</b>' : '') + '</span>' + (p.oneSize ? '' : '<button type="button" class="textbtn" data-open="fitd">Find my size</button>') + '</div>' +
       '<div class="sizes' + (p.oneSize ? ' sizes--one' : '') + '" role="group" aria-label="Size">' + K.sizesFor(p).map(sizeBtn).join('') + '</div>' + fitLine() + '</div>' +
-      '<div class="buy"><button type="button" class="btn btn--wide' + (justAdded ? ' is-added' : '') + '" id="addbtn">' + esc(addLabel()) + '</button><p class="look__hint" id="addhint" aria-live="polite"></p>' +
+      '<div class="buy"><button type="button" class="btn btn--block' + (justAdded ? ' is-added' : '') + '" id="addbtn">' + esc(addLabel()) + '</button><p class="look__hint" id="addhint" aria-live="polite"></p>' +
       '<div class="buy__after' + (justAdded ? ' is-on' : '') + '" id="after"><span>' + K.Bag.count() + (K.Bag.count() === 1 ? ' piece' : ' pieces') + ' in your bag</span><button type="button" data-open="bag">View bag (' + K.Bag.count() + ')</button></div></div>' +
-      '<div class="deliv"><div><span class="mphase" style="--p:' + d.p.toFixed(3) + '"><i></i></span><span>' + d.t + '</span></div>' +
-      '<div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h12v9H2zM14 9h4l3 3v3h-7"/><circle cx="6" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg><span>' + esc(M.shipping.casablanca) + ' · rest of Morocco 3–7 business days</span></div>' +
-      '<div><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="1"/><circle cx="12" cy="12" r="2.6"/></svg><span>Pay cash on delivery or by bank transfer</span></div></div>' +
-      setHTML() + accHTML();
+      availHTML() + setHTML() + accHTML();
     drawSbar();
   }
 
@@ -150,7 +160,7 @@
   function drawReviews() {
     var revs = M.productReviews[p.handle] || [], sec = $('#reviews');
     if (!revs.length) { sec.hidden = true; return; }
-    $('#rev-head').innerHTML = '<p class="label">Reviews</p><h2 class="t-m" style="margin-top:12px">' + (p.rating && p.rating.value ? p.rating.value + ' out of 5' : revs.length + (revs.length === 1 ? ' review' : ' reviews')) + '</h2><p class="muted" style="margin-top:12px">' + revs.length + ' verified ' + (revs.length === 1 ? 'review' : 'reviews') + ' from moonsuitactive.com.</p>';
+    $('#rev-head').innerHTML = '<h2 class="d2">reviews</h2><div class="rev__score" style="margin-top:22px">' + (p.rating && p.rating.value ? '<b>' + p.rating.value + '</b><span><span class="stars" aria-hidden="true">★★★★★</span> ' : '<span>') + revs.length + ' verified ' + (revs.length === 1 ? 'review' : 'reviews') + ' from moonsuitactive.com</span></div>';
     $('#rev-list').innerHTML = revs.map(function (r) {
       return '<div class="prev__item"><div class="prev__who"><b>' + esc(r.name) + '</b><span class="ver">✓ Verified buyer</span><span class="muted">' + esc(r.date) + (r.item ? ' · ' + esc(r.item) : '') + '</span></div><blockquote>' + esc(r.text) + '</blockquote></div>';
     }).join('');
@@ -158,8 +168,9 @@
   function drawMore() {
     var same = M.products.filter(function (x) { return x !== p && x.type === p.type; });
     var rest = M.products.filter(function (x) { return x !== p && x.type !== p.type && (p.suggest || []).indexOf(x.handle) === -1; });
-    var list = same.concat(rest).slice(0, 4), g = $('#more-grid');
-    list.forEach(function (x) { g.appendChild(K.cardEl(x, K.hasColor(x, color) ? color : x.defaultColor)); });
+    var list = same.concat(rest).slice(0, 8), g = $('#more-grid');
+    list.forEach(function (x) { var el = K.cardEl(x, K.hasColor(x, color) ? color : x.defaultColor); el.setAttribute('role', 'listitem'); g.appendChild(el); });
+    K.rail(g.closest('[data-rail]'));
   }
 
   /* ---------- lightbox ---------- */
@@ -191,7 +202,7 @@
     function show(v, persist) {
       var r = K.Fit.recommend(v.h, v.eu, v.pref);
       var st = K.sizeState(p, color, r.size);
-      $('#fitd-res').innerHTML = '<p class="label">Your Moonsuit size</p><p class="fit__size"><span>' + r.size + '</span></p><p class="fit__why">' + esc(r.why) + '</p>' +
+      $('#fitd-res').innerHTML = '<p class="cap">Your Moonsuit size</p><p class="fit__size"><span>' + r.size + '</span></p><p class="fit__why">' + esc(r.why) + '</p>' +
         '<div style="margin-top:18px">' + (st === 'in' ? '<button type="button" class="btn btn--wide" data-pick="' + r.size + '" data-close-after>Select ' + r.size + ' in ' + esc(color) + '</button>' : '<p class="fit__why"><b>' + r.size + ' is ' + (st === 'out' ? 'sold out' : 'not made') + ' in ' + esc(color) + '.</b> Try another colour.</p>') + '</div>' +
         '<div style="margin-top:22px">' + K.chartHTML(r.size) + '</div>';
       if (persist) K.Fit.set(r);
@@ -234,7 +245,7 @@
   function init() {
     if (!size) size = defaultSize();
     document.title = p.name + ' · ' + color + ' · MOONSUIT (concept)';
-    $('#crumbs').innerHTML = '<a href="index.html#shop">Shop all</a><span>/</span><a href="index.html#shop-' + p.type + '">' + TYPE[p.type] + '</a><span>/</span><span aria-current="page">' + esc(p.name) + '</span>';
+    $('#crumbs').innerHTML = '<a href="index.html">MOONSUIT</a><span aria-hidden="true">/</span><a href="' + K.catUrl(p.type) + '">' + TYPE[p.type] + '</a><span aria-hidden="true">/</span><span aria-current="page">' + esc(p.name) + '</span>';
     drawGallery(); drawInfo(); drawReviews(); drawMore(); drawFitDrawer();
     K.reveal(doc);
 

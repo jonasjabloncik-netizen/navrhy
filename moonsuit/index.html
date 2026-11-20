@@ -32,11 +32,11 @@
   <div class="wrap hdr__in">
     <div class="hdr__left">
       <nav class="hdr__nav" aria-label="Main">
-        <a href="#shop">Shop all</a>
-        <a href="#shop-leggings" class="opt-hide">Leggings</a>
-        <a href="#shop-bras" class="opt-hide">Bras</a>
-        <a href="#summer-edit" class="is-sale">Summer Edit −20%</a>
-        <a href="#fit">Find my size</a>
+        <a href="kategorie.html">Shop all</a>
+        <a href="kategorie.html?t=leggings" class="opt-hide">Leggings</a>
+        <a href="kategorie.html?t=bras" class="opt-hide">Sports bras</a>
+        <a href="index.html#summer-edit" class="is-sale">Summer edit −20%</a>
+        <a href="index.html#fit">Find my size</a>
       </nav>
       <button type="button" class="hdr__menu" data-open="menu" aria-label="Open menu">Menu</button>
     </div>
@@ -64,100 +64,118 @@
     </div>
   </section>
 
-  <section class="shop" id="shop" aria-labelledby="shop-t">
+  <section class="sec shop" id="shop" aria-labelledby="shop-t">
     <div class="wrap">
-      <div class="sec__head"><h2 class="t-l" id="shop-t"><span class="rl"><span>Shop by <em>colour</em></span></span></h2><p class="rv">Fourteen colours, two sizes. Tap a colour and every piece switches to it, with stock for each size.</p></div>
-      <div class="chips" id="chips" role="group" aria-label="Colour"></div>
-      <div class="shop__bar"><div class="types" id="types" role="group" aria-label="Type"></div><p class="shop__count" id="shop-count" aria-live="polite"></p></div>
-      <div class="grid" id="grid"></div>
-      <div class="shop__more" id="shop-more"><button type="button" class="btn btn--line">Show all 13 pieces</button></div>
+      <div class="sh">
+        <h2 class="d1" id="shop-t"><span class="rl"><span>shop by colour</span></span></h2>
+        <div class="sh__aside rv"><p class="lead">Fourteen colours, two sizes. Pick a colour and every piece switches to it, with stock for each size.</p><a class="lnk" href="kategorie.html">Shop all 13 pieces</a></div>
+      </div>
+      <div class="moons rv" id="moons" role="group" aria-label="Colour"></div>
+    </div>
+    <div class="shop__rail"><div class="rail" data-rail>
+    <div class="rail__track " id="shop-rail" role="list" aria-label="Pieces"></div>
+    <div class="wrap rail__foot"><div class="rail__bar" aria-hidden="true"><i></i></div><div class="rail__nav"><button type="button" data-rail-prev aria-label="Previous"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg></button><button type="button" data-rail-next aria-label="Next"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></button></div></div>
+  </div></div>
+  </section>
+
+  <section class="spot on-dark" id="sculpting" aria-labelledby="spot-t">
+    <div class="spot__media" id="spot-media"><img id="spot-img" alt="" loading="lazy"><div class="spot__thumbs" id="spot-thumbs" role="group" aria-label="Photos"></div></div>
+    <div class="spot__info">
+      <p class="cap rv"><span class="stars" aria-hidden="true">★★★★★</span> 5.0 · Seamless Technology®</p>
+      <h2 class="d1" id="spot-t"><span class="rl"><span>sculpting</span></span><span class="rl"><span style="--i:1">legging</span></span></h2>
+      <p class="lead rv">Shapes where it counts. Holds where it matters. Knitted in one single piece, with no side seams and no stitching.</p>
+      <div class="spot__opt rv"><p class="cap">Colour <b id="spot-cname"></b></p><div class="moons moons--sm" id="spot-colours" role="group" aria-label="Colour"></div></div>
+      <div class="spot__opt rv"><p class="cap">Size</p><div class="sizes" id="spot-sizes" role="group" aria-label="Size"></div></div>
+      <div class="spot__buy rv"><p class="price" id="spot-price"></p><button type="button" class="btn btn--light" id="spot-add">Choose your size</button></div>
+      <ul class="spot__specs rv"><li>Squat-proof, guaranteed opaque</li><li>3D-knit in one piece</li><li>Sculpting compression zones</li><li>4-way stretch, matte finish</li><li>High-rise waistband</li><li>90% polyamide, 10% elastane</li></ul>
+      <a class="lnk spot__more rv" href="produkt.html?p=sculpting-legging">All product details</a>
     </div>
   </section>
 
-  <section class="sec edit" id="summer-edit" aria-labelledby="edit-t">
-    <div class="wrap">
-      <div class="sec__head"><h2 class="t-l" id="edit-t"><span class="rl"><span>Summer Edit.</span></span><span class="rl"><span style="--i:1"><em>Now 20% off.</em></span></span></h2>
-        <p class="rv">Made for the heat, built to move. The last Summer Edition pieces, with the old and the new price side by side on every card, product page and in the bag.</p></div>
-      <div class="grid grid--3" id="edit-grid"></div>
-      <p class="edit__note rv"><b>Concept note.</b> Example discount. In Shopify you set a compare-at price and the saving shows up like this everywhere.</p>
+  <section class="sec summer" id="summer-edit" aria-labelledby="edit-t">
+    <div class="wrap summer__in">
+      <figure class="summer__media curtain"><img src="assets/img/short-summer-orange.jpg" alt="Summer Edition set in Orange on a street lined with palm trees" loading="lazy"></figure>
+      <div class="summer__body">
+        <h2 class="d1" id="edit-t"><span class="rl"><span>summer edit</span></span></h2>
+        <div class="summer__off rv"><p class="d3">−20 % on the last pieces</p></div>
+        <p class="lead rv">Made for the heat, built to move. The old and the new price sit side by side on every card, on the product page and in the bag.</p>
+        <div class="summer__grid" id="edit-grid"></div>
+        <p class="note rv"><b>Concept note.</b> Example discount. In Shopify you set a compare-at price and the saving shows up like this everywhere.</p>
+      </div>
     </div>
   </section>
 
-  <section class="look" id="look" aria-labelledby="look-t">
-    <div class="look__media curtain"><img src="assets/img/look-red.jpg" alt="Long Sleeve Top and Sculpting Legging in Red on the rocks by the ocean" loading="lazy"><div id="look-spots"></div></div>
-    <div class="look__panel">
-      <h2 class="t-l" id="look-t"><span class="rl"><span>Red,</span></span><span class="rl"><span style="--i:1"><em>top to toe.</em></span></span></h2>
-      <p class="lead rv">Long Sleeve Top and Sculpting Legging. Pick a size for each piece and take the whole look in one tap.</p>
-      <ul class="look__items" id="look-items"></ul>
-      <div class="look__total" id="look-total"></div>
-      <button type="button" class="btn btn--wide" id="look-add">Add the full look</button>
-      <p class="look__hint" id="look-free"></p>
+  <section class="sec look" id="look" aria-labelledby="look-t">
+    <div class="wrap look__in">
+      <div class="look__media curtain"><img src="assets/img/look-red.jpg" alt="Long Sleeve Top and Sculpting Legging in Red on the rocks by the ocean" loading="lazy"><div id="look-spots"></div></div>
+      <div class="look__panel">
+        <h2 class="d1" id="look-t"><span class="rl"><span>red,</span></span><span class="rl"><span style="--i:1">top to toe</span></span></h2>
+        <p class="lead rv">Long Sleeve Top and Sculpting Legging, shot on the Atlantic in Casablanca. Pick a size for each piece and take the whole look in one tap.</p>
+        <ul class="look__items" id="look-items"></ul>
+        <div class="look__total" id="look-total"></div>
+        <button type="button" class="btn btn--block" id="look-add">Add the full look</button>
+        <p class="look__hint" id="look-free"></p>
+      </div>
     </div>
   </section>
 
   <section class="sec fit" id="fit" aria-labelledby="fit-t">
-    <div class="wrap fit__in">
-      <div class="fit__intro"><h2 class="t-l" id="fit-t"><span class="rl"><span>Two sizes.</span></span><span class="rl"><span style="--i:1"><em>Find yours</em></span></span><span class="rl"><span style="--i:2">in 10 seconds.</span></span></h2>
-        <p class="lead rv">Every piece comes in XS/S or M/L. Tell us your height, your usual size and how you like it to feel. We match it with the Moonsuit size chart and remember it on every product page.</p></div>
-      <div class="fit__formwrap" id="fit-form"></div>
-      <div class="fit__out" aria-live="polite">
-        <div><p class="label">Your Moonsuit size</p><p class="fit__size" id="fit-size"><span>XS/S</span></p><p class="fit__why" id="fit-why"></p></div>
-        <div><div id="fit-chart"></div><p class="fit__saved" id="fit-saved" hidden><span class="tick" aria-hidden="true">✓</span>Saved. Product pages now show your size next to the size buttons.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec tech" id="tech" aria-labelledby="tech-t">
-    <div class="wrap tech__in">
-      <div class="tech__txt">
-        <p class="label rv">Seamless Technology®</p>
-        <h2 class="t-l" id="tech-t"><span class="rl"><span>No seams.</span></span><span class="rl"><span style="--i:1">No limits.</span></span><span class="rl"><span style="--i:2"><em>Just movement.</em></span></span></h2>
-        <p class="lead rv">Knitted in one single piece, with no side seams and no stitching. Shapes where it counts. Holds where it matters.</p>
-        <div class="rv"><a class="btn" href="produkt.html?p=sculpting-legging&amp;c=Blue%20Petrol">Shop the Sculpting Legging</a></div>
-      </div>
-      <figure class="tech__media curtain"><img src="assets/img/tech-back.jpg" alt="Sculpting Legging and Square Neck Bra in Blue Petrol, from the back" loading="lazy"></figure>
-      <dl class="specs">
-        <div class="rv"><dt>Squat-proof</dt><dd>Tested and guaranteed opaque at full stretch.</dd></div>
-        <div class="rv" style="--i:1"><dt>3D-knit in one piece</dt><dd>No side seams, no stitching, no pressure points. The fabric maps to your body instead of fighting it.</dd></div>
-        <div class="rv" style="--i:2"><dt>Sculpting compression</dt><dd>Targeted compression zones built directly into the knit. No extra panels, no added layers.</dd></div>
-        <div class="rv" style="--i:3"><dt>4-way stretch</dt><dd>Full range of motion. Breathable, chafe-free and matte.</dd></div>
-        <div class="rv" style="--i:4"><dt>The fabric</dt><dd>90% polyamide, 10% elastane, made in Turkey to European textile standards.</dd></div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="sec voices" id="reviews" aria-labelledby="rev-t">
     <div class="wrap">
-      <div class="sec__head"><h2 class="t-l" id="rev-t"><span class="rl"><span>Moonsuiters <em>say</em></span></span></h2>
-        <div class="voices__meta rv"><p><span class="stars" aria-hidden="true">★★★★★</span> 5.0 on the Sculpting Legging</p><a class="link" href="https://www.instagram.com/moonsuitactive/" target="_blank" rel="noopener">@moonsuitactive</a></div></div>
-      <div class="voices__row" id="voices"></div>
+      <div class="sh">
+        <h2 class="d1" id="fit-t"><span class="rl"><span>will it fit?</span></span></h2>
+        <div class="sh__aside rv"><p class="lead">Every piece comes in XS/S or M/L. Tell us your height, your usual size and how you like it to feel. We check it against the Moonsuit size chart and show what is in stock in your size.</p></div>
+      </div>
+      <div class="fit__tool">
+        <div id="fit-form"></div>
+        <div class="fit__out" aria-live="polite"><p class="cap">Your Moonsuit size</p><p class="fit__size" id="fit-size"><span>xs/s</span></p><div><p class="fit__why" id="fit-why"></p><p class="fit__saved" id="fit-saved" hidden><span class="tick" aria-hidden="true">✓</span>Saved. Product pages show it next to the sizes.</p></div></div>
+      </div>
+    </div>
+    <div class="rail" data-rail>
+    <div class="rail__track rail__track--sm" id="fit-rail" role="list" aria-label="In your size"></div>
+    <div class="wrap rail__foot"><div class="rail__bar" aria-hidden="true"><i></i></div><div class="rail__nav"><button type="button" data-rail-prev aria-label="Previous"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg></button><button type="button" data-rail-next aria-label="Next"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></button></div></div>
+  </div>
+  </section>
+
+  <section class="sec rev" id="reviews" aria-labelledby="rev-t">
+    <div class="wrap rev__in">
+      <div class="rev__head">
+        <h2 class="d2" id="rev-t"><span class="rl"><span>moonsuiters</span></span><span class="rl"><span style="--i:1">say</span></span></h2>
+        <div class="rev__score rv"><b>5.0</b><span><span class="stars" aria-hidden="true">★★★★★</span> on the Sculpting Legging</span></div>
+        <a class="lnk rv" href="https://www.instagram.com/moonsuitactive/" target="_blank" rel="noopener">@moonsuitactive</a>
+      </div>
+      <div>
+        <div class="rev__stage" id="rev-stage" aria-live="polite"></div>
+        <div class="rev__nav"><span class="rev__count" id="rev-count"></span><div class="rail__nav"><button type="button" id="rev-prev" aria-label="Previous review"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg></button><button type="button" id="rev-next" aria-label="Next review"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></button></div></div>
+      </div>
     </div>
   </section>
 
-  <section class="story" id="story" aria-labelledby="story-t">
+  <section class="sec story on-dark" id="story" aria-labelledby="story-t">
     <div class="wrap story__in">
       <figure class="film" id="film">
         <img class="film__poster" src="assets/img/film-poster.jpg" alt="" loading="lazy">
         <video muted loop playsinline preload="none" aria-label="MOONSUIT film from the moonsuitactive.com homepage"></video>
-        <button type="button" class="film__ctl" id="film-ctl" aria-pressed="false"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg><span>Play film</span></button>
+        <button type="button" class="film__ctl" id="film-ctl"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg><span>Play film</span></button>
       </figure>
       <div class="story__txt">
-        <h2 class="label rv" id="story-t">Our story</h2>
-        <blockquote class="rv"><p>There's a moment mid-workout where you stop thinking about your clothes and <em>just move.</em></p></blockquote>
-        <p class="story__by label rv">Mounia, founder of MOONSUIT</p>
+        <h2 class="cap rv" id="story-t">Our story</h2>
+        <blockquote class="rv"><p>There's a moment mid-workout where you stop thinking about your clothes and just move.</p></blockquote>
+        <p class="story__by cap rv">Mounia, founder of MOONSUIT</p>
         <p class="story__lead rv">After years of training across 11 disciplines, she still could not find activewear that was both strong and beautiful. We couldn't find it. So we made it.</p>
-        <div class="story__cta rv"><a class="btn btn--moon" href="https://moonsuitactive.com/pages/our-story" target="_blank" rel="noopener">Read the full story</a></div>
+        <div class="story__nums rv"><div><b>11</b><span>disciplines behind the design</span></div><div><b>14</b><span>colours in the collection</span></div><div><b>2</b><span>sizes, XS/S and M/L</span></div></div>
+        <div class="story__cta rv"><a class="btn btn--ghost" href="https://moonsuitactive.com/pages/our-story" target="_blank" rel="noopener">Read the full story</a></div>
       </div>
     </div>
   </section>
 
-  <section class="join" aria-labelledby="join-t">
-    <figure class="join__media curtain"><img src="assets/img/join-court.jpg" alt="Moonsuit set in Brown on a blue tennis court" loading="lazy"></figure>
-    <div class="join__txt">
-      <h2 class="t-xl" id="join-t"><span class="rl"><span>Move with</span></span><span class="rl"><span style="--i:1"><em>confidence.</em></span></span></h2>
-      <p class="lead rv">Join the Moonsuit community and get 10% off your first order.</p>
-      <div class="rv"><button type="button" class="btn" id="join-btn">Get my 10% off</button></div>
-      <p class="join__msg" id="join-msg" aria-live="polite"></p>
+  <section class="sec join" aria-labelledby="join-t">
+    <div class="wrap join__in">
+      <div class="join__txt">
+        <h2 class="d1" id="join-t"><span class="rl"><span>move with</span></span><span class="rl"><span style="--i:1">confidence</span></span></h2>
+        <p class="lead rv">New colours, restocks and the shoots behind them. Join the Moonsuit community on Instagram.</p>
+        <div class="rv"><a class="btn" href="https://www.instagram.com/moonsuitactive/" target="_blank" rel="noopener">Follow @moonsuitactive</a></div>
+      </div>
+      <figure class="join__media curtain"><img src="assets/img/join-court.jpg" alt="Moonsuit set in Brown on a blue tennis court" loading="lazy"></figure>
     </div>
   </section>
 </main>
@@ -168,15 +186,15 @@
         <p>Premium seamless activewear for women, from Casablanca. Squat-proof, shape-keeping and designed to move with you.</p>
         <a class="link" href="https://www.instagram.com/moonsuitactive/" target="_blank" rel="noopener">@moonsuitactive</a>
       </div>
-      <div class="ftr__col"><h3 class="label">Shop</h3><ul>
-        <li><a href="index.html#shop">Shop all</a></li><li><a href="index.html#shop-leggings">Leggings</a></li><li><a href="index.html#shop-bras">Sports bras</a></li><li><a href="index.html#shop-tops">Tops</a></li><li><a href="index.html#shop-shorts">Shorts</a></li><li><a href="index.html#summer-edit">Summer Edit</a></li></ul></div>
-      <div class="ftr__col"><h3 class="label">Help</h3><ul>
+      <div class="ftr__col"><h3 class="cap">Shop</h3><ul>
+        <li><a href="kategorie.html">Shop all</a></li><li><a href="kategorie.html?t=leggings">Leggings</a></li><li><a href="kategorie.html?t=bras">Sports bras</a></li><li><a href="kategorie.html?t=tops">Tops</a></li><li><a href="kategorie.html?t=shorts">Shorts</a></li><li><a href="index.html#summer-edit">Summer edit</a></li></ul></div>
+      <div class="ftr__col"><h3 class="cap">Help</h3><ul>
         <li><a href="index.html#fit">Size guide</a></li><li><a href="https://moonsuitactive.com/pages/faq" target="_blank" rel="noopener">FAQ</a></li><li><a href="https://moonsuitactive.com/pages/shipping" target="_blank" rel="noopener">Shipping</a></li><li><a href="https://moonsuitactive.com/pages/returns-exchanges" target="_blank" rel="noopener">Returns &amp; exchanges</a></li><li><a href="https://moonsuitactive.com/pages/our-story" target="_blank" rel="noopener">Our story</a></li></ul></div>
-      <div class="ftr__contact"><h3 class="label">Contact</h3>
+      <div class="ftr__contact"><h3 class="cap">Contact</h3>
         <a href="https://wa.me/212632910251" target="_blank" rel="noopener">WhatsApp +212 632 910 251</a>
         <a href="mailto:mounia@moonsuitactive.com">mounia@moonsuitactive.com</a>
         <p>Quartier Maarif, Casablanca</p></div>
-      <div class="ftr__contact"><h3 class="label">Delivery &amp; payment</h3>
+      <div class="ftr__contact"><h3 class="cap">Delivery &amp; payment</h3>
         <p>Free across Morocco over 500 Dh</p><p>Casablanca 1–3 days</p>
         <div class="ftr__pay"><span>Cash on delivery</span><span>Bank transfer</span></div></div>
     </div>
@@ -187,14 +205,14 @@
 <aside class="menu" id="menu" aria-label="Menu" aria-hidden="true" tabindex="-1" data-autofocus hidden>
   <div class="menu__top"><svg class="logo-svg " viewBox="0 0 1342 158" aria-hidden="true" focusable="false"><use class="letters" href="#p-letters"/><use class="crescent" href="#p-cres"/></svg><button type="button" class="x" data-close>Close</button></div>
   <nav aria-label="Menu">
-    <a href="#shop" data-close>Shop all</a>
-    <a href="#shop-leggings" data-close>Leggings</a>
-    <a href="#shop-bras" data-close>Sports bras</a>
-    <a href="#shop-tops" data-close>Tops</a>
-    <a href="#shop-shorts" data-close>Shorts</a>
-    <a href="#summer-edit" class="is-sale" data-close>Summer Edit −20%</a>
-    <a href="#fit" data-close>Find my size</a>
-    <a href="#story" data-close>Our story</a>
+    <a href="kategorie.html" data-close>Shop all</a>
+    <a href="kategorie.html?t=leggings" data-close>Leggings</a>
+    <a href="kategorie.html?t=bras" data-close>Sports bras</a>
+    <a href="kategorie.html?t=tops" data-close>Tops</a>
+    <a href="kategorie.html?t=shorts" data-close>Shorts</a>
+    <a href="index.html#summer-edit" class="is-sale" data-close>Summer edit −20%</a>
+    <a href="index.html#fit" data-close>Find my size</a>
+    <a href="index.html#story" data-close>Our story</a>
   </nav>
   <div class="menu__foot"><p>WhatsApp +212 632 910 251</p><p>mounia@moonsuitactive.com</p><p>@moonsuitactive</p></div>
 </aside>

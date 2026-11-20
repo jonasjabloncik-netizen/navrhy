@@ -224,6 +224,16 @@ window.MS = {
     }
   ],
 
+  /* category page: title, hero photo and tile photo per type */
+  categories: {
+    all: { title: 'shop all', label: 'Shop all', img: 'crop-tee-2', pos: '50% 30%', tile: 'crop-tee-navy' },
+    leggings: { title: 'leggings', label: 'Leggings', img: 'legging-court', pos: '50% 35%', tile: 'legging-red-2' },
+    bras: { title: 'sports bras', label: 'Sports bras', img: 'sq-bra-red', pos: '50% 30%', tile: 'sq-bra-summer-pink' },
+    tops: { title: 'tops', label: 'Tops', img: 'zip-grey', pos: '50% 30%', tile: 'long-sleeve-wine' },
+    shorts: { title: 'shorts', label: 'Shorts', img: 'short-wine', pos: '50% 40%', tile: 'short-summer-orange' },
+    accessories: { title: 'accessories', label: 'Accessories', img: 'headband-red', pos: '50% 30%', tile: 'headband-brown' }
+  },
+
   /* hero editions: captions are Moonsuit's own Instagram / collection copy */
   editions: [
     {

@@ -1,4 +1,4 @@
-/* MOONSUIT · concept by MALUS/01 · v2 · shared: bag, cards, drawers, fit finder, sharper photos, logo moon */
+/* MOONSUIT · concept by MALUS/01 · v3 · shared: bag, cards, drawers, fit finder, sharper photos, logo moon */
 (function () {
   'use strict';
   var M = window.MS;
@@ -176,7 +176,7 @@
       if (pair) {
         var pc = hasColor(pair, lastLine.c) ? lastLine.c : pair.defaultColor;
         var pm = media(pair, pc);
-        html += '<div class="bag__pair"><h3 class="label">Pairs well with your ' + esc(lp.name) + '</h3><div class="pair"><a href="' + pdpUrl(pair, pc) + '"><img src="' + img(pm.imgs[0]) + '" alt="' + esc(pair.name) + '"></a>' +
+        html += '<div class="bag__pair"><h3 class="cap">Pairs well with your ' + esc(lp.name) + '</h3><div class="pair"><a href="' + pdpUrl(pair, pc) + '"><img src="' + img(pm.imgs[0]) + '" alt="' + esc(pair.name) + '"></a>' +
           '<div><p class="pair__name">' + esc(pair.name) + '</p><p class="pair__meta">' + esc(pc) + ' · ' + fmt(pair.price) + '</p></div><div class="qa" style="margin:0">' +
           availSizes(pair, pc).map(function (s) {
             var st = sizeState(pair, pc, s);
@@ -284,11 +284,11 @@
     var h = v ? v.h : 165, eu = v ? v.eu : 36, pref = v ? v.pref : 'sculpt';
     var eus = [32, 34, 36, 38, 40, 42];
     return '<div class="fit__form" data-fitform="' + id + '">' +
-      '<fieldset class="fit__q"><legend class="label">Your height</legend><div class="fit__range">' +
+      '<fieldset class="fit__q"><legend class="cap">Your height</legend><div class="fit__range">' +
       '<input type="range" min="150" max="182" step="1" value="' + h + '" aria-label="Height in centimetres" data-f="h"><output class="num">' + h + ' cm</output></div></fieldset>' +
-      '<fieldset class="fit__q"><legend class="label">Your usual size</legend><div class="pills" role="group">' +
-      eus.map(function (e) { return '<button type="button" data-f="eu" data-v="' + e + '" class="' + (e === eu ? 'is-on' : '') + '" aria-pressed="' + (e === eu) + '">EU ' + e + '</button>'; }).join('') + '</div></fieldset>' +
-      '<fieldset class="fit__q"><legend class="label">How do you like it</legend><div class="pills pills--tall" role="group">' +
+      '<fieldset class="fit__q"><legend class="cap">Usual size, EU</legend><div class="pills" role="group">' +
+      eus.map(function (e) { return '<button type="button" data-f="eu" data-v="' + e + '" class="' + (e === eu ? 'is-on' : '') + '" aria-pressed="' + (e === eu) + '" aria-label="EU ' + e + '">' + e + '</button>'; }).join('') + '</div></fieldset>' +
+      '<fieldset class="fit__q"><legend class="cap">How you like it</legend><div class="pills pills--tall" role="group">' +
       '<button type="button" data-f="pref" data-v="sculpt" class="' + (pref === 'sculpt' ? 'is-on' : '') + '" aria-pressed="' + (pref === 'sculpt') + '">Sculpting<small>snug, second skin</small></button>' +
       '<button type="button" data-f="pref" data-v="relax" class="' + (pref === 'relax' ? 'is-on' : '') + '" aria-pressed="' + (pref === 'relax') + '">Relaxed<small>easy, a little room</small></button>' +
       '</div></fieldset></div>';
@@ -369,6 +369,53 @@
     $$('img', scope || doc).forEach(function (im) { if (hdKey(im.getAttribute('src'))) hdIO.observe(im); });
   }
   function localSrc(im) { return im.dataset.local && im.getAttribute('src').indexOf(HDB) === 0 ? im.dataset.local : im.getAttribute('src'); }
+
+  /* ---------- rails: a horizontal row of products with a progress line, arrows and mouse drag ---------- */
+  function rail(root) {
+    if (!root) return;
+    if (root._rail) { root._rail(); return; }
+    var track = $('.rail__track', root), bar = $('.rail__bar i', root), prev = $('[data-rail-prev]', root), next = $('[data-rail-next]', root);
+    if (!track) return;
+    function update() {
+      var max = track.scrollWidth - track.clientWidth;
+      var vis = Math.min(1, track.clientWidth / Math.max(track.scrollWidth, 1));
+      var p = max > 0 ? Math.min(1, Math.max(0, track.scrollLeft / max)) : 0;
+      if (bar) { bar.style.setProperty('--s', vis.toFixed(4)); bar.style.setProperty('--x', (p * (1 - vis) * 100).toFixed(3) + '%'); }
+      if (prev) prev.disabled = track.scrollLeft < 4;
+      if (next) next.disabled = track.scrollLeft > max - 4;
+      root.classList.toggle('is-static', max <= 4);
+    }
+    function step(dir) {
+      var first = track.firstElementChild;
+      var w = first ? first.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).columnGap) || 0) : track.clientWidth * .8;
+      var n = Math.max(1, Math.floor(track.clientWidth * .92 / w));
+      track.scrollBy({ left: dir * w * n, behavior: RM ? 'auto' : 'smooth' });
+    }
+    if (prev) prev.addEventListener('click', function () { step(-1); });
+    if (next) next.addEventListener('click', function () { step(1); });
+    var tick = false;
+    track.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(function () { tick = false; update(); }); } }, { passive: true });
+    window.addEventListener('resize', update);
+    // drag with a mouse; touch and trackpads scroll natively
+    var x0 = null, s0 = 0, dragged = false;
+    track.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button')) return; x0 = e.clientX; s0 = track.scrollLeft; dragged = false; });
+    window.addEventListener('pointermove', function (e) {
+      if (x0 == null) return;
+      var d = e.clientX - x0;
+      if (!dragged && Math.abs(d) > 6) { dragged = true; track.classList.add('is-drag'); }
+      if (dragged) track.scrollLeft = s0 - d;
+    });
+    window.addEventListener('pointerup', function () {
+      if (x0 == null) return;
+      x0 = null;
+      if (dragged) { track.classList.remove('is-drag'); setTimeout(function () { dragged = false; }, 0); }
+    });
+    track.addEventListener('click', function (e) { if (dragged) { e.preventDefault(); e.stopPropagation(); } }, true);
+    track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    root._rail = update;
+    update();
+  }
+  function catUrl(t) { return 'kategorie.html' + (t && t !== 'all' ? '?t=' + encodeURIComponent(t) : ''); }
 
   /* ---------- the moon of the logo makes one orbit ---------- */
   function orbit(svg) {
@@ -481,7 +528,7 @@
     pdpUrl: pdpUrl, availSizes: availSizes, priceHTML: priceHTML, pct: pct, store: store, Bag: Bag, addToBag: addToBag, addMany: addMany,
     openP: openP, closeP: closeP, toast: toast, cardEl: cardEl, cardInner: cardInner, Fit: Fit, fitFormHTML: fitFormHTML, bindFitForm: bindFitForm,
     chartHTML: chartHTML, reveal: reveal, moonPhase: moonPhase, freeLine: freeLine, RM: RM, emit: emit,
-    hd: hd, localSrc: localSrc, orbit: orbit
+    hd: hd, localSrc: localSrc, orbit: orbit, rail: rail, catUrl: catUrl, metaText: metaText
   };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
 })();

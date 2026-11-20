@@ -1,4 +1,4 @@
-/* MOONSUIT · concept by MALUS/01 · v2 · homepage */
+/* MOONSUIT · concept by MALUS/01 · v3 · homepage */
 (function () {
   'use strict';
   var M = window.MS, K = window.MSK;
@@ -26,13 +26,13 @@
       var was = set.reduce(function (a, x) { return a + (x.p.compare || x.p.price); }, 0);
       var colour = e.pieces[0][1];
       return '<div class="hero__pane" id="hp-' + e.id + '" data-i="' + i + '" style="--ink-p:' + e.ink + ';--soft-p:' + e.soft + ';--line-p:rgba(255,255,255,.2);--tint-p:' + e.tint + '" role="tabpanel" aria-labelledby="ht-' + e.id + '"' + (i ? ' aria-hidden="true"' : '') + '>' +
-        '<p class="hero__eyebrow label hero__fade" style="--i:0">' + MARK + '<span>' + esc(M.brand.tagline) + '</span><span class="dot"></span><span>' + esc(e.note) + '</span></p>' +
-        '<h2 class="t-hero hero__title"><span class="ln"><span style="--i:0">' + esc(e.title[0]) + '</span></span><span class="ln"><span style="--i:1"><em>' + esc(e.title[1]) + '</em></span></span></h2>' +
+        '<p class="hero__eyebrow cap hero__fade" style="--i:0">' + MARK + '<span>' + esc(M.brand.tagline) + '</span><span class="dot"></span><span>' + esc(e.note) + '</span></p>' +
+        '<h2 class="d1 hero__title"><span class="ln"><span style="--i:0">' + esc(e.title[0]) + '</span></span><span class="ln"><span style="--i:1">' + esc(e.title[1]) + '</span></span></h2>' +
         '<p class="hero__caption hero__fade" style="--i:1">' + esc(e.caption) + '</p>' +
         '<ul class="hero__pieces hero__fade" style="--i:2">' + set.map(function (x) {
           return '<li><a href="' + K.pdpUrl(x.p, x.c) + '"><span class="sw" style="--c:' + K.hex(x.c) + '"></span>' + esc(x.p.name) + '</a>' + K.priceHTML(x.p) + '</li>';
         }).join('') + '</ul>' +
-        '<div class="hero__set hero__fade" style="--i:3"><span class="label">The set</span>' +
+        '<div class="hero__set hero__fade" style="--i:3"><span class="cap">The set</span>' +
         (was > total ? '<p class="price is-sale"><span class="now">' + fmt(total) + '</span><s>' + fmt(was) + '</s></p>' : '<p class="price"><span class="now">' + fmt(total) + '</span></p>') +
         (total >= M.freeShipping ? '<span class="free">· free delivery</span>' : '') + '</div>' +
         '<div class="hero__cta hero__fade" style="--i:4"><button type="button" class="btn" data-set="' + i + '" aria-expanded="false">Add the set</button>' +
@@ -43,9 +43,9 @@
     tints.innerHTML = E.map(function (e, i) { return '<div class="hero__tint' + (i === 0 ? ' is-on' : '') + '" style="background:' + e.tint + '"></div>'; }).join('');
     tabs.innerHTML = E.map(function (e, i) {
       return '<button type="button" class="htab" role="tab" id="ht-' + e.id + '" aria-controls="hp-' + e.id + '" aria-selected="' + (i === 0) + '" data-go="' + i + '">' +
-        '<span class="htab__l label"><span class="sw" style="--c:' + e.swatch + '"></span>' + esc(e.tab || e.label) + '</span><span class="htab__bar"><i></i></span></button>';
+        '<span class="htab__l cap"><span class="sw" style="--c:' + e.swatch + '"></span>' + esc(e.tab || e.label) + '</span><span class="htab__bar"><i></i></span></button>';
     }).join('');
-    pauseBtn.innerHTML = '<span class="hmoon" aria-hidden="true"><i></i></span><span class="label" data-pl>Pause</span>';
+    pauseBtn.innerHTML = '<span class="hmoon" aria-hidden="true"><i></i></span><span class="cap" data-pl>Pause</span>';
     var paneEls = $$('.hero__pane', panes), tintEls = $$('.hero__tint', tints), tabEls = $$('.htab', tabs);
     el.style.setProperty('--h-ink', E[0].ink);
     E.slice(1).forEach(function (e) { var i = new Image(); i.src = K.img(e.img); });
@@ -199,7 +199,7 @@
         return;
       }
       var sc = ev.target.closest('[data-shop-color]');
-      if (sc) { ev.preventDefault(); shopApi.set(sc.dataset.shopColor, 'all'); jump('#shop'); }
+      if (sc) { ev.preventDefault(); shopApi.set(sc.dataset.shopColor); jump('#shop'); }
     });
     doc.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape') closePickers();
@@ -231,70 +231,102 @@
     window.scrollTo({ top: y, behavior: K.RM ? 'auto' : 'smooth' });
   }
 
-  /* =================== SHOP BY COLOUR =================== */
+  /* =================== SHOP BY COLOUR: colour moons + a rail =================== */
   var shopApi = { set: function () {} };
-  function shop() {
-    var chips = $('#chips'), types = $('#types'), grid = $('#grid'), more = $('#shop-more'), count = $('#shop-count');
-    if (!grid) return;
-    var FIRST = 6;
-    var state = { color: 'all', type: 'all', expanded: false };
-    var colours = M.colorOrder.filter(function (c) { return M.products.some(function (p) { return K.hasColor(p, c); }); });
-
-    chips.innerHTML = '<button type="button" class="chip is-on" data-color="all" aria-pressed="true"><span class="sw all"></span>All colours</button>' +
-      colours.map(function (c) {
+  function moonsHTML(list, on, counts) {
+    return '<button type="button" class="mc' + (on === 'all' ? ' is-on' : '') + '" data-color="all" aria-pressed="' + (on === 'all') + '"><span class="mc__d mc__d--all"></span><span class="mc__l">All</span>' + (counts ? '<span class="mc__n">' + M.products.length + '</span>' : '') + '</button>' +
+      list.map(function (c) {
         var n = M.products.filter(function (p) { return K.hasColor(p, c); }).length;
-        return '<button type="button" class="chip" data-color="' + esc(c) + '" aria-pressed="false"><span class="sw" style="--c:' + K.hex(c) + '"></span>' + esc(c) + '<span class="chip__n">' + n + '</span></button>';
+        return '<button type="button" class="mc' + (on === c ? ' is-on' : '') + '" data-color="' + esc(c) + '" aria-pressed="' + (on === c) + '"><span class="mc__d" style="--c:' + K.hex(c) + '"></span><span class="mc__l">' + esc(c) + '</span>' + (counts ? '<span class="mc__n">' + n + '</span>' : '') + '</button>';
       }).join('');
-    types.innerHTML = M.types.map(function (t, i) { return '<button type="button" data-type="' + t.id + '" class="' + (i === 0 ? 'is-on' : '') + '" aria-pressed="' + (i === 0) + '">' + esc(t.label) + '</button>'; }).join('');
-
-    function list() {
-      return M.products.filter(function (p) {
-        return (state.color === 'all' || K.hasColor(p, state.color)) && (state.type === 'all' || p.type === state.type);
-      });
-    }
-    function tile() {
-      var t = doc.createElement('a');
-      t.className = 'tile'; t.href = '#tech';
-      t.innerHTML = '<span class="tile__img"><img src="assets/img/legging-court.jpg" alt="Sculpting Legging in Brown and Grey on a blue tennis court" loading="lazy"></span>' +
-        '<span class="tile__txt"><span class="label">Seamless Technology®</span><span class="t-m">Knitted in one <em>single piece.</em></span><span class="tile__p">No side seams, no stitching. Shapes where it counts. Holds where it matters.</span><span class="link">How it holds you</span></span>';
-      return t;
-    }
+  }
+  function shop() {
+    var moons = $('#moons'), track = $('#shop-rail');
+    if (!track) return;
+    var railEl = track.closest('[data-rail]');
+    var colours = M.colorOrder.filter(function (c) { return M.products.some(function (p) { return K.hasColor(p, c); }); });
+    var state = 'all';
+    moons.innerHTML = moonsHTML(colours, state, true);
     function render(animate) {
-      var all = list(), show = all, collapsed = state.color === 'all' && state.type === 'all' && !state.expanded;
-      if (collapsed) show = all.slice(0, FIRST);
-      grid.innerHTML = '';
-      if (!show.length) {
-        var tl = M.types.filter(function (t) { return t.id === state.type; })[0].label.toLowerCase();
-        grid.innerHTML = '<p class="grid__empty">No ' + esc(tl) + ' in ' + esc(state.color) + ' right now. <button type="button" class="textbtn" data-type-reset>Show everything in ' + esc(state.color) + '</button></p>';
-      }
-      var withTile = !collapsed && state.color === 'all' && state.type === 'all' && show.length > FIRST;
-      show.forEach(function (p, k) {
-        if (withTile && k === FIRST) grid.appendChild(tile());
-        grid.appendChild(K.cardEl(p, state.color === 'all' ? p.defaultColor : state.color, animate ? (k % FIRST) : null));
+      var list = M.products.filter(function (p) { return state === 'all' || K.hasColor(p, state); });
+      track.innerHTML = '';
+      list.forEach(function (p, k) {
+        var el = K.cardEl(p, state === 'all' ? p.defaultColor : state, animate ? Math.min(k, 4) : null);
+        el.setAttribute('role', 'listitem');
+        track.appendChild(el);
       });
-      if (withTile) K.hd(grid);
-      more.hidden = !collapsed;
-      $('button', more).textContent = 'Show all ' + all.length + ' pieces';
-      var what = state.type === 'all' ? 'pieces' : M.types.filter(function (t) { return t.id === state.type; })[0].label.toLowerCase();
-      count.textContent = all.length + ' ' + (all.length === 1 && what === 'pieces' ? 'piece' : what) + (state.color === 'all' ? '' : ' in ' + state.color) + (collapsed ? ', showing ' + FIRST : '');
+      track.scrollLeft = 0;
+      K.rail(railEl);
     }
-    function set(color, type) {
-      if (color != null) state.color = color;
-      if (type != null) state.type = type;
-      $$('.chip', chips).forEach(function (b) { var on = b.dataset.color === state.color; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
-      $$('button', types).forEach(function (b) { var on = b.dataset.type === state.type; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
+    function set(c) {
+      if (c != null) state = c;
+      $$('.mc', moons).forEach(function (b) { var on = b.dataset.color === state; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
       render(true);
     }
     shopApi.set = set;
-    chips.addEventListener('click', function (e) { var b = e.target.closest('[data-color]'); if (b) set(b.dataset.color, null); });
-    types.addEventListener('click', function (e) { var b = e.target.closest('[data-type]'); if (b) set(null, b.dataset.type); });
-    grid.addEventListener('click', function (e) { if (e.target.closest('[data-type-reset]')) set(null, 'all'); });
-    $('button', more).addEventListener('click', function () {
-      state.expanded = true; render(true);
-      var c = $$('.card', grid)[FIRST];
-      if (c) { var a = $('.card__link', c); if (a) a.focus({ preventScroll: true }); }
-    });
+    moons.addEventListener('click', function (e) { var b = e.target.closest('[data-color]'); if (b) set(b.dataset.color); });
     render(false);
+  }
+
+  /* =================== SPOTLIGHT: the Sculpting Legging =================== */
+  function spotlight() {
+    var box = $('#sculpting');
+    if (!box) return;
+    var p = P('sculpting-legging'), color = 'Blue Petrol', size = null, added = false, photo = 0;
+    var imgEl = $('#spot-img');
+    function pickSize() {
+      var f = K.Fit.get(), av = K.availSizes(p, color).filter(function (s) { return K.sizeState(p, color, s) === 'in'; });
+      size = f && av.indexOf(f.size) > -1 ? f.size : (av.length === 1 ? av[0] : null);
+    }
+    function showPhoto(i) {
+      var list = K.media(p, color).imgs;
+      photo = Math.max(0, Math.min(i, list.length - 1));
+      var src = K.img(list[photo]);
+      if (K.localSrc(imgEl) === src && imgEl.getAttribute('src')) return;
+      if (K.RM || !imgEl.getAttribute('src')) { imgEl.src = src; K.hd($('#spot-media')); }
+      else {
+        imgEl.classList.add('is-off');
+        var n = new Image();
+        n.onload = n.onerror = function () { setTimeout(function () { imgEl.src = src; imgEl.classList.remove('is-off'); K.hd($('#spot-media')); }, 200); };
+        n.src = src;
+      }
+      imgEl.alt = p.name + ' in ' + color;
+      $$('#spot-thumbs button').forEach(function (b, k) { b.classList.toggle('is-on', k === photo); b.setAttribute('aria-pressed', k === photo); });
+    }
+    function draw() {
+      var list = K.media(p, color).imgs;
+      $('#spot-cname').textContent = color;
+      $('#spot-colours').innerHTML = p.colors.map(function (c) {
+        return '<button type="button" class="mc' + (c.name === color ? ' is-on' : '') + '" data-c="' + esc(c.name) + '" aria-pressed="' + (c.name === color) + '"><span class="mc__d" style="--c:' + K.hex(c.name) + '"></span><span class="mc__l">' + esc(c.name) + '</span></button>';
+      }).join('');
+      $('#spot-thumbs').innerHTML = list.length > 1 ? list.map(function (n, k) { return '<button type="button" data-ph="' + k + '" aria-label="Photo ' + (k + 1) + '"><img src="' + K.img(n) + '" alt=""></button>'; }).join('') : '';
+      $('#spot-sizes').innerHTML = K.sizesFor(p).map(function (s) {
+        var st = K.sizeState(p, color, s), f = K.Fit.get();
+        var sub = st === 'out' ? 'Sold out' : (st === 'none' ? 'Not in ' + color : (f && f.size === s ? 'Your size' : (s === 'XS/S' ? 'EU 34–36' : 'EU 38–40')));
+        return '<button type="button" class="sz' + (size === s ? ' is-on' : '') + '" data-s="' + esc(s) + '"' + (st !== 'in' ? ' disabled' : '') + ' aria-pressed="' + (size === s) + '"><b>' + esc(s) + '</b><small>' + esc(sub) + '</small></button>';
+      }).join('');
+      $('#spot-price').innerHTML = fmt(p.price);
+      var btn = $('#spot-add');
+      btn.classList.toggle('is-added', added);
+      btn.textContent = added ? '✓ In your bag · ' + size : (size ? 'Add to bag · ' + size : 'Choose your size');
+      showPhoto(Math.min(photo, list.length - 1));
+    }
+    pickSize(); draw();
+    box.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-c]');
+      if (c) { color = c.dataset.c; added = false; photo = 0; pickSize(); draw(); return; }
+      var s = e.target.closest('[data-s]');
+      if (s && !s.disabled) { size = s.dataset.s; added = false; draw(); return; }
+      var ph = e.target.closest('[data-ph]');
+      if (ph) { showPhoto(+ph.dataset.ph); return; }
+      if (e.target.closest('#spot-add')) {
+        var btn = $('#spot-add');
+        if (added) { K.openP('bag', btn); return; }
+        if (!size) { var f = $('#spot-sizes .sz:not(:disabled)'); if (f) f.focus(); btn.textContent = 'Pick a size first'; return; }
+        if (K.addToBag(p.handle, color, size)) { added = true; draw(); }
+      }
+    });
+    doc.addEventListener('fit:change', function () { if (!added) { pickSize(); draw(); } });
   }
 
   /* =================== SUMMER EDIT =================== */
@@ -318,7 +350,7 @@
       sel[it.p.handle] = fit && av.indexOf(fit.size) > -1 ? fit.size : av[0];
     });
     $('#look-spots').innerHTML = items.map(function (it, i) {
-      return '<button type="button" class="spot" style="left:' + it.spot.x + '%;top:' + it.spot.y + '%" data-spot="' + i + '" aria-label="' + esc(it.p.name) + '"><span class="spot__dot"><span class="spot__ring"></span></span><span class="spot__lbl">' + esc(it.p.name) + ' · ' + fmt(it.p.price) + '</span></button>';
+      return '<button type="button" class="spot-h" style="left:' + it.spot.x + '%;top:' + it.spot.y + '%" data-spot="' + i + '" aria-label="' + esc(it.p.name) + '"><span class="spot-h__dot"><span class="spot-h__ring"></span></span><span class="spot-h__lbl">' + esc(it.p.name) + ' · ' + fmt(it.p.price) + '</span></button>';
     }).join('');
     function draw() {
       $('#look-items').innerHTML = items.map(function (it, i) {
@@ -332,7 +364,7 @@
           }).join('') + '</div></div></li>';
       }).join('');
       var total = items.reduce(function (a, it) { return a + it.p.price; }, 0);
-      $('#look-total').innerHTML = '<span class="label">The full look</span><p class="price">' + fmt(total) + '</p>';
+      $('#look-total').innerHTML = '<span class="cap">The full look</span><p class="price">' + fmt(total) + '</p>';
       $('#look-free').textContent = total >= M.freeShipping ? 'Over ' + fmt(M.freeShipping) + ', so delivery is free.' : '';
       var btn = $('#look-add');
       if (!btn.classList.contains('is-added')) btn.textContent = 'Add the full look · ' + fmt(total);
@@ -365,14 +397,36 @@
     });
   }
 
-  /* =================== FIT FINDER =================== */
+  /* =================== WILL IT FIT? size + what is in stock in it =================== */
+  var FIT_PICKS = ['sculpting-legging', 'square-neck-bra', 'essential-legging', 'seamless-short', 'strap-bra', 'cross-back-bra', 'front-zip-crop', 'long-sleeve-top', 'seamless-crop-tee'];
   function fit() {
     var box = $('#fit');
     if (!box) return;
     var saved = K.Fit.get();
     $('#fit-form').innerHTML = K.fitFormHTML('home', saved);
-    var form = $('[data-fitform]', box), sizeEl = $('#fit-size'), why = $('#fit-why'), chart = $('#fit-chart'), savedEl = $('#fit-saved');
-    var last = null;
+    var form = $('[data-fitform]', box), sizeEl = $('#fit-size'), why = $('#fit-why'), savedEl = $('#fit-saved');
+    var track = $('#fit-rail'), railEl = track.closest('[data-rail]');
+    var last = null, cur = null;
+    function cardHTML(p, size) {
+      var c = K.sizeState(p, p.defaultColor, size) === 'in' ? p.defaultColor : (p.colors.filter(function (x) { return x.sizes[size] === 'in'; })[0] || {}).name;
+      var shown = c || p.defaultColor, m = K.media(p, shown), at = size === 'XS/S' ? 0 : 100;
+      var st = c ? (c === p.defaultColor ? '<b>In stock</b> in your size' : '<b>In stock in ' + esc(c) + '</b>, ' + esc(p.defaultColor) + ' is sold out in ' + esc(size)) : '<b>Sold out</b> in your size right now';
+      var inBag = c && K.Bag.has(p.handle, c, size);
+      return '<article class="fcard" role="listitem"><a class="fcard__media" href="' + K.pdpUrl(p, shown) + '"><img src="' + K.img(m.imgs[0]) + '" alt="' + esc(p.name + ' in ' + (m.shown || shown)) + '" loading="lazy"></a>' +
+        '<div class="fcard__top"><a href="' + K.pdpUrl(p, shown) + '">' + esc(p.name) + '</a>' + K.priceHTML(p) + '</div>' +
+        '<div class="fcard__scale" aria-hidden="true"><i style="--at:' + at + '%"></i><span class="' + (size === 'XS/S' ? 'is-you' : '') + '">XS/S</span><span class="' + (size === 'M/L' ? 'is-you' : '') + '">M/L</span></div>' +
+        '<p class="fcard__st' + (c ? '' : ' is-out') + '">' + st + '</p>' +
+        (c ? '<button type="button" class="btn btn--line' + (inBag ? ' is-added' : '') + '" data-add="' + p.handle + '" data-c="' + esc(c) + '" data-s="' + esc(size) + '">' + (inBag ? '✓ ' + esc(size) + ' in bag' : 'Add ' + esc(size) + (c === p.defaultColor ? '' : ' · ' + esc(c))) + '</button>' : '') +
+        '</article>';
+    }
+    function drawCards(size) {
+      cur = size;
+      var keep = track.scrollLeft;
+      track.innerHTML = FIT_PICKS.map(function (h) { return cardHTML(P(h), size); }).join('');
+      track.scrollLeft = keep;
+      K.hd(track);
+      K.rail(railEl);
+    }
     function show(v, persist) {
       var r = K.Fit.recommend(v.h, v.eu, v.pref);
       if (r.size !== last) {
@@ -381,25 +435,41 @@
         void sizeEl.offsetWidth;
         sizeEl.classList.remove('is-swap');
         last = r.size;
+        drawCards(r.size);
       }
       why.textContent = r.why;
-      chart.innerHTML = K.chartHTML(r.size);
       if (persist) { K.Fit.set(r); savedEl.hidden = false; }
     }
     K.bindFitForm(form, function (v) { show(v, true); });
     show(saved || { h: 165, eu: 36, pref: 'sculpt' }, false);
     savedEl.hidden = !saved;
+    doc.addEventListener('bag:change', function () { if (cur) drawCards(cur); });
   }
 
-  /* =================== REVIEWS =================== */
-  function voices() {
-    var row = $('#voices');
-    if (!row) return;
-    row.innerHTML = M.reviews.map(function (r, i) {
+  /* =================== REVIEWS: one voice at a time =================== */
+  function reviews() {
+    var stage = $('#rev-stage');
+    if (!stage) return;
+    var R = M.reviews, i = 0;
+    stage.innerHTML = R.map(function (r, k) {
       var p = P(r.handle);
-      return '<figure class="voice rv" style="--i:' + (i % 3) + '"><blockquote>' + esc(r.text) + '</blockquote><figcaption class="voice__by"><b>' + esc(r.name) + ' <span class="ver">✓ Verified buyer</span></b><span class="muted">' + esc(r.item) + ' · ' + esc(r.date) + '</span>' +
+      return '<figure class="rev__slide' + (k === 0 ? ' is-on' : '') + '"' + (k ? ' aria-hidden="true"' : '') + '><blockquote class="rev__q">' + esc(r.text) + '</blockquote>' +
+        '<figcaption class="rev__by"><b>' + esc(r.name) + '</b><span class="ver">✓ Verified buyer</span><span>' + esc(r.item) + ' · ' + esc(r.date) + '</span>' +
         (p ? '<a class="textbtn" href="' + K.pdpUrl(p) + '">Shop the ' + esc(p.name) + '</a>' : '') + '</figcaption></figure>';
     }).join('');
+    var slides = $$('.rev__slide', stage);
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function go(k) {
+      i = (k + R.length) % R.length;
+      slides.forEach(function (s, n) { s.classList.toggle('is-on', n === i); if (n === i) s.removeAttribute('aria-hidden'); else s.setAttribute('aria-hidden', 'true'); });
+      $('#rev-count').textContent = pad(i + 1) + ' / ' + pad(R.length);
+    }
+    $('#rev-prev').addEventListener('click', function () { go(i - 1); });
+    $('#rev-next').addEventListener('click', function () { go(i + 1); });
+    var sx = null;
+    stage.addEventListener('pointerdown', function (e) { sx = e.clientX; });
+    stage.addEventListener('pointerup', function (e) { if (sx == null) return; var d = e.clientX - sx; sx = null; if (Math.abs(d) > 48) go(i + (d < 0 ? 1 : -1)); });
+    go(0);
   }
 
   /* =================== FILM (their own homepage video) =================== */
@@ -431,34 +501,20 @@
     paint();
   }
 
-  /* =================== JOIN =================== */
-  function join() {
-    var b = $('#join-btn');
-    if (!b) return;
-    b.addEventListener('click', function () { $('#join-msg').textContent = 'Concept preview: in the live store this opens your Shopify email signup with the 10% welcome code.'; });
-  }
-
   function init() {
-    hero(); shop(); edit(); look(); fit(); voices(); film(); join();
+    hero(); shop(); spotlight(); edit(); look(); fit(); reviews(); film();
     K.reveal(document);
-    // in-page anchors with header offset, incl. #shop-<type> deep links
-    function route(hash, a) {
+    function route(hash) {
       var m = (hash || '').match(/^#([\w-]+)$/);
-      if (!m) return false;
-      var id = m[1], type = null, tm = id.match(/^shop-(\w+)$/);
-      if (tm) { type = tm[1]; id = 'shop'; }
-      if (!document.getElementById(id)) return false;
-      if (type) shopApi.set('all', type);
-      else if (id === 'shop' && a && a.closest('.hdr, .menu, .ftr')) shopApi.set('all', 'all');
-      jump('#' + id);
+      if (!m || !document.getElementById(m[1])) return false;
+      jump('#' + m[1]);
       return true;
     }
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href*="#"]');
       if (!a || a.hasAttribute('data-shop-color')) return;
-      var href = a.getAttribute('href'), m = href.match(/^(?:index\.html)?(#[\w-]+)$/);
-      if (!m) return;
-      if (route(m[1], a)) { e.preventDefault(); history.replaceState(null, '', m[1]); }
+      var m = a.getAttribute('href').match(/^(?:index\.html)?(#[\w-]+)$/);
+      if (m && route(m[1])) { e.preventDefault(); history.replaceState(null, '', m[1]); }
     });
     if (location.hash) setTimeout(function () { route(location.hash); }, 80);
   }

@@ -26,14 +26,14 @@
     var m = imgs(), list = m.imgs;
     gi = Math.min(gi, list.length - 1);
     $('#thumbs').innerHTML = list.map(function (n, i) {
-      return '<button type="button" class="' + (i === gi ? 'is-on' : '') + '" data-gi="' + i + '" aria-label="Photo ' + (i + 1) + ' of ' + list.length + '"><img src="' + K.img(n) + '" alt="" loading="lazy"></button>';
+      return '<button type="button" class="' + (i === gi ? 'is-on' : '') + '" data-gi="' + i + '" aria-label="Photo ' + (i + 1) + ' of ' + list.length + '"><img src="' + K.img(n, 200) + '" alt="" loading="lazy"></button>';
     }).join('');
     var main = $('#gimg');
     main.alt = p.name + ' in ' + (m.shown || color);
-    swapMain(K.img(list[gi]));
+    swapMain(K.img(list[gi], 1600));
     $('#gcount').textContent = (m.shown ? 'Shown in ' + m.shown + ' · ' : '') + (gi + 1) + ' / ' + list.length;
     $('#gstrip').innerHTML = list.map(function (n, i) {
-      return '<button type="button" data-lb="' + i + '" aria-label="Open photo ' + (i + 1) + '"><img src="' + K.img(n) + '" alt="' + esc(p.name) + '" loading="' + (i ? 'lazy' : 'eager') + '">' + (i === 0 && m.shown ? '<span class="card__shown">Shown in ' + esc(m.shown) + '</span>' : '') + '</button>';
+      return '<button type="button" data-lb="' + i + '" aria-label="Open photo ' + (i + 1) + '"><img src="' + K.img(n, 1200) + '" alt="' + esc(p.name) + '" loading="' + (i ? 'lazy' : 'eager') + '">' + (i === 0 && m.shown ? '<span class="card__shown">Shown in ' + esc(m.shown) + '</span>' : '') + '</button>';
     }).join('');
     K.hd($('#gstrip'));
   }
@@ -92,7 +92,7 @@
           setSizes[x.p.handle] = ok.indexOf(want) > -1 ? want : ok[0];
         }
         var m = K.media(x.p, x.c);
-        return '<div class="pset__item"><a href="' + K.pdpUrl(x.p, x.c) + '"><img src="' + K.img(m.imgs[0]) + '" alt="' + esc(x.p.name) + '" loading="lazy"></a><div>' +
+        return '<div class="pset__item"><a href="' + K.pdpUrl(x.p, x.c) + '"><img src="' + K.img(m.imgs[0], 360) + '" alt="' + esc(x.p.name) + '" loading="lazy"></a><div>' +
           '<div class="pset__top"><p class="pset__name"><a href="' + K.pdpUrl(x.p, x.c) + '">' + esc(x.p.name) + '</a></p>' + K.priceHTML(x.p) + '</div>' +
           '<p class="pset__meta">' + esc(x.c) + (m.shown ? ' (photo shows ' + esc(m.shown) + ')' : '') + '</p>' +
           '<div class="seg" role="group" aria-label="Size for ' + esc(x.p.name) + '">' + av.map(function (s) {
@@ -124,7 +124,18 @@
     var im = c.img[0];
     var any = Object.keys(c.sizes).some(function (s2) { return c.sizes[s2] === 'in'; });
     return '<button type="button" data-color="' + esc(c.name) + '" class="' + (c.name === color ? 'is-on' : '') + '" aria-pressed="' + (c.name === color) + '" aria-label="' + esc(c.name) + (any ? '' : ', sold out') + '" title="' + esc(c.name) + '">' +
-      (im ? '<img src="' + K.img(im) + '" alt="" loading="lazy">' : '<span class="swi__c" style="--c:' + K.hex(c.name) + '"></span>') + '</button>';
+      (im ? '<img src="' + K.img(im, 160) + '" alt="" loading="lazy">' : '<span class="swi__c" style="--c:' + K.hex(c.name) + '"></span>') + '</button>';
+  }
+  /* the colour as it was shot: open the shoppable story at this piece */
+  function storyAt() {
+    var S = M.stories || [];
+    for (var k = 0; k < S.length; k++) for (var j = 0; j < S[k].items.length; j++) { var it = S[k].items[j]; if (it[0] === p.handle && it[1] === color) return [k, j]; }
+    return null;
+  }
+  function storyHTML() {
+    var at = storyAt(); if (!at) return '';
+    var st = M.stories[at[0]];
+    return '<button type="button" class="pstory" data-story="' + at[0] + '" data-frame="' + at[1] + '" style="--mc:' + st.mc + '"><span class="stb__ring"><img src="' + K.img(st.items[at[1]][2], 200) + '" alt=""></span><span><b>See it in the ' + esc(st.label) + ' story</b><small>' + st.items.length + ' photos from the shoot, shop straight from them</small></span></button>';
   }
   function drawInfo() {
     var revs = M.productReviews[p.handle] || [];
@@ -138,7 +149,7 @@
       (revs.length ? '<span class="info__rating">' + (p.rating && p.rating.value ? '<span class="stars" aria-hidden="true">★★★★★</span><span>' + p.rating.value + '</span>' : '') + '<a href="#reviews">' + revs.length + (revs.length === 1 ? ' review' : ' reviews') + '</a></span>' : '') + '</div>' +
       '<p class="info__tag">' + esc(p.tagline) + '</p>' +
       '<div class="opt"><div class="opt__head"><span>Colour <b>' + esc(color) + '</b>' + (shown ? ' <span class="mut">· photo shows ' + esc(shown) + '</span>' : '') + '</span><span class="mut">' + p.colors.length + (p.colors.length === 1 ? ' colour' : ' colours') + '</span></div>' +
-      '<div class="swi" role="group" aria-label="Colour">' + p.colors.map(swatchHTML).join('') + '</div></div>' +
+      '<div class="swi" role="group" aria-label="Colour">' + p.colors.map(swatchHTML).join('') + '</div>' + storyHTML() + '</div>' +
       '<div class="opt" id="sizes-opt"><div class="opt__head"><span>Size' + (size ? ' <b>' + esc(size) + '</b>' : '') + '</span>' + (p.oneSize ? '' : '<button type="button" class="textbtn" data-open="fitd">Find my size</button>') + '</div>' +
       '<div class="sizes' + (p.oneSize ? ' sizes--one' : '') + '" role="group" aria-label="Size">' + K.sizesFor(p).map(sizeBtn).join('') + '</div>' + fitLine() + '</div>' +
       '<div class="buy"><button type="button" class="btn btn--block' + (justAdded ? ' is-added' : '') + '" id="addbtn">' + esc(addLabel()) + '</button><p class="look__hint" id="addhint" aria-live="polite"></p>' +
@@ -150,7 +161,7 @@
   /* ---------- sticky bar ---------- */
   function drawSbar() {
     var m = K.media(p, color);
-    $('#sbar-in').innerHTML = '<img src="' + K.img(m.imgs[0]) + '" alt="">' +
+    $('#sbar-in').innerHTML = '<img src="' + K.img(m.imgs[0], 160) + '" alt="">' +
       '<p class="sbar__t"><b>' + esc(p.name) + '</b><span>' + esc(color) + ' · ' + (size ? esc(size) : (p.oneSize ? 'One size' : 'choose a size')) + ' · ' + fmt(p.price) + '</span></p>' +
       (p.oneSize ? '<span></span>' : '<div class="seg">' + K.availSizes(p, color).map(function (s) { var st = K.sizeState(p, color, s); return '<button type="button" data-size="' + esc(s) + '" class="' + (size === s ? 'is-on' : '') + '"' + (st !== 'in' ? ' disabled' : '') + '>' + esc(s) + '</button>'; }).join('') + '</div>') +
       '<button type="button" class="btn' + (justAdded ? ' is-added' : '') + '" data-buy>' + esc(justAdded ? '✓ In your bag' : (size || p.oneSize ? 'Add to bag' : 'Choose size')) + '</button>';
@@ -187,7 +198,7 @@
   function lbDraw() {
     var list = imgs().imgs;
     lbi = (lbi + list.length) % list.length;
-    $('#lb-img').src = K.img(list[lbi]);
+    $('#lb-img').src = K.img(list[lbi], 2400);
     $('#lb-img').alt = p.name + ', photo ' + (lbi + 1);
     $('#lb-n').textContent = (lbi + 1) + ' / ' + list.length;
     if (!$('#lb').hidden) K.hd($('#lb'));
@@ -250,6 +261,8 @@
     K.reveal(doc);
 
     doc.addEventListener('click', function (e) {
+      var sb = e.target.closest('[data-story]');
+      if (sb) { K.stories.open(+sb.dataset.story, +sb.dataset.frame); return; }
       var t = e.target;
       var th = t.closest('[data-gi]');
       if (th) { gi = +th.dataset.gi; drawGallery(); return; }

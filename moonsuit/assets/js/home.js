@@ -1,4 +1,4 @@
-/* MOONSUIT · concept by MALUS/01 · v3 · homepage */
+/* MOONSUIT · concept by MALUS/01 · v4 · homepage */
 (function () {
   'use strict';
   var M = window.MS, K = window.MSK;
@@ -6,9 +6,15 @@
   var doc = document;
   var MARK = '<svg class="logo-svg logo-mark" viewBox="0 -6 254 170" aria-hidden="true" focusable="false"><use class="letters" href="#p-letters"/><use class="crescent" href="#p-cres"/></svg>';
   var PLAY = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>';
+  var ICON = {
+    prev: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>',
+    next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>',
+    close: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg>'
+  };
   var PAUSE = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z"/></svg>';
 
   /* =================== HERO: editions, the next one rises like the moon over the last =================== */
+  var HW = window.innerWidth < 720 ? 1100 : 2000;
   function hero() {
     var E = M.editions, el = $('#hero');
     if (!el) return;
@@ -36,7 +42,7 @@
         (was > total ? '<p class="price is-sale"><span class="now">' + fmt(total) + '</span><s>' + fmt(was) + '</s></p>' : '<p class="price"><span class="now">' + fmt(total) + '</span></p>') +
         (total >= M.freeShipping ? '<span class="free">· free delivery</span>' : '') + '</div>' +
         '<div class="hero__cta hero__fade" style="--i:4"><button type="button" class="btn" data-set="' + i + '" aria-expanded="false">Add the set</button>' +
-        '<a class="btn btn--line" href="#shop" data-shop-color="' + esc(colour) + '">Shop all ' + esc(colour) + '</a>' +
+        '<a class="btn btn--line" href="kategorie.html?c=' + encodeURIComponent(colour) + '">Shop all ' + esc(colour) + '</a>' +
         '<div class="setpick" role="group" aria-label="Choose your size for the set"></div></div></div>';
     }
     panes.innerHTML = E.map(paneHTML).join('');
@@ -48,7 +54,7 @@
     pauseBtn.innerHTML = '<span class="hmoon" aria-hidden="true"><i></i></span><span class="cap" data-pl>Pause</span>';
     var paneEls = $$('.hero__pane', panes), tintEls = $$('.hero__tint', tints), tabEls = $$('.htab', tabs);
     el.style.setProperty('--h-ink', E[0].ink);
-    E.slice(1).forEach(function (e) { var i = new Image(); i.src = K.img(e.img); });
+    E.slice(1).forEach(function (e) { var i = new Image(); i.src = K.img(e.img, HW); });
 
     /* geometry: a circle bigger than the photo panel slides across it, so its edge draws a moon's terminator */
     function measure() {
@@ -65,7 +71,7 @@
       measure();
       photo.style.setProperty('--dir', dir);
       wipe.className = 'hero__wipe is-prep';
-      if (wimg.getAttribute('src') !== K.img(e.img)) wimg.src = K.img(e.img);
+      if (wimg.getAttribute('src') !== K.img(e.img, HW)) wimg.src = K.img(e.img, HW);
       wimg.style.objectPosition = e.pos;
       var run = function () {
         void wipe.offsetWidth;
@@ -198,8 +204,6 @@
         btn.focus({ preventScroll: true });
         return;
       }
-      var sc = ev.target.closest('[data-shop-color]');
-      if (sc) { ev.preventDefault(); shopApi.set(sc.dataset.shopColor); jump('#shop'); }
     });
     doc.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape') closePickers();
@@ -215,7 +219,7 @@
     restartProgress();
     if (K.RM) {
       measure();
-      baseImg.src = K.img(E[0].img); baseImg.style.objectPosition = E[0].pos;
+      baseImg.src = K.img(E[0].img, HW); baseImg.style.objectPosition = E[0].pos;
       started = true;
       return;
     }
@@ -231,8 +235,6 @@
     window.scrollTo({ top: y, behavior: K.RM ? 'auto' : 'smooth' });
   }
 
-  /* =================== SHOP BY COLOUR: colour moons + a rail =================== */
-  var shopApi = { set: function () {} };
   function moonsHTML(list, on, counts) {
     return '<button type="button" class="mc' + (on === 'all' ? ' is-on' : '') + '" data-color="all" aria-pressed="' + (on === 'all') + '"><span class="mc__d mc__d--all"></span><span class="mc__l">All</span>' + (counts ? '<span class="mc__n">' + M.products.length + '</span>' : '') + '</button>' +
       list.map(function (c) {
@@ -240,32 +242,162 @@
         return '<button type="button" class="mc' + (on === c ? ' is-on' : '') + '" data-color="' + esc(c) + '" aria-pressed="' + (on === c) + '"><span class="mc__d" style="--c:' + K.hex(c) + '"></span><span class="mc__l">' + esc(c) + '</span>' + (counts ? '<span class="mc__n">' + n + '</span>' : '') + '</button>';
       }).join('');
   }
-  function shop() {
-    var moons = $('#moons'), track = $('#shop-rail');
+  /* =================== NEW IN: shoppable stories (moons) + the newest pieces =================== */
+  function newIn() {
+    var row = $('#strow'), track = $('#new-rail');
+    if (!row || !M.stories) return;
+    var seen = K.store.get('ms-seen', []);
+    row.innerHTML = M.stories.map(function (s, i) {
+      return '<button type="button" class="stb' + (seen.indexOf(s.id) > -1 ? ' is-seen' : '') + '" role="listitem" data-st="' + s.id + '" data-i="' + i + '" style="--mc:' + s.mc + '" aria-label="' + esc(s.label + (s.isNew ? ', new' : '') + ': story with ' + s.items.length + ' photos you can shop') + '">' +
+        '<span class="stb__ring"><img src="' + K.img(s.items[0][2], 240) + '" alt="" loading="lazy" decoding="async"></span>' +
+        '<span class="stb__l">' + esc(s.label) + (s.isNew ? '<sup>new</sup>' : '') + '</span></button>';
+    }).join('');
+    row.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) K.stories.open(+b.dataset.i); });
     if (!track) return;
-    var railEl = track.closest('[data-rail]');
-    var colours = M.colorOrder.filter(function (c) { return M.products.some(function (p) { return K.hasColor(p, c); }); });
-    var state = 'all';
-    moons.innerHTML = moonsHTML(colours, state, true);
-    function render(animate) {
-      var list = M.products.filter(function (p) { return state === 'all' || K.hasColor(p, state); });
-      track.innerHTML = '';
-      list.forEach(function (p, k) {
-        var el = K.cardEl(p, state === 'all' ? p.defaultColor : state, animate ? Math.min(k, 4) : null);
-        el.setAttribute('role', 'listitem');
-        track.appendChild(el);
+    // the Wine edition first, then every other piece in its main colour
+    var list = [['cross-back-bra', 'Wine'], ['seamless-short', 'Wine'], ['long-sleeve-top', 'Wine']], used = {};
+    list.forEach(function (x) { used[x[0]] = 1; });
+    M.products.forEach(function (p) { if (!used[p.handle]) list.push([p.handle, p.defaultColor]); });
+    list.forEach(function (x) { var el = K.cardEl(P(x[0]), x[1]); el.setAttribute('role', 'listitem'); track.appendChild(el); });
+    K.rail(track.closest('[data-rail]'));
+  }
+
+  /* =================== THE LINE-UP: five looks in a row, the middle one in focus; tap it for every piece =================== */
+  function lineup() {
+    var sec = $('#lineup');
+    if (!sec || !M.lineup) return;
+    var L = M.lineup, N = L.length, RW = 'assets/img/rw/', reduce = K.RM;
+    var st = { a: Math.min(2, N - 1), look: false };
+    var stage = $('[data-rw]', sec), moon = $('.rw__moon', stage);
+    var mob = function () { return window.innerWidth < 900; };
+    var colourOf = function (l) { return l.pins[0][1]; };
+    stage.insertAdjacentHTML('afterbegin', L.map(function (l, i) {
+      return '<button type="button" class="rw__f" data-rwf="' + i + '" style="--r:' + l.r + ';--h:' + l.h + '" aria-label="' + esc(l.name) + ' look">' +
+        '<span class="rw__fig"><img class="rw__b" src="' + RW + l.k + '-b.webp" alt="" draggable="false"><img class="rw__s" data-src="' + RW + l.k + '.webp" alt="" draggable="false">' +
+        l.pins.map(function (pn, j) { return '<span class="rw__pin" style="left:' + pn[2] + '%;top:' + pn[3] + '%;--j:' + j + '" data-pin="' + j + '" aria-hidden="true">' + (j + 1) + '</span>'; }).join('') +
+        '</span></button>';
+    }).join(''));
+    $('[data-rwidx]', sec).innerHTML = L.map(function (l, i) { return '<button type="button" data-rwi="' + i + '">' + esc(l.name) + '</button>'; }).join('');
+    // categories as words, with real counts
+    var cm = $('#cmore');
+    if (cm) cm.innerHTML = M.types.filter(function (t) { return t.id !== 'all'; }).map(function (t) {
+      var n = M.products.filter(function (p) { return p.type === t.id; }).length;
+      return n ? '<a href="' + K.catUrl(t.id) + '">' + esc(t.label.toLowerCase()) + '<sup>' + n + '</sup></a>' : '';
+    }).join('') + '<a href="kategorie.html">shop all<sup>' + M.products.length + '</sup></a>';
+    var figs = $$('.rw__f', stage);
+    var off = function (i) { var d = i - st.a; if (d > N / 2) d -= N; if (d < -N / 2) d += N; return d; };
+    var prevD = figs.map(function (_, i) { return off(i); });
+    function place(instant) {
+      var W = stage.clientWidth, H = stage.clientHeight, m = mob();
+      var sp = m ? W * 0.42 : Math.min(W * 0.17, 320);
+      var mx = 0;
+      figs.forEach(function (f, i) {
+        var d = off(i), ad = Math.abs(d);
+        var x = d * sp * (ad > 1 ? 0.94 : 1), s = [1, 0.8, 0.66][Math.min(ad, 2)], y = -ad * H * 0.016;
+        var op = ad === 0 ? 1 : (ad === 1 ? 0.96 : (ad === 2 && !m ? 0.62 : 0));
+        if (st.look) { if (ad === 0) { s = m ? 0.95 : 1.02; x = m ? 0 : -(f.offsetWidth * s) / 2 - (W < 1200 ? W * 0.05 : 56); y = 0; mx = x; } else op = 0; }
+        var wrap = Math.abs(d - prevD[i]) > N / 2; prevD[i] = d;
+        f.style.transition = instant || wrap || reduce ? 'none' : '';
+        f.style.transform = 'translate3d(calc(-50% + ' + x.toFixed(1) + 'px),' + y.toFixed(1) + 'px,0) scale(' + s + ')';
+        f.style.opacity = op; f.style.zIndex = 10 - ad;
+        f.classList.toggle('is-on', ad === 0);
+        f.tabIndex = op > 0 ? 0 : -1; f.setAttribute('aria-hidden', op === 0 ? 'true' : 'false');
+        if (instant || wrap) void f.offsetWidth;
       });
-      track.scrollLeft = 0;
-      K.rail(railEl);
+      // the moon behind the figure in focus takes the colour of the look
+      moon.style.transition = instant || reduce ? 'none' : '';
+      moon.style.transform = 'translate3d(calc(-50% + ' + mx.toFixed(1) + 'px),0,0)';
+      moon.style.setProperty('--mc', L[st.a].tint);
     }
-    function set(c) {
-      if (c != null) state = c;
-      $$('.mc', moons).forEach(function (b) { var on = b.dataset.color === state; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
-      render(true);
+    function renderNow() {
+      var l = L[st.a], c = colourOf(l);
+      $('[data-rwnow]', sec).innerHTML = '<span class="rw__n">' + esc(l.name) + '</span><span class="rw__c">' + l.pins.length + ' pieces in this look</span>' +
+        '<span class="rw__acts"><button type="button" class="btn btn--line" data-rwo>See the look</button><a class="lnk" href="kategorie.html?c=' + encodeURIComponent(c) + '">Shop ' + esc(c) + '</a></span>';
+      $$('[data-rwi]', sec).forEach(function (b) { b.setAttribute('aria-current', +b.dataset.rwi === st.a ? 'true' : 'false'); });
     }
-    shopApi.set = set;
-    moons.addEventListener('click', function (e) { var b = e.target.closest('[data-color]'); if (b) set(b.dataset.color); });
-    render(false);
+    function lookHTML() {
+      var l = L[st.a], inLook = {};
+      l.pins.forEach(function (pn) { inLook[pn[0]] = 1; });
+      var rows = l.pins.map(function (pn, j) {
+        var p = P(pn[0]), c = pn[1], m = K.media(p, c);
+        return '<li class="rwl__it" data-pi="' + j + '"><span class="rwl__no">' + (j + 1) + '</span>' +
+          '<a class="rwl__pic" href="' + K.pdpUrl(p, c) + '"><img src="' + K.img(m.imgs[0], 240) + '" alt="" loading="lazy"></a>' +
+          '<span class="rwl__tx"><a href="' + K.pdpUrl(p, c) + '">' + esc(p.name) + '</a><span>' + esc(c) + ' · ' + (p.compare ? '<s>' + fmt(p.compare) + '</s> ' : '') + fmt(p.price) + '</span>' +
+          '<span class="rwl__sz">' + K.availSizes(p, c).map(function (s) {
+            var ok = K.sizeState(p, c, s) === 'in', inBag = K.Bag.has(p.handle, c, s);
+            return '<button type="button" data-rwadd="' + j + '" data-s="' + esc(s) + '"' + (ok ? '' : ' disabled') + (inBag ? ' class="is-in"' : '') + ' aria-label="' + esc((inBag ? 'In your bag: ' : 'Add to bag: ') + p.name + ', ' + c + ', ' + s) + '">' + (inBag ? '✓ ' : '+ ') + esc(s) + (ok ? '' : ' · sold out') + '</button>';
+          }).join('') + '</span></span></li>';
+      }).join('');
+      var full = ['XS/S', 'M/L'].map(function (s, k) {
+        var ok = l.pins.every(function (pn) { var p = P(pn[0]); return p.oneSize || K.sizeState(p, pn[1], s) === 'in'; });
+        return '<button type="button" class="btn' + (k ? ' btn--line' : '') + '" data-rwfull="' + s + '"' + (ok ? '' : ' disabled title="Not every piece is in stock in ' + s + '"') + '>Full look · ' + s + '</button>';
+      }).join('');
+      var c0 = colourOf(l);
+      var more = M.products.filter(function (p) { return !inLook[p.handle] && K.hasColor(p, c0) && K.C(p, c0).img.length; }).slice(0, 3);
+      return '<div class="rwl"><div class="rwl__hd"><p class="cap">In this look · ' + esc(l.name) + '</p><span class="rwl__ctl">' +
+        '<button type="button" data-rwp aria-label="Previous look">' + ICON.prev + '</button><button type="button" data-rwn aria-label="Next look">' + ICON.next + '</button><button type="button" data-rwx aria-label="Close the look">' + ICON.close + '</button></span></div>' +
+        '<ol class="rwl__list">' + rows + '</ol><div class="rwl__full">' + full + '</div>' +
+        (more.length ? '<p class="cap rwl__more">Also in ' + esc(c0) + '</p><div class="rwl__grid">' + more.map(function (p) {
+          return '<a href="' + K.pdpUrl(p, c0) + '"><img src="' + K.img(K.media(p, c0).imgs[0], 360) + '" alt="" loading="lazy"><span>' + esc(p.name) + '</span><b>' + fmt(p.price) + '</b></a>';
+        }).join('') + '</div>' : '') + '</div>';
+    }
+    function renderLook() {
+      var box = mob() ? $('[data-rwlm]', sec) : $('[data-rwl]', sec), other = mob() ? $('[data-rwl]', sec) : $('[data-rwlm]', sec);
+      other.innerHTML = ''; box.innerHTML = st.look ? lookHTML() : '';
+      sec.classList.toggle('is-look', st.look);
+    }
+    function setActive(i, keep) { st.a = ((i % N) + N) % N; if (!keep) st.look = false; place(); renderNow(); renderLook(); }
+    function openLook(on) {
+      st.look = on; renderLook(); place();
+      if (on && mob()) setTimeout(function () { window.scrollTo({ top: window.scrollY + stage.getBoundingClientRect().top - 70, behavior: reduce ? 'auto' : 'smooth' }); }, 60);
+    }
+    place(true); renderNow();
+    // the sharp figures load only when the section comes close
+    var loadSharp = function () { $$('.rw__s[data-src]', stage).forEach(function (im) { im.src = im.dataset.src; im.removeAttribute('data-src'); }); };
+    if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { loadSharp(); io.disconnect(); } }, { rootMargin: '900px 0px' }); io.observe(stage); } else loadSharp();
+    var rt = 0, lastW = window.innerWidth;
+    window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (window.innerWidth === lastW) return; lastW = window.innerWidth; if (st.look) { st.look = false; renderLook(); } place(true); }, 120); });
+    doc.addEventListener('bag:change', function () { if (st.look) renderLook(); });
+    sec.addEventListener('click', function (e) {
+      if (e.target.closest('[data-rwp]')) { setActive(st.a - 1, st.look); return; }
+      if (e.target.closest('[data-rwn]')) { setActive(st.a + 1, st.look); return; }
+      if (e.target.closest('[data-rwx]')) { openLook(false); return; }
+      if (e.target.closest('[data-rwo]')) { openLook(true); return; }
+      var ix = e.target.closest('[data-rwi]'); if (ix) { setActive(+ix.dataset.rwi); return; }
+      var add = e.target.closest('[data-rwadd]');
+      if (add) { var pn = L[st.a].pins[+add.dataset.rwadd]; if (!add.classList.contains('is-in')) K.addToBag(pn[0], pn[1], add.dataset.s); else K.openP('bag', add); return; }
+      var full = e.target.closest('[data-rwfull]');
+      if (full) { var sz = full.dataset.rwfull; K.addMany(L[st.a].pins.map(function (pn) { return { h: pn[0], c: pn[1], s: P(pn[0]).oneSize ? 'One size' : sz }; }), 'The ' + L[st.a].name + ' look'); return; }
+      var pin = e.target.closest('.rw__pin');
+      if (pin && st.look) { var it = $('.rwl__it[data-pi="' + pin.dataset.pin + '"]', sec); if (it) { it.classList.add('is-hot'); it.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); setTimeout(function () { it.classList.remove('is-hot'); }, 1200); } return; }
+      var f = e.target.closest('.rw__f');
+      if (f) { if (drag.moved) return; var i = +f.dataset.rwf; if (i === st.a) openLook(!st.look); else setActive(i, st.look); return; }
+      if (st.look && e.target === stage) openLook(false);
+    });
+    // numbers on the figure and rows in the list light up together
+    sec.addEventListener('pointerover', function (e) {
+      var it = e.target.closest('.rwl__it'), pin = e.target.closest('.rw__pin');
+      var j = it ? it.dataset.pi : (pin ? pin.dataset.pin : null);
+      $$('.rw__f.is-on .rw__pin', stage).forEach(function (x) { x.classList.toggle('is-hot', x.dataset.pin === j); });
+      $$('.rwl__it', sec).forEach(function (x) { x.classList.toggle('is-hot', x.dataset.pi === j); });
+    });
+    stage.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); setActive(st.a + 1, st.look); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(st.a - 1, st.look); }
+      else if (e.key === 'Escape' && st.look) openLook(false);
+      else if ((e.key === 'Enter' || e.key === ' ') && e.target === stage) { e.preventDefault(); openLook(!st.look); }
+    });
+    // drag sideways with mouse or finger; vertical page scroll stays
+    var drag = { x: 0, on: false, moved: false };
+    stage.addEventListener('pointerdown', function (e) { if (e.button || e.target.closest('.rw__look, .rw__nav')) return; drag.on = true; drag.moved = false; drag.x = e.clientX; });
+    stage.addEventListener('pointermove', function (e) { if (drag.on && Math.abs(e.clientX - drag.x) > 10) drag.moved = true; });
+    stage.addEventListener('pointerup', function (e) {
+      if (!drag.on) return; drag.on = false;
+      var dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 40) setActive(st.a + (dx < 0 ? 1 : -1), st.look);
+      setTimeout(function () { drag.moved = false; }, 0);
+    });
+    stage.addEventListener('pointercancel', function () { drag.on = false; });
   }
 
   /* =================== SPOTLIGHT: the Sculpting Legging =================== */
@@ -281,7 +413,7 @@
     function showPhoto(i) {
       var list = K.media(p, color).imgs;
       photo = Math.max(0, Math.min(i, list.length - 1));
-      var src = K.img(list[photo]);
+      var src = K.img(list[photo], 1600);
       if (K.localSrc(imgEl) === src && imgEl.getAttribute('src')) return;
       if (K.RM || !imgEl.getAttribute('src')) { imgEl.src = src; K.hd($('#spot-media')); }
       else {
@@ -296,10 +428,11 @@
     function draw() {
       var list = K.media(p, color).imgs;
       $('#spot-cname').textContent = color;
+      box.style.setProperty('--spot', (M.spotTint || {})[color] || '#ECEAE6');
       $('#spot-colours').innerHTML = p.colors.map(function (c) {
         return '<button type="button" class="mc' + (c.name === color ? ' is-on' : '') + '" data-c="' + esc(c.name) + '" aria-pressed="' + (c.name === color) + '"><span class="mc__d" style="--c:' + K.hex(c.name) + '"></span><span class="mc__l">' + esc(c.name) + '</span></button>';
       }).join('');
-      $('#spot-thumbs').innerHTML = list.length > 1 ? list.map(function (n, k) { return '<button type="button" data-ph="' + k + '" aria-label="Photo ' + (k + 1) + '"><img src="' + K.img(n) + '" alt=""></button>'; }).join('') : '';
+      $('#spot-thumbs').innerHTML = list.length > 1 ? list.map(function (n, k) { return '<button type="button" data-ph="' + k + '" aria-label="Photo ' + (k + 1) + '"><img src="' + K.img(n, 200) + '" alt=""></button>'; }).join('') : '';
       $('#spot-sizes').innerHTML = K.sizesFor(p).map(function (s) {
         var st = K.sizeState(p, color, s), f = K.Fit.get();
         var sub = st === 'out' ? 'Sold out' : (st === 'none' ? 'Not in ' + color : (f && f.size === s ? 'Your size' : (s === 'XS/S' ? 'EU 34–36' : 'EU 38–40')));
@@ -333,71 +466,12 @@
   function edit() {
     var g = $('#edit-grid');
     if (!g) return;
-    [['square-neck-bra-summer', 'Orange'], ['sculpting-short-summer', 'Pink'], ['sculpting-legging-summer', 'Kaki']].forEach(function (x) {
+    [['square-neck-bra-summer', 'Orange'], ['sculpting-short-summer', 'Orange'], ['square-neck-bra-summer', 'Kaki'], ['sculpting-legging-summer', 'Kaki']].forEach(function (x) {
       g.appendChild(K.cardEl(P(x[0]), x[1]));
     });
   }
 
-  /* =================== THE LOOK =================== */
-  function look() {
-    var L = M.look, box = $('#look');
-    if (!box) return;
-    var sel = {};
-    var fit = K.Fit.get();
-    var items = L.pieces.map(function (x) { return { p: P(x.handle), c: x.color, spot: x.spot }; });
-    items.forEach(function (it) {
-      var av = K.availSizes(it.p, it.c).filter(function (s) { return K.sizeState(it.p, it.c, s) === 'in'; });
-      sel[it.p.handle] = fit && av.indexOf(fit.size) > -1 ? fit.size : av[0];
-    });
-    $('#look-spots').innerHTML = items.map(function (it, i) {
-      return '<button type="button" class="spot-h" style="left:' + it.spot.x + '%;top:' + it.spot.y + '%" data-spot="' + i + '" aria-label="' + esc(it.p.name) + '"><span class="spot-h__dot"><span class="spot-h__ring"></span></span><span class="spot-h__lbl">' + esc(it.p.name) + ' · ' + fmt(it.p.price) + '</span></button>';
-    }).join('');
-    function draw() {
-      $('#look-items').innerHTML = items.map(function (it, i) {
-        var m = K.media(it.p, it.c);
-        return '<li class="litem" data-li="' + i + '"><a href="' + K.pdpUrl(it.p, it.c) + '"><img class="litem__img" src="' + K.img(m.imgs[0]) + '" alt="' + esc(it.p.name) + '" loading="lazy"></a><div>' +
-          '<div class="litem__top"><p class="litem__name"><a href="' + K.pdpUrl(it.p, it.c) + '">' + esc(it.p.name) + '</a></p>' + K.priceHTML(it.p) + '</div>' +
-          '<p class="litem__meta">' + esc(it.c) + ' · ' + esc(it.p.tagline) + '</p>' +
-          '<div class="seg" role="group" aria-label="Size for ' + esc(it.p.name) + '">' + K.availSizes(it.p, it.c).map(function (s) {
-            var st = K.sizeState(it.p, it.c, s);
-            return '<button type="button" data-lsize="' + esc(s) + '" data-h="' + it.p.handle + '" class="' + (sel[it.p.handle] === s ? 'is-on' : '') + '"' + (st !== 'in' ? ' disabled aria-label="' + esc(s) + ' sold out"' : '') + '>' + esc(s) + '</button>';
-          }).join('') + '</div></div></li>';
-      }).join('');
-      var total = items.reduce(function (a, it) { return a + it.p.price; }, 0);
-      $('#look-total').innerHTML = '<span class="cap">The full look</span><p class="price">' + fmt(total) + '</p>';
-      $('#look-free').textContent = total >= M.freeShipping ? 'Over ' + fmt(M.freeShipping) + ', so delivery is free.' : '';
-      var btn = $('#look-add');
-      if (!btn.classList.contains('is-added')) btn.textContent = 'Add the full look · ' + fmt(total);
-    }
-    draw();
-    box.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-lsize]');
-      if (b && !b.disabled) { sel[b.dataset.h] = b.dataset.lsize; $('#look-add').classList.remove('is-added'); draw(); return; }
-      if (e.target.closest('#look-add')) {
-        var btn = $('#look-add');
-        if (btn.classList.contains('is-added')) { K.openP('bag', btn); return; }
-        var n = K.addMany(items.map(function (it) { return { h: it.p.handle, c: it.c, s: sel[it.p.handle] }; }), 'The full look');
-        if (n) { btn.classList.add('is-added'); btn.textContent = '✓ Look in bag · ' + items.map(function (it) { return sel[it.p.handle]; }).join(' + '); }
-      }
-    });
-    function hi(i, on) {
-      var li = $('[data-li="' + i + '"]', box), sp = $('[data-spot="' + i + '"]', box);
-      if (li) li.classList.toggle('is-hi', on);
-      if (sp) sp.classList.toggle('is-on', on);
-    }
-    box.addEventListener('mouseover', function (e) { var s = e.target.closest('[data-spot],[data-li]'); if (s) hi(s.dataset.spot || s.dataset.li, true); });
-    box.addEventListener('mouseout', function (e) { var s = e.target.closest('[data-spot],[data-li]'); if (s) hi(s.dataset.spot || s.dataset.li, false); });
-    box.addEventListener('focusin', function (e) { var s = e.target.closest('[data-spot]'); if (s) hi(s.dataset.spot, true); });
-    box.addEventListener('focusout', function (e) { var s = e.target.closest('[data-spot]'); if (s) hi(s.dataset.spot, false); });
-    $('#look-spots').addEventListener('click', function (e) {
-      var s = e.target.closest('[data-spot]');
-      if (!s) return;
-      var li = $('[data-li="' + s.dataset.spot + '"]', box);
-      if (li) { hi(s.dataset.spot, true); var b = $('.seg button:not(:disabled)', li); if (b) b.focus({ preventScroll: window.innerWidth > 900 }); if (window.innerWidth <= 900) li.scrollIntoView({ behavior: K.RM ? 'auto' : 'smooth', block: 'center' }); }
-    });
-  }
-
-  /* =================== WILL IT FIT? size + what is in stock in it =================== */
+  /* =================== WILL IT FIT? =================== */
   var FIT_PICKS = ['sculpting-legging', 'square-neck-bra', 'essential-legging', 'seamless-short', 'strap-bra', 'cross-back-bra', 'front-zip-crop', 'long-sleeve-top', 'seamless-crop-tee'];
   function fit() {
     var box = $('#fit');
@@ -412,7 +486,7 @@
       var shown = c || p.defaultColor, m = K.media(p, shown), at = size === 'XS/S' ? 0 : 100;
       var st = c ? (c === p.defaultColor ? '<b>In stock</b> in your size' : '<b>In stock in ' + esc(c) + '</b>, ' + esc(p.defaultColor) + ' is sold out in ' + esc(size)) : '<b>Sold out</b> in your size right now';
       var inBag = c && K.Bag.has(p.handle, c, size);
-      return '<article class="fcard" role="listitem"><a class="fcard__media" href="' + K.pdpUrl(p, shown) + '"><img src="' + K.img(m.imgs[0]) + '" alt="' + esc(p.name + ' in ' + (m.shown || shown)) + '" loading="lazy"></a>' +
+      return '<article class="fcard" role="listitem"><a class="fcard__media" href="' + K.pdpUrl(p, shown) + '"><img src="' + K.img(m.imgs[0], 600) + '" alt="' + esc(p.name + ' in ' + (m.shown || shown)) + '" loading="lazy"></a>' +
         '<div class="fcard__top"><a href="' + K.pdpUrl(p, shown) + '">' + esc(p.name) + '</a>' + K.priceHTML(p) + '</div>' +
         '<div class="fcard__scale" aria-hidden="true"><i style="--at:' + at + '%"></i><span class="' + (size === 'XS/S' ? 'is-you' : '') + '">XS/S</span><span class="' + (size === 'M/L' ? 'is-you' : '') + '">M/L</span></div>' +
         '<p class="fcard__st' + (c ? '' : ' is-out') + '">' + st + '</p>' +
@@ -502,7 +576,7 @@
   }
 
   function init() {
-    hero(); shop(); spotlight(); edit(); look(); fit(); reviews(); film();
+    hero(); newIn(); lineup(); spotlight(); edit(); fit(); reviews(); film();
     K.reveal(document);
     function route(hash) {
       var m = (hash || '').match(/^#([\w-]+)$/);

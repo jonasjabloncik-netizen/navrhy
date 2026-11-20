@@ -49,7 +49,7 @@
     $('#crumb-here').textContent = c.label;
     doc.title = c.label + ' · MOONSUIT (concept)';
     $('#cat-n').innerHTML = '<b>' + n + '</b> ' + (n === 1 ? 'piece' : 'pieces');
-    var im = $('#cat-img'), src = K.img(c.img);
+    var im = $('#cat-img'), src = K.img(c.img, 1600);
     if (K.localSrc(im) !== src) {
       if (!im.getAttribute('src') || K.RM) { im.src = src; K.hd($('.cat-hero__media')); }
       else {
@@ -70,7 +70,7 @@
   function drawTiles() {
     $('#tiles').innerHTML = Object.keys(CAT).map(function (t) {
       var c = CAT[t], n = ofType(t).length;
-      return '<a class="tile-c" href="' + K.catUrl(t) + '" data-t="' + t + '"><span class="tile-c__img"><img src="' + K.img(c.tile || c.img) + '" alt="" loading="lazy"></span><span class="tile-c__l"><span>' + esc(c.label) + '</span><span class="num">' + n + '</span></span></a>';
+      return '<a class="tile-c" href="' + K.catUrl(t) + '" data-t="' + t + '"><span class="tile-c__img"><img src="' + K.img(c.tile || c.img, 600) + '" alt="" loading="lazy"></span><span class="tile-c__l"><span>' + esc(c.label) + '</span><span class="num">' + n + '</span></span></a>';
     }).join('');
   }
   function drawMoons() {
@@ -82,7 +82,7 @@
   function noteEl() {
     var a = doc.createElement('a');
     a.className = 'cat-note'; a.href = 'index.html#sculpting';
-    a.innerHTML = '<span class="cat-note__img"><img src="' + K.img('tech-back') + '" alt="Sculpting Legging in Blue Petrol from the back" loading="lazy"></span>' +
+    a.innerHTML = '<span class="cat-note__img"><img src="' + K.img('tech-back', 1000) + '" alt="Sculpting Legging in Blue Petrol from the back" loading="lazy"></span>' +
       '<span class="cat-note__txt"><span class="cap">Seamless Technology®</span><span class="d3">knitted in one single piece</span><p>No side seams, no stitching. Shapes where it counts. Holds where it matters.</p><span class="lnk">Meet the Sculpting Legging</span></span>';
     return a;
   }

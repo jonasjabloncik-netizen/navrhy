@@ -372,3 +372,44 @@ window.MS = {
     text: 'After years of training across 11 disciplines, Mounia still could not find activewear that was both strong and beautiful. So she built it: premium seamless fabrics made to European textile standards, squat-proof, shape-keeping, designed to move with you.'
   }
 };
+
+/* ===== v4: sharper photos, editions from the core shoot, shoppable stories and the line-up ===== */
+(function (M) {
+  /* hero editions now use the brand's full-size core shoot (originals 4000 px+), served by Shopify at the size the screen needs.
+     captions are MOONSUIT's own product lines from moonsuitactive.com */
+  M.editions = [
+    { id: 'red', tab: 'Red', title: ['red,', 'top to toe'], label: 'Red', caption: 'Full coverage. Zero weight.', note: 'Long Sleeve Top + Sculpting Legging', img: 'legging-red-3', pos: '50% 24%',
+      tint: '#2B1613', ink: '#F8EEEB', soft: 'rgba(248,238,235,.74)', swatch: '#C9301F', pieces: [['long-sleeve-top', 'Red'], ['sculpting-legging', 'Red']] },
+    { id: 'petrol', tab: 'Blue Petrol', title: ['blue', 'petrol'], label: 'Blue Petrol', caption: 'Clean neckline. Quiet confidence.', note: 'Square Neck Bra + Sculpting Legging', img: 'sq-bra-petrol', pos: '50% 26%',
+      tint: '#13262D', ink: '#EAF2F4', soft: 'rgba(234,242,244,.74)', swatch: '#3F6B86', pieces: [['square-neck-bra', 'Blue Petrol'], ['sculpting-legging', 'Blue Petrol']] },
+    { id: 'brown', tab: 'Brown', title: ['brown,', 'court side'], label: 'Brown', caption: 'Shapes where it counts. Holds where it matters.', note: 'Square Neck Bra + Sculpting Legging', img: 'sq-bra-brown', pos: '38% 30%',
+      tint: '#281C17', ink: '#F5EEEA', soft: 'rgba(245,238,234,.74)', swatch: '#4A2A1F', pieces: [['square-neck-bra', 'Brown'], ['sculpting-legging', 'Brown']] },
+    { id: 'navy', tab: 'Navy', title: ['navy', '& black'], label: 'Navy & Black', caption: "The piece you'll reach for every time.", note: 'Seamless Crop Tee + Essential Legging', img: 'crop-tee-navy', pos: '50% 26%',
+      tint: '#141B31', ink: '#ECEFF7', soft: 'rgba(236,239,247,.74)', swatch: '#262C4A', pieces: [['seamless-crop-tee', 'Navy'], ['essential-legging', 'Navy']] }
+  ];
+  /* category hero photos: only full-size originals for the big placements */
+  M.categories.shorts.img = 'short-burgundy'; M.categories.shorts.pos = '50% 34%';
+  M.categories.accessories.img = 'headband-brown';
+  /* shoppable stories: every frame is a real MOONSUIT photo, tagged with the piece it shows (handle, colour, photo) */
+  M.stories = [
+    { id: 'wine', label: 'Wine', isNew: true, mc: '#642B3A', items: [['cross-back-bra', 'Wine', 'cross-bra-wine'], ['cross-back-bra', 'Wine', 'cross-bra-wine-back'], ['seamless-short', 'Wine', 'short-wine'], ['long-sleeve-top', 'Wine', 'long-sleeve-wine']] },
+    { id: 'red', label: 'Red', mc: '#C9301F', items: [['sculpting-legging', 'Red', 'legging-red-2'], ['square-neck-bra', 'Red', 'sq-bra-red'], ['long-sleeve-top', 'Red', 'long-sleeve-red'], ['sculpting-legging', 'Red', 'legging-red']] },
+    { id: 'petrol', label: 'Blue Petrol', mc: '#3F6B86', items: [['square-neck-bra', 'Blue Petrol', 'sq-bra-petrol'], ['sculpting-legging', 'Blue Petrol', 'legging-petrol'], ['sculpting-legging', 'Blue Petrol', 'tech-back']] },
+    { id: 'brown', label: 'Brown', mc: '#4A2A1F', items: [['square-neck-bra', 'Brown', 'sq-bra-brown'], ['sculpting-legging', 'Brown', 'legging-brown'], ['front-zip-crop', 'Brown', 'zip-brown'], ['square-neck-bra', 'Grey', 'sq-bra-grey']] },
+    { id: 'navy', label: 'Navy', mc: '#262C4A', items: [['seamless-crop-tee', 'Navy', 'crop-tee-navy'], ['essential-legging', 'Navy', 'essential-legging-1'], ['seamless-crop-tee', 'Navy', 'crop-tee-2'], ['front-zip-crop', 'Black', 'essential-legging-2']] },
+    { id: 'grey', label: 'Grey', mc: '#5E5759', items: [['front-zip-crop', 'Grey', 'zip-grey'], ['seamless-short', 'Grey', 'short-grey']] },
+    { id: 'summer', label: 'Summer', mc: '#E8793A', items: [['square-neck-bra-summer', 'Orange', 'sq-bra-summer-orange'], ['sculpting-short-summer', 'Pink', 'short-summer-pink'], ['sculpting-legging-summer', 'Kaki', 'legging-summer-kaki'], ['sport-headband', 'Red', 'headband-red']] },
+    { id: 'matcha', label: 'Matcha', mc: '#A7BE8A', items: [['strap-bra', 'Matcha', 'strap-bra-matcha'], ['seamless-short', 'Matcha', 'short-matcha-back'], ['strap-bra', 'Light Blue', 'strap-bra-blue']] }
+  ];
+  /* the line-up: figures cut out of MOONSUIT's own shoot photos. h = how much of a full figure the photo shows (heads line up),
+     pins = pieces we know are in the photo (handle, colour, x %, y % of the figure) */
+  M.lineup = [
+    { k: 'grey', name: 'grey', r: 0.3782, h: 0.97, tint: '#E3DFDC', pins: [['front-zip-crop', 'Grey', 61, 27], ['seamless-short', 'Grey', 58, 47]] },
+    { k: 'petrol', name: 'blue petrol', r: 0.2944, h: 1, tint: '#DCE5E8', pins: [['square-neck-bra', 'Blue Petrol', 50, 22], ['sculpting-legging', 'Blue Petrol', 37, 58]] },
+    { k: 'red', name: 'red', r: 0.3514, h: 1, tint: '#F1DCD6', pins: [['long-sleeve-top', 'Red', 50, 25], ['sculpting-legging', 'Red', 44, 57]] },
+    { k: 'navy', name: 'navy & black', r: 0.646, h: 0.97, tint: '#DEE0E8', pins: [['seamless-crop-tee', 'Navy', 33, 26], ['essential-legging', 'Navy', 21, 66], ['front-zip-crop', 'Black', 63, 43], ['essential-legging', 'Black', 67, 74]] },
+    { k: 'kaki', name: 'kaki', r: 0.4391, h: 0.9, tint: '#E2E5D8', pins: [['square-neck-bra-summer', 'Kaki', 41, 37], ['sculpting-legging-summer', 'Kaki', 34, 62]] }
+  ];
+  /* light background per colour for the Sculpting Legging scene */
+  M.spotTint = { 'Red': '#F2E2DD', 'Brown': '#EEE5DF', 'Grey': '#E8E5E3', 'Blue Petrol': '#E0E8EB' };
+})(window.MS);

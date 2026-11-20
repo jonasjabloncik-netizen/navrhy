@@ -16,7 +16,19 @@
     return f || p.colors.filter(function (c) { return c.name === p.defaultColor; })[0] || p.colors[0];
   }
   function hasColor(p, name) { return p.colors.some(function (c) { return c.name === name; }); }
-  function img(n) { return 'assets/img/' + n + '.jpg'; }
+  /* photos come straight from MOONSUIT's Shopify CDN in the width the layout needs (full-size originals behind it);
+     the small local copy is only a fallback when the CDN cannot be reached */
+  var HD = M.hd || {}, HDB = M.hdBase || '', RHD = {};
+  Object.keys(HD).forEach(function (k) { if (!RHD[HD[k]]) RHD[HD[k]] = k; });
+  function img(n, w) { return HD[n] && HDB ? HDB + HD[n] + '?width=' + (w || 1000) : 'assets/img/' + n + '.jpg'; }
+  function srcset(n, ws, sizes) {
+    if (!HD[n] || !HDB) return '';
+    return ' srcset="' + ws.map(function (w) { return HDB + HD[n] + '?width=' + w + ' ' + w + 'w'; }).join(', ') + '" sizes="' + sizes + '"';
+  }
+  var CARD_SIZES = '(max-width: 720px) 50vw, (max-width: 1180px) 34vw, 26vw';
+  function cardImg(n, cls, alt) {
+    return '<img class="' + cls + '" src="' + img(n, 900) + '"' + srcset(n, [480, 720, 960, 1280], CARD_SIZES) + ' alt="' + alt + '" loading="lazy" decoding="async">';
+  }
   function sizesFor(p) { return p.oneSize ? ['One size'] : ['XS/S', 'M/L']; }
   function sizeState(p, cname, s) { return C(p, cname).sizes[s] || 'none'; }
   function media(p, cname) {
@@ -95,7 +107,7 @@
   function toast(o) {
     var t = $('#toast');
     if (!t) return;
-    t.innerHTML = (o.img ? '<img src="' + img(o.img) + '" alt="">' : '<span></span>') +
+    t.innerHTML = (o.img ? '<img src="' + img(o.img, 240) + '" alt="">' : '<span></span>') +
       '<div><p class="toast__t">' + o.html + '</p>' +
       '<div class="toast__a"><button type="button" data-open="bag">View bag (' + Bag.count() + ')</button><button type="button" data-toast-x>Keep shopping</button></div></div>';
     t.classList.add('is-on');
@@ -161,7 +173,7 @@
       var html = '<ul>';
       Bag.lines.forEach(function (l, i) {
         var p = P(l.h), m = media(p, l.c), key = l.h + '|' + l.c + '|' + l.s;
-        html += '<li class="bline' + (key === newKey ? ' is-new' : '') + '"><a href="' + pdpUrl(p, l.c) + '"><img src="' + img(m.imgs[0]) + '" alt="' + esc(p.name) + '"></a><div>' +
+        html += '<li class="bline' + (key === newKey ? ' is-new' : '') + '"><a href="' + pdpUrl(p, l.c) + '"><img src="' + img(m.imgs[0], 300) + '" alt="' + esc(p.name) + '"></a><div>' +
           '<div class="bline__top"><a class="bline__name" href="' + pdpUrl(p, l.c) + '">' + esc(p.name) + '</a>' +
           (p.compare ? '<p class="price is-sale"><span class="now">' + fmt(p.price * l.q) + '</span><s>' + fmt(p.compare * l.q) + '</s></p>' : '<p class="price">' + fmt(p.price * l.q) + '</p>') + '</div>' +
           '<p class="bline__meta">' + esc(l.c) + ' · ' + esc(l.s) + (l.q > 1 ? ' · ' + fmt(p.price) + ' each' : '') + '</p>' +
@@ -176,7 +188,7 @@
       if (pair) {
         var pc = hasColor(pair, lastLine.c) ? lastLine.c : pair.defaultColor;
         var pm = media(pair, pc);
-        html += '<div class="bag__pair"><h3 class="cap">Pairs well with your ' + esc(lp.name) + '</h3><div class="pair"><a href="' + pdpUrl(pair, pc) + '"><img src="' + img(pm.imgs[0]) + '" alt="' + esc(pair.name) + '"></a>' +
+        html += '<div class="bag__pair"><h3 class="cap">Pairs well with your ' + esc(lp.name) + '</h3><div class="pair"><a href="' + pdpUrl(pair, pc) + '"><img src="' + img(pm.imgs[0], 300) + '" alt="' + esc(pair.name) + '"></a>' +
           '<div><p class="pair__name">' + esc(pair.name) + '</p><p class="pair__meta">' + esc(pc) + ' · ' + fmt(pair.price) + '</p></div><div class="qa" style="margin:0">' +
           availSizes(pair, pc).map(function (s) {
             var st = sizeState(pair, pc, s);
@@ -228,8 +240,8 @@
     var flag = p.compare ? '<span class="card__flag is-sale">' + pct(p) + '% off</span>' : (p.isNew ? '<span class="card__flag">New</span>' : '');
     return '<div class="card__media">' +
       '<a class="card__link" href="' + pdpUrl(p, cname) + '" aria-label="' + esc(p.name + ', ' + cname) + '">' +
-      '<img class="a' + (b ? ' has-b' : '') + '" src="' + img(a) + '" alt="' + esc(p.name + ' in ' + (m.shown || cname)) + '" loading="lazy" decoding="async">' +
-      (b ? '<img class="b" src="' + img(b) + '" alt="" loading="lazy" decoding="async">' : '') + '</a>' + flag +
+      cardImg(a, 'a' + (b ? ' has-b' : ''), esc(p.name + ' in ' + (m.shown || cname))) +
+      (b ? cardImg(b, 'b', '') : '') + '</a>' + flag +
       (m.shown ? '<span class="card__shown">Shown in ' + esc(m.shown) + '</span>' : '') +
       '<button type="button" class="card__plus" data-qa-open aria-expanded="false" aria-label="Quick add ' + esc(p.name) + '">+</button>' +
       '<div class="qa" role="group" aria-label="Quick add ' + esc(p.name + ', ' + cname) + '">' + qaInner(p, cname) + '</div></div>' +
@@ -331,7 +343,7 @@
     $('#search-hint').textContent = q ? (list.length ? list.length + (list.length === 1 ? ' piece' : ' pieces') + ' for “' + q + '”' : 'Nothing for “' + q + '”. Try a colour like wine or matcha.') : 'All 13 pieces. Type a name or a colour.';
     $('.grid', box).innerHTML = list.map(function (p) {
       var c = colorHit && hasColor(p, colorHit) ? colorHit : p.defaultColor, m = media(p, c);
-      return '<a class="mini" href="' + pdpUrl(p, c) + '"><img src="' + img(m.imgs[0]) + '" alt="" loading="lazy"><span><b>' + esc(p.name) + '</b><br>' + (p.compare ? '<span style="color:var(--wine)">' + fmt(p.price) + '</span> <s class="muted">' + fmt(p.compare) + '</s>' : fmt(p.price)) + '</span></a>';
+      return '<a class="mini" href="' + pdpUrl(p, c) + '"><img src="' + img(m.imgs[0], 300) + '" alt="" loading="lazy"><span><b>' + esc(p.name) + '</b><br>' + (p.compare ? '<span style="color:var(--wine)">' + fmt(p.price) + '</span> <s class="muted">' + fmt(p.compare) + '</s>' : fmt(p.price)) + '</span></a>';
     }).join('');
   }
 
@@ -341,34 +353,18 @@
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }) : null;
   function reveal(scope) { $$('.rv, .rl, .curtain', scope).forEach(function (el) { if (io) io.observe(el); else el.classList.add('is-in'); }); }
 
-  /* ---------- sharper photos: swap in the brand's full-size original when the screen needs it ---------- */
-  var HD = M.hd || {}, HDB = M.hdBase || '';
-  var hdIO = (HDB && 'IntersectionObserver' in window) ? new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { hdIO.unobserve(e.target); hdTry(e.target); } });
-  }, { rootMargin: '400px 0px' }) : null;
-  function hdKey(src) { var m = (src || '').match(/(?:^|\/)assets\/img\/([\w-]+)\.jpg$/); return m && HD[m[1]] ? m[1] : null; }
-  function hdTry(im) {
-    var local = im.getAttribute('src'), key = hdKey(local);
+  /* ---------- CDN fallback: if a photo cannot load from the CDN, use the local copy ---------- */
+  doc.addEventListener('error', function (e) {
+    var im = e.target;
+    if (!im || im.tagName !== 'IMG' || im.dataset.cdn) return;
+    var src = im.getAttribute('src') || '';
+    if (!HDB || src.indexOf(HDB) !== 0) return;
+    var key = RHD[src.slice(HDB.length).split('?')[0]];
     if (!key) return;
-    if (!im.complete || !im.naturalWidth) { im.addEventListener('load', function () { hdTry(im); }, { once: true }); return; }
-    var r = im.getBoundingClientRect();
-    if (!r.width || !r.height) return;
-    var nw = im.naturalWidth, nh = im.naturalHeight;
-    var need = nw * Math.max(r.width / nw, r.height / nh) * Math.min(window.devicePixelRatio || 1, 2);
-    if (need <= nw * 1.1) return;
-    var n = new Image();
-    n.onload = function () {
-      if (n.naturalWidth <= nw * 1.05 || Math.abs(n.naturalWidth / n.naturalHeight - nw / nh) > 0.03) return; // not sharper, or framed differently: keep ours
-      var swap = function () { if (im.getAttribute('src') === local) { im.dataset.local = local; im.src = n.src; } };
-      if (n.decode) n.decode().then(swap, swap); else swap();
-    };
-    n.src = HDB + HD[key] + '?width=' + Math.min(2400, Math.ceil(need / 200) * 200);
-  }
-  function hd(scope) {
-    if (!hdIO) return;
-    $$('img', scope || doc).forEach(function (im) { if (hdKey(im.getAttribute('src'))) hdIO.observe(im); });
-  }
-  function localSrc(im) { return im.dataset.local && im.getAttribute('src').indexOf(HDB) === 0 ? im.dataset.local : im.getAttribute('src'); }
+    im.dataset.cdn = src; im.removeAttribute('srcset'); im.src = 'assets/img/' + key + '.jpg';
+  }, true);
+  function hd() {}
+  function localSrc(im) { return im.dataset.cdn || im.getAttribute('src'); }
 
   /* ---------- rails: a horizontal row of products with a progress line, arrows and mouse drag ---------- */
   function rail(root) {
@@ -523,12 +519,129 @@
     window.addEventListener('storage', function (e) { if (e.key === 'ms-bag') { Bag.lines = store.get('ms-bag', []); syncCount(); renderBag(); } });
   }
 
+  /* ---------- shoppable stories: full-screen viewer, every frame tagged with the piece it shows ---------- */
+  var Stories = (function () {
+    var S = { set: 0, i: 0, t0: 0, el: 0, dur: 5600, paused: false, raf: 0, size: null, last: null, built: false };
+    var CLOSE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg>';
+    var PREV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>';
+    var NEXT = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+    function sets() { return M.stories || []; }
+    function cur() { var st = sets()[S.set], it = st.items[S.i]; return { st: st, p: P(it[0]), c: it[1], k: it[2] }; }
+    function build() {
+      if (S.built) return; S.built = true;
+      var el = doc.createElement('div');
+      el.className = 'sv'; el.id = 'sv'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Shoppable stories'); el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<button class="sv__nav" type="button" data-sv="pset" aria-label="Previous story">' + PREV + '</button>' +
+        '<div class="sv__box" id="sv-box"><div class="sv__img" id="sv-img"></div>' +
+        '<button class="sv__tap sv__tap--l" type="button" data-sv="prev" aria-label="Previous photo"></button><button class="sv__tap sv__tap--r" type="button" data-sv="next" aria-label="Next photo"></button>' +
+        '<div class="sv__top"><div class="sv__bars" id="sv-bars"></div><div class="sv__who"><span class="sv__me" id="sv-who"></span>' +
+        '<button type="button" class="sv__ctl" id="sv-pause" aria-pressed="false">Pause</button><button type="button" class="sv__ctl sv__x" data-sv="close" aria-label="Close stories">' + CLOSE + '</button></div></div>' +
+        '<div class="sv__panel" id="sv-panel"></div></div>' +
+        '<button class="sv__nav" type="button" data-sv="nset" aria-label="Next story">' + NEXT + '</button>';
+      doc.body.appendChild(el);
+      el.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-sv]');
+        if (b) { var a = b.dataset.sv; if (a === 'close') close(); else if (a === 'next') next(); else if (a === 'prev') prev(); else if (a === 'nset') jump(1); else if (a === 'pset') jump(-1); return; }
+        if (e.target.closest('#sv-pause')) { toggle(); return; }
+        var sz = e.target.closest('[data-svs]');
+        if (sz && !sz.disabled) { S.size = sz.dataset.svs; if (!S.paused) toggle(); panel(); return; }
+        if (e.target.closest('#sv-add')) { add(); return; }
+        if (e.target === el) close();
+      });
+      // swipe sideways for the next colour, swipe down to close
+      var sx = null, sy = 0;
+      $('#sv-box').addEventListener('pointerdown', function (e) { if (e.target.closest('.sv__panel, .sv__ctl')) return; sx = e.clientX; sy = e.clientY; });
+      $('#sv-box').addEventListener('pointerup', function (e) {
+        if (sx === null) return; var dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+        if (dy > 90 && Math.abs(dy) > Math.abs(dx)) close(); else if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) jump(dx < 0 ? 1 : -1);
+      });
+      doc.addEventListener('keydown', function (e) {
+        if (!el.classList.contains('is-on')) return;
+        if (e.key === 'Escape') { e.stopPropagation(); close(); }
+        else if (e.key === 'ArrowRight') next(); else if (e.key === 'ArrowLeft') prev();
+        else if (e.key === ' ' && !e.target.closest('button')) { e.preventDefault(); toggle(); }
+        else if (e.key === 'Tab') { var f = $$('button:not([disabled]), a[href]', el).filter(function (x) { return x.offsetParent; }); if (!f.length) return; var i = f.indexOf(doc.activeElement);
+          if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } }
+      });
+      doc.addEventListener('visibilitychange', function () { if (doc.hidden && el.classList.contains('is-on') && !S.paused) toggle(); });
+    }
+    function open(k, i) {
+      build(); S.last = doc.activeElement; S.set = k; S.i = i || 0; S.paused = false;
+      var el = $('#sv'); el.classList.add('is-on'); el.setAttribute('aria-hidden', 'false'); root.style.overflow = 'hidden';
+      setPause(); show(); setTimeout(function () { var x = $('#sv [data-sv="close"]'); if (x) x.focus(); }, 60);
+    }
+    function close() {
+      cancelAnimationFrame(S.raf); var el = $('#sv'); if (!el) return;
+      el.classList.remove('is-on'); el.setAttribute('aria-hidden', 'true'); root.style.overflow = '';
+      if (S.last && S.last.focus) S.last.focus({ preventScroll: true });
+    }
+    function seen(id) {
+      var a = store.get('ms-seen', []); if (a.indexOf(id) < 0) { a.push(id); store.set('ms-seen', a); }
+      $$('.stb[data-st="' + id + '"]').forEach(function (b) { b.classList.add('is-seen'); });
+    }
+    function show() {
+      var x = cur(), st = x.st, first = st.items[0];
+      seen(st.id);
+      var av = availSizes(x.p, x.c).filter(function (s) { return sizeState(x.p, x.c, s) === 'in'; });
+      S.size = av.length === 1 ? av[0] : null;
+      $('#sv-who').innerHTML = '<img src="' + img(first[2], 120) + '" alt=""><span>' + esc(st.label) + (st.isNew ? ' <em>new</em>' : '') + '</span><small>' + (S.i + 1) + ' / ' + st.items.length + '</small>';
+      $('#sv-bars').innerHTML = st.items.map(function (_, k) { return '<span class="' + (k < S.i ? 'done' : '') + '"><i></i></span>'; }).join('');
+      var box = $('#sv-img'), im = new Image();
+      im.alt = x.p.name + ' in ' + x.c; im.decoding = 'async';
+      var ss = srcset(x.k, [640, 960, 1280], '(max-width: 767px) 100vw, 480px');
+      if (ss) { im.srcset = ss.match(/srcset="([^"]+)"/)[1]; im.sizes = '(max-width: 767px) 100vw, 480px'; }
+      im.src = img(x.k, 960);
+      var put = function () { box.innerHTML = ''; box.appendChild(im); };
+      if (im.decode) im.decode().then(put, put); else put();
+      panel(); S.el = 0; run();
+      // warm up the next photo
+      var nx = st.items[S.i + 1] || (sets()[S.set + 1] && sets()[S.set + 1].items[0]);
+      if (nx) { var w = new Image(); w.src = img(nx[2], 960); }
+    }
+    function panel() {
+      var x = cur(), p = x.p, c = x.c, sizes = availSizes(p, c);
+      var inBag = S.size && Bag.has(p.handle, c, S.size);
+      var lab = inBag ? '✓ In your bag · ' + S.size : (S.size ? 'Add to bag · ' + S.size : 'Choose your size');
+      $('#sv-panel').innerHTML = '<div class="sv__p1"><a href="' + pdpUrl(p, c) + '"><small>' + esc(c) + '</small>' + esc(p.name) + '</a>' + priceHTML(p) + '</div>' +
+        (p.oneSize ? '' : '<div class="sv__sizes" role="group" aria-label="Size">' + sizes.map(function (s) {
+          var st = sizeState(p, c, s);
+          return '<button type="button" data-svs="' + esc(s) + '" aria-pressed="' + (s === S.size) + '"' + (st === 'in' ? '' : ' disabled') + '>' + esc(s) + (st === 'in' ? '' : ' · sold out') + '</button>';
+        }).join('') + '</div>') +
+        '<button type="button" class="btn sv__add' + (inBag ? ' is-done' : '') + '" id="sv-add">' + lab + '</button>';
+    }
+    function add() {
+      var x = cur();
+      if (!S.size) { var g = $('#sv-panel .sv__sizes'); if (g) { g.classList.remove('is-ask'); void g.offsetWidth; g.classList.add('is-ask'); } if (!S.paused) toggle(); return; }
+      if (addToBag(x.p.handle, x.c, S.size, { silent: true })) { if (!S.paused) toggle(); panel(); }
+    }
+    function run() {
+      cancelAnimationFrame(S.raf);
+      var bar = $$('#sv-bars span i')[S.i];
+      if (RM || S.paused) { if (bar && RM) bar.style.transform = 'scaleX(1)'; return; }
+      S.t0 = performance.now() - S.el;
+      var tick = function (t) {
+        if (S.paused) return;
+        S.el = t - S.t0; var k = Math.min(1, S.el / S.dur);
+        if (bar) bar.style.transform = 'scaleX(' + k.toFixed(4) + ')';
+        if (k >= 1) { next(); return; }
+        S.raf = requestAnimationFrame(tick);
+      };
+      S.raf = requestAnimationFrame(tick);
+    }
+    function next() { var st = sets()[S.set]; if (S.i < st.items.length - 1) { S.i++; show(); } else if (S.set < sets().length - 1) { S.set++; S.i = 0; show(); } else close(); }
+    function prev() { if (S.i > 0) S.i--; else if (S.set > 0) { S.set--; S.i = sets()[S.set].items.length - 1; } show(); }
+    function jump(d) { var n = S.set + d; if (n < 0 || n >= sets().length) { if (d > 0) close(); return; } S.set = n; S.i = 0; show(); }
+    function setPause() { var b = $('#sv-pause'); if (!b) return; b.textContent = S.paused ? 'Play' : 'Pause'; b.setAttribute('aria-pressed', String(S.paused)); }
+    function toggle() { S.paused = !S.paused; setPause(); if (S.paused) cancelAnimationFrame(S.raf); else run(); }
+    return { open: open, close: close };
+  })();
+
   window.MSK = {
     $: $, $$: $$, esc: esc, fmt: fmt, P: P, C: C, hasColor: hasColor, img: img, sizesFor: sizesFor, sizeState: sizeState, media: media, hex: hex,
     pdpUrl: pdpUrl, availSizes: availSizes, priceHTML: priceHTML, pct: pct, store: store, Bag: Bag, addToBag: addToBag, addMany: addMany,
     openP: openP, closeP: closeP, toast: toast, cardEl: cardEl, cardInner: cardInner, Fit: Fit, fitFormHTML: fitFormHTML, bindFitForm: bindFitForm,
     chartHTML: chartHTML, reveal: reveal, moonPhase: moonPhase, freeLine: freeLine, RM: RM, emit: emit,
-    hd: hd, localSrc: localSrc, orbit: orbit, rail: rail, catUrl: catUrl, metaText: metaText
+    hd: hd, localSrc: localSrc, orbit: orbit, rail: rail, catUrl: catUrl, metaText: metaText, srcset: srcset, cardImg: cardImg, stories: Stories
   };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
 })();

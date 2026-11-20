@@ -121,10 +121,9 @@
       '<li><span>Returns within 24 h of delivery, as store credit</span></li></ul>';
   }
   function swatchHTML(c) {
-    var im = c.img[0];
     var any = Object.keys(c.sizes).some(function (s2) { return c.sizes[s2] === 'in'; });
-    return '<button type="button" data-color="' + esc(c.name) + '" class="' + (c.name === color ? 'is-on' : '') + '" aria-pressed="' + (c.name === color) + '" aria-label="' + esc(c.name) + (any ? '' : ', sold out') + '" title="' + esc(c.name) + '">' +
-      (im ? '<img src="' + K.img(im, 160) + '" alt="" loading="lazy">' : '<span class="swi__c" style="--c:' + K.hex(c.name) + '"></span>') + '</button>';
+    return '<button type="button" data-color="' + esc(c.name) + '" class="mc' + (c.name === color ? ' is-on' : '') + (any ? '' : ' is-out') + '" aria-pressed="' + (c.name === color) + '" aria-label="' + esc(c.name) + (any ? '' : ', sold out') + '">' +
+      '<span class="mc__d" style="--c:' + K.hex(c.name) + '"></span><span class="mc__l">' + esc(c.name) + '</span></button>';
   }
   /* the colour as it was shot: open the shoppable story at this piece */
   function storyAt() {

@@ -1063,6 +1063,8 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
   .svc__in { grid-template-columns: 1fr 1fr; }
   .svc__i:nth-child(3) { border-left: 0; padding-left: 0; }
   .svc__i:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+@media (min-width: 721px) and (max-width: 900px) {
   .summer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
@@ -1082,3 +1084,67 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 .pstory small { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-2); }
 .pstory:hover .stb__ring::after { transform: rotate(360deg); }
 .pstory:hover b { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+
+/* =====================================================================
+   v5 · phone: header, full-screen hero, footer · colour moons on the product page
+   ===================================================================== */
+.menu nav { min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.menu__search { text-align: left; font-weight: 220; font-stretch: 110%; font-size: 34px; line-height: 1.15; letter-spacing: -.035em; text-transform: lowercase; padding: 9px 0; border-bottom: 1px solid var(--cream-line); color: var(--cream-2); }
+
+/* product page: every colour as a moon, the same way everywhere on the site */
+.swi { gap: 14px 6px; }
+.swi .mc { width: 66px; aspect-ratio: auto; overflow: visible; background: none; outline-offset: 4px; }
+.swi .mc::after { display: none; }
+.swi .mc__l { font-size: 11.5px; }
+.swi .mc.is-out .mc__d { opacity: .45; }
+.swi .mc.is-out .mc__d::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink); transform: rotate(45deg); }
+.swi .mc.is-out .mc__l { color: rgba(22, 18, 20, .45); }
+
+@media (max-width: 720px) {
+  :root { --hdr-h: 56px; }
+  /* header: menu, logo, bag. Search lives in the menu */
+  .hdr__in { gap: 12px; }
+  .hdr__tools > [data-open="search"] { display: none; }
+  .hdr__logo { width: 138px; }
+  .hdr__menu, .hdr__bag { font-size: 11px; letter-spacing: .14em; padding: 12px 0; }
+
+  /* hero: the photo fills the screen and the edition sits on it */
+  .hero__grid { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); height: calc(100svh - var(--ann-h) - var(--hdr-h)); min-height: 600px; max-height: 920px; }
+  .hero__photo { order: 0; grid-area: 1 / 1; height: auto; z-index: 0; }
+  .hero__photo::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(180deg, rgba(14, 10, 12, .28) 0%, rgba(14, 10, 12, 0) 16%, rgba(14, 10, 12, 0) 34%, rgba(14, 10, 12, .58) 60%, rgba(14, 10, 12, .9) 100%); }
+  .hero__copy { grid-area: 1 / 1; position: relative; z-index: 2; align-self: end; padding: 0 var(--gut) 14px; }
+  .hero__pane { align-self: end; }
+  .hero__eyebrow { margin-bottom: 12px; gap: 10px; font-size: 9.5px; }
+  .hero__eyebrow .logo-svg { width: 28px; }
+  .hero__title { font-size: clamp(50px, 15vw, 68px); }
+  .hero__caption { font-size: 16px; margin-top: 10px; max-width: 30ch; }
+  .hero__pieces { display: none; }
+  .hero__set { margin-top: 8px; font-size: 13px; }
+  .hero__set .price { font-size: 15px; }
+  .hero__cta { margin-top: 18px; flex-wrap: nowrap; gap: 20px; }
+  .hero__cta > .btn { flex: none; min-height: 48px; padding: 0 22px; }
+  .hero__cta > .btn--line { min-height: 0; padding: 8px 0; border: 0; background: none; letter-spacing: .1em; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+  .hero__cta > .btn--line::before { display: none; }
+  .hero__cta > .btn--line:hover { color: var(--ink-p); }
+  .hero__bar { padding-top: 16px; }
+
+  /* summer edit: swipe through bigger cards */
+  .summer__grid { grid-template-columns: none; grid-auto-columns: 70%; }
+
+  /* footer: contact lines get the full width */
+  .ftr { padding-top: 72px; }
+  .ftr__contact { grid-column: 1 / -1; overflow-wrap: anywhere; }
+  .ftr__logo { margin-top: 64px; }
+}
+
+/* hero tabs: each label gets the room it needs, so "Blue Petrol" is never cut */
+.htab { flex: 1 1 auto; }
+@media (max-width: 1360px) { .htabs { gap: 14px; } }
+
+/* colour moons: hidden labels stay inside their own button, so the filter row never widens the page on phones */
+.mc { position: relative; }
+@media (max-width: 720px) {
+  .svc__i { padding: 34px 12px 36px 16px; }
+  .svc__i:nth-child(odd) { padding-left: 0; }
+  .svc__i b { font-size: clamp(30px, 9.4vw, 40px); }
+}

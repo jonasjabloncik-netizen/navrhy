@@ -1,4 +1,6 @@
-/* PURE HOME v3 · obsahové sekce: Iva, služby, rozsah s přepínačem, pravidla, kontakt, patička. */
+/* PURE HOME v6 · obsahové sekce: Iva, služby, rozsah s přepínačem, vybavení, pravidla, kontakt, patička.
+   v6: lišta na telefonu se řídí uloženými pozicemi (bez měření při scrollu), fotky vybavení se připraví
+   s předstihem a pulzující body se mimo obraz zastaví. */
 (function (W, D) {
   'use strict';
   var C = W.PHC, P = W.PH, $ = C.$, esc = C.esc, kc = C.kc;
@@ -74,6 +76,12 @@
       })(t0);
     }
     if (C.RM || !('IntersectionObserver' in W)) { cards.forEach(function (c) { c.classList.add('is-in'); }); return; }
+    /* fotky se stáhnou a dekódují dřív, než karta přijede; pulzování bodů běží jen v obraze */
+    var pre = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { if (!e.isIntersecting) return; pre.unobserve(e.target); var im = C.$('.gc__img', e.target); im.loading = 'eager'; if (im.decode) im.decode().catch(function () {}); });
+    }, { rootMargin: '150% 0px 150% 0px' });
+    var seen = new IntersectionObserver(function (en) { en.forEach(function (e) { e.target.classList.toggle('is-vis', e.isIntersecting); }); });
+    cards.forEach(function (c) { pre.observe(c); seen.observe(c); });
     var io = new IntersectionObserver(function (en) {
       en.forEach(function (e) {
         if (!e.isIntersecting) return;
@@ -164,7 +172,7 @@
   r('footer').innerHTML = '<div class="wrap"><img class="ftr__logo" src="assets/img/logo-inline.svg" alt="PURE HOME Ostrava" width="880" height="117" loading="lazy">' +
     '<div class="ftr__grid"><div><h3>PURE HOME Ostrava</h3><p class="muted">' + esc(P.brand.claim) + '. Uklízí Iva, ' + esc(CT.area) + '.</p></div>' +
     '<div><h3>Stránky</h3>' + P.nav.map(function (n) { return '<a href="#' + n.id + '">' + esc(n.label) + '</a>'; }).join('<br>') + '<br><a href="podminky.html">Obchodní podmínky</a></div>' +
-    '<div><h3>Kontakt</h3><a href="' + tel(CT.phone) + '" data-c="phone">' + esc(CT.phone) + '</a><br><a href="mailto:' + CT.email + '" data-c="email">' + esc(CT.email) + '</a><p class="muted">IČO ' + esc(CT.ico) + '</p></div></div>' +
+    '<div><h3>Kontakt</h3><a href="' + tel(CT.phone) + '" data-c="phone">' + esc(CT.phone) + '</a><br><a href="mailto:' + CT.email + '" data-c="email">' + esc(CT.email).replace('@', '@<wbr>') + '</a><p class="muted">IČO ' + esc(CT.ico) + '</p></div></div>' +
     '<p class="ftr__note">' + esc(P.concept.footer) + '</p></div>';
   r('badge').textContent = P.concept.badge;
 
@@ -172,14 +180,17 @@
   bar.innerHTML = '<a class="btn" href="#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '" data-c="phone">Zavolat</a>';
   bar.hidden = false;
   (function () {
-    var day = $('.day'), order = r('order');
-    function onScroll() {
-      var y = W.pageYOffset, vh = W.innerHeight;
-      var after = day ? y > day.offsetTop + day.offsetHeight - vh * .9 : y > vh;
-      var o = order.getBoundingClientRect(), inOrder = o.top < vh * .7 && o.bottom > vh * .3;
-      bar.classList.toggle('is-on', after && !inOrder);
-    }
-    W.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    var day = $('.day'), order = r('order'), dayEnd = 0, oTop = 0, oBot = 0, on = null;
+    C.Scroll.watch({
+      measure: function (y) {
+        dayEnd = day ? day.getBoundingClientRect().top + y + day.offsetHeight : 0;
+        var o = order.getBoundingClientRect(); oTop = o.top + y; oBot = o.bottom + y;
+      },
+      fn: function (y, vh) {
+        var after = day ? y > dayEnd - vh * .9 : y > vh, inOrder = oTop - y < vh * .7 && oBot - y > vh * .3, v = after && !inOrder;
+        if (v !== on) { on = v; bar.classList.toggle('is-on', v); }
+      }
+    });
   })();
 
   C.reveal(D);

@@ -109,6 +109,8 @@
   }
 
   var root = host, wiz = C.$('.wiz', root), steps = C.$$('.ws', root), doneEl = C.$('.ws--done', root);
+  var view = C.$('.wiz__view', root), backT;   /* skryté kroky čekají vpravo mimo pole: pohled se nesmí posunout do strany */
+  view.addEventListener('scroll', function () { if (view.scrollLeft) view.scrollLeft = 0; });
   var bars = C.$('.wiz__steps', root), count = C.$('.wiz__count', root), prev = C.$('[data-prev]', root), next = C.$('[data-next]', root), nav = C.$('.wiz__nav', root);
   var ticket = C.$('.ticket', root), lines = C.$('.tk__lines', root), odoN = C.$('.odo__n', root), odoFrom = C.$('[data-from]', root), odoSr = C.$('[data-sr]', root);
 
@@ -180,7 +182,12 @@
     var day = e.target.closest('[data-date]'); if (day && !day.disabled) { pickDate(day.dataset.date); return; }
     var un = e.target.closest('[data-unpick]'); if (un) { calc.dates = calc.dates.filter(function (x) { return x !== un.dataset.unpick; }); renderCal(0); sync(); return; }
     var sb = e.target.closest('[data-start]'); if (sb) { calc.start = calc.start === sb.dataset.start ? null : sb.dataset.start; C.$$('[data-start]', root).forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.start === calc.start)); }); sync(); return; }
-    if (e.target.closest('[data-edit]')) { ticket.classList.remove('is-flip', 'is-stamped'); show('when', -1); scrollToWiz(); return; }
+    if (e.target.closest('[data-edit]')) {
+      ticket.classList.remove('is-flip', 'is-stamped');
+      /* zadní strana zmizí až po otočení zpět, aby přední strana neměla prázdné místo */
+      clearTimeout(backT); backT = setTimeout(function () { if (!ticket.classList.contains('is-flip')) ticket.classList.remove('is-back'); }, C.RM ? 0 : 1150);
+      show('when', -1); scrollToWiz(); return;
+    }
     if (e.target.closest('[data-copy]')) { copy(e.target.closest('[data-copy]')); return; }
     if (e.target.closest('[data-share]')) { share(); return; }
     var rm = e.target.closest('[data-rmphoto]'); if (rm) { photos.splice(Number(rm.dataset.rmphoto), 1); renderPhotos(); return; }
@@ -362,7 +369,7 @@
     C.$('.odo2', root).innerHTML = (res.from ? '<small>od</small>' : '') + '<span class="odo__n" data-big></span><small>Kč</small>';
     C.$('[data-keys]', root).innerHTML = [[calc.type === 'regular' ? 'Běžný úklid' : 'Generální úklid', hrs(calc.hours)], ['Termín', whenText() || 'domluvíme'], ['Místo', placeText(true)]]
       .map(function (k) { return '<li><span>' + esc(k[0]) + '</span><span>' + esc(k[1]) + '</span></li>'; }).join('');
-    ticket.classList.add('is-flip');
+    clearTimeout(backT); ticket.classList.add('is-back', 'is-flip');
     setTimeout(function () { setOdo(C.$('[data-big]', root), res.total); ticket.classList.add('is-stamped'); }, C.RM ? 0 : 850);
     scrollToWiz();
   }

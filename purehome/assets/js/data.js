@@ -21,7 +21,7 @@ window.PH = {
     email: 'info@purehome-ostrava.cz',
     ico: '12345678',
     sample: { phone: true, email: true, ico: true },
-    area: 'Ostrava a okolí do 20 km',
+    area: 'Ostrava a okolí do 20\u00a0km',
     payment: 'Hotově nebo okamžitým převodem po úklidu'
   },
 
@@ -64,7 +64,7 @@ window.PH = {
       'Ke každému úklidu přijedu sama, s vlastním vybavením a šetrnými prostředky. Než přijedu, poprosím vás o pár fotek, abychom se předem domluvili na rozsahu i ceně. Žádná překvapení, ani v ceně.',
       'Uklízím tak, jak bych to chtěla mít doma.'
     ],
-    facts: [['Uklízí', 'Iva osobně'], ['Kde', 'Ostrava a okolí do 20 km'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'až po úklidu']],
+    facts: [['Uklízí', 'Iva osobně'], ['Kde', 'Ostrava a okolí do 20\u00a0km'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'až po úklidu']],
     team: 'Až nás bude víc, představím vám tu každou kolegyni.'
   },
 

@@ -1,13 +1,15 @@
-/* PURE HOME v3 · úvod a „jeden den s PURE HOME"
+/* PURE HOME v6 · úvod a „jak to probíhá"
    Ranní světlo z okna na stěně. Při scrollu slunce putuje po stěně od rána do večera
    a vedle se odvíjí, jak služba probíhá: fotky, klíče, úklid, platba, návrat domů.
-   Vše je funkcí průběhu scrollu (tam i zpět), animuje se jen transform a opacity. */
+   Vše je funkcí průběhu scrollu (tam i zpět), animuje se jen transform a opacity.
+   v6: animují se jen malé vrstvy s obsahem (ne celé obrazovky), styly se zapisují jen při změně,
+   na telefonu světlo jen posouvá (bez zvětšování) a krok je uprostřed obrazovky. */
 (function (W, D) {
   'use strict';
-  var C = W.PHC, P = W.PH, L = W.PH_LOGO;
+  var C = W.PHC, P = W.PH, L = W.PH_LOGO, css = C.css;
   var sec = C.$('.day'); if (!sec || !P) return;
   var H = D.documentElement;
-  var hero = C.$('.hero', sec), mark = C.$('.hero__mark', sec), cue = C.$('.hero__cue', sec);
+  var pin = C.$('.day__pin', sec), hero = C.$('.hero', sec), heroIn = C.$('.hero__in', sec), mark = C.$('.hero__mark', sec), cue = C.$('.hero__cue', sec);
   var light = C.$('.wall__light', sec), gold = C.$('.wall__gold', sec), warm = C.$('.wall__warm', sec);
   var storyHost = C.$('[data-render="story"]');
 
@@ -33,71 +35,80 @@
   var DY = P.day, phases = DY.phases;
   var CK = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10.5l4 4L16.5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
   storyHost.innerHTML = '<h2 class="sr">' + C.esc(DY.label) + '</h2><ol class="tl" aria-hidden="true"><span class="tl__fill"></span>' +
-    phases.map(function (ph, i) { return '<li><span class="tl__n">' + (i + 1) + '</span>' + C.esc(ph.when) + '</li>'; }).join('') + '</ol>' +
+    phases.map(function (ph, i) { return '<li><span class="tl__n">' + (i + 1) + '</span>' + C.esc(ph.when) + '<i class="tl__bar"><i></i></i></li>'; }).join('') + '</ol>' +
     phases.map(function (ph, i) {
-      return '<div class="st" data-i="' + i + '"><p class="st__when"><span>' + (i + 1) + ' / ' + phases.length + '</span><i></i>' + C.esc(ph.when) + '</p><h3 class="st__title">' + C.esc(ph.title) + '</h3><p class="st__text">' + C.esc(ph.text) + '</p>' +
+      return '<div class="st" data-i="' + i + '"><div class="st__in">' +
+        '<p class="st__when"><span>' + (i + 1) + ' / ' + phases.length + '</span><i></i>' + C.esc(ph.when) + '</p><h3 class="st__title">' + C.esc(ph.title) + '</h3><p class="st__text">' + C.esc(ph.text) + '</p>' +
         (ph.chips ? '<div class="st__chips">' + ph.chips.map(function (c) { return '<span>' + C.esc(c) + '</span>'; }).join('') + '</div>' : '') +
         (ph.photos ? '<div class="st__cta"><a class="btn btn--ghost" href="#poptavka">Sestavit poptávku s fotkami</a></div>' : '') +
         (ph.tasks ? '<ul class="st__tasks">' + ph.tasks.map(function (t) { return '<li>' + CK + '<span>' + C.esc(t) + '</span></li>'; }).join('') + '</ul>' : '') +
-        (ph.cta ? '<div class="st__cta"><a class="btn" href="#poptavka">Poptat úklid</a><a class="link" href="#iva">Poznat Ivu <i></i></a></div>' : '') + '</div>';
+        (ph.cta ? '<div class="st__cta"><a class="btn" href="#poptavka">Poptat úklid</a><a class="link" href="#iva">Poznat Ivu <i></i></a></div>' : '') + '</div></div>';
     }).join('');
-  var stEls = C.$$('.st', storyHost), tl = C.$('.tl', storyHost), tlFill = C.$('.tl__fill', storyHost), tlItems = C.$$('.tl li', storyHost);
-  var tasks = C.$$('.st__tasks li', storyHost);
+  var stEls = C.$$('.st', storyHost), stIn = C.$$('.st__in', storyHost), tl = C.$('.tl', storyHost), tlFill = C.$('.tl__fill', storyHost), tlItems = C.$$('.tl li', storyHost);
+  var tlBars = C.$$('.tl__bar i', storyHost), tasks = C.$$('.st__tasks li', storyHost);
+
+  /* ---------- časová osa ---------- */
+  var CEN = [.19, .36, .53, .70, .87], HALF = .075, EDGE = .03;
 
   /* odkazy „Jak to probíhá" dojedou na první krok příběhu */
   D.addEventListener('click', function (e) {
     var a = e.target.closest('a[href="#den"]'); if (!a) return;
     e.preventDefault();
-    var span = sec.offsetHeight - W.innerHeight;
-    W.scrollTo({ top: C.RM ? sec.offsetTop + W.innerHeight : sec.offsetTop + span * CEN[0], behavior: C.RM ? 'auto' : 'smooth' });
+    var top = sec.getBoundingClientRect().top + W.pageYOffset, span = sec.offsetHeight - pin.offsetHeight;
+    W.scrollTo({ top: C.RM ? top + pin.offsetHeight : top + span * CEN[0], behavior: C.RM ? 'auto' : 'smooth' });
   });
 
-  /* ---------- časová osa ---------- */
-  var CEN = [.19, .36, .53, .70, .87], HALF = .075, EDGE = .03;
   function vis(p, i) {
     var a = CEN[i] - HALF, b = CEN[i] + HALF;
     var inA = C.sub(p, a - EDGE, a + EDGE * .4);
     var outA = i === phases.length - 1 ? 1 : 1 - C.sub(p, b - EDGE * .4, b + EDGE);
     return Math.min(inA, outA);
   }
-  var lastP = -1;
+  var lastP = -1, mob = C.mobile();
   function render(p) {
     if (Math.abs(p - lastP) < .0002) return; lastP = p;
     /* úvod mizí */
     var ha = 1 - C.sub(p, .012, .05);
-    if (p > .002) H.classList.add('intro-settled');
-    hero.style.opacity = ha.toFixed(3);
-    hero.style.transform = 'translateY(' + (-(1 - ha) * 40).toFixed(1) + 'px)';
-    hero.style.visibility = ha <= 0 ? 'hidden' : '';
-    if (cue) cue.style.opacity = ha.toFixed(3);
-    /* slunce putuje po stěně: ráno vpravo a chladné, večer vlevo a zlaté */
+    if (p > .002 && !H.classList.contains('intro-settled')) H.classList.add('intro-settled');
+    css(heroIn, 'opacity', ha.toFixed(3));
+    css(heroIn, 'transform', 'translate3d(0,' + (-(1 - ha) * 40).toFixed(1) + 'px,0)');
+    css(hero, 'visibility', ha <= 0 ? 'hidden' : '');
+    if (cue) css(cue, 'opacity', ha.toFixed(3));
+    /* slunce putuje po stěně: ráno vpravo a chladné, večer vlevo a zlaté (na telefonu bez zvětšování) */
     var t = C.eio(C.sub(p, .04, 1));
-    var tx = C.lerp(6, -36, t), ty = C.lerp(-3, 7, t), sc = C.lerp(1, 1.08, t);
-    light.style.transform = 'translate3d(' + tx.toFixed(2) + '%,' + ty.toFixed(2) + '%,0) scale(' + sc.toFixed(3) + ')';
+    var tx = C.lerp(6, -36, t), ty = C.lerp(-3, 7, t);
+    css(light, 'transform', 'translate3d(' + tx.toFixed(2) + '%,' + ty.toFixed(2) + '%,0)' + (mob ? '' : ' scale(' + C.lerp(1, 1.08, t).toFixed(3) + ')'));
     var g = C.sub(p, .62, .92);
-    gold.style.opacity = (g * .55).toFixed(3); gold.style.visibility = g > 0 ? '' : 'hidden';
-    warm.style.opacity = (g * .7).toFixed(3); warm.style.visibility = g > 0 ? '' : 'hidden';
-    /* fáze */
+    css(gold, 'opacity', (g * .55).toFixed(3)); css(gold, 'visibility', g > 0 ? 'visible' : 'hidden');
+    if (warm) { css(warm, 'opacity', (g * .7).toFixed(3)); css(warm, 'visibility', g > 0 ? 'visible' : 'hidden'); }
+    /* kroky */
     var cur = 0;
     for (var i = 0; i < stEls.length; i++) {
-      var a = vis(p, i), el = stEls[i];
+      var a = vis(p, i);
       if (p >= CEN[i] - HALF) cur = i;
-      if (a <= .001) { if (el._a !== 0) { el.style.opacity = 0; el.classList.remove('is-on'); el._a = 0; } continue; }
-      el._a = a; el.classList.add('is-on'); el.style.opacity = a.toFixed(3);
-      var dy = (1 - a) * 22;
-      el.style.transform = (C.mobile() ? '' : 'translateY(-50%) ') + 'translateY(' + dy.toFixed(1) + 'px)';
+      if (a <= .001) { if (stEls[i]._on) { stEls[i]._on = false; stEls[i].classList.remove('is-on'); css(stIn[i], 'opacity', '0'); } continue; }
+      if (!stEls[i]._on) { stEls[i]._on = true; stEls[i].classList.add('is-on'); }
+      css(stIn[i], 'opacity', a.toFixed(3));
+      css(stIn[i], 'transform', 'translate3d(0,' + ((1 - a) * 22).toFixed(1) + 'px,0)');
     }
-    var tla = C.sub(p, .07, .12);
-    tl.style.opacity = tla.toFixed(3);
-    tlFill.style.transform = 'scaleY(' + C.sub(p, CEN[0], CEN[CEN.length - 1]).toFixed(3) + ')';
-    tlItems.forEach(function (li, j) { li.classList.toggle('on', j <= cur && p >= CEN[0] - HALF); });
+    css(tl, 'opacity', C.sub(p, .07, .12).toFixed(3));
+    if (mob) {
+      /* telefon: pět proužků nahoře se plní, jak se scrolluje krokem */
+      for (var j = 0; j < tlBars.length; j++) css(tlBars[j], 'transform', 'scaleX(' + C.sub(p, CEN[j] - HALF - EDGE, CEN[j] + HALF).toFixed(3) + ')');
+    } else {
+      css(tlFill, 'transform', 'scaleY(' + C.sub(p, CEN[0], CEN[CEN.length - 1]).toFixed(3) + ')');
+      for (var k = 0; k < tlItems.length; k++) {
+        var on = k <= cur && p >= CEN[0] - HALF;
+        if (tlItems[k]._on !== on) { tlItems[k]._on = on; tlItems[k].classList.toggle('on', on); }
+      }
+    }
     /* úkoly se odškrtávají jeden po druhém */
-    var k = C.sub(p, CEN[2] - .06, CEN[2] + .06) * tasks.length;
-    tasks.forEach(function (li, j) {
-      var q = C.clamp(k - j, 0, 1);
-      li.style.setProperty('--dash', (24 * (1 - q)).toFixed(1));
-      li.style.setProperty('--o', (.45 + .55 * q).toFixed(2));
-    });
+    var q = C.sub(p, CEN[2] - .06, CEN[2] + .06) * tasks.length;
+    for (var m = 0; m < tasks.length; m++) {
+      var z = C.clamp(q - m, 0, 1);
+      C.cssVar(tasks[m], '--dash', (24 * (1 - z)).toFixed(1));
+      C.cssVar(tasks[m], '--o', (.45 + .55 * z).toFixed(2));
+    }
   }
 
   /* ---------- intro ---------- */
@@ -109,7 +120,23 @@
   }
   if (D.fonts && D.fonts.ready) D.fonts.ready.then(intro); else intro();
 
-  if (C.RM) { render(0); stEls.forEach(function (el) { el.style.opacity = 1; el.style.transform = 'none'; el.classList.add('is-on'); }); tasks.forEach(function (li) { li.style.setProperty('--dash', 0); li.style.setProperty('--o', 1); }); return; }
-  C.Scroll.add(sec, function (p) { render(p); });
-  var rt; W.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { buildLogo(); lastP = -1; C.Scroll.tick(); }, 150); });
+  /* obrázky světla se dekódují předem, aby večerní světlo naskočilo bez zaškobrtnutí */
+  W.addEventListener('load', function () {
+    setTimeout(function () {
+      [light.firstElementChild, gold].forEach(function (el) {
+        (getComputedStyle(el).backgroundImage.match(/url\(["']?[^"')]+/g) || []).forEach(function (u) {
+          var im = new Image(); im.src = u.replace(/^url\(["']?/, ''); if (im.decode) im.decode().catch(function () {});
+        });
+      });
+    }, 700);
+  });
+
+  if (C.RM) {
+    render(0);
+    stEls.forEach(function (el) { el.classList.add('is-on'); }); stIn.forEach(function (el) { el.style.opacity = 1; el.style.transform = 'none'; });
+    tasks.forEach(function (li) { li.style.setProperty('--dash', 0); li.style.setProperty('--o', 1); });
+    return;
+  }
+  C.Scroll.add(sec, function (p) { render(p); }, { pin: pin, onVis: function (v) { sec.classList.toggle('is-vis', v); } });
+  C.onResize(function () { mob = C.mobile(); buildLogo(); lastP = -1; for (var i = 0; i < tlItems.length; i++) tlItems[i]._on = undefined; C.Scroll.tick(); });
 })(window, document);

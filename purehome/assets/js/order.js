@@ -91,10 +91,10 @@
     '<section class="ws ws--done" data-s="done" aria-hidden="true"></section></div>' +
     '<div class="wiz__nav"><button type="button" class="btn btn--ghost" data-prev>Zpět</button><button type="button" class="btn" data-next>Pokračovat</button></div></div>' +
     '<aside class="ticket" aria-label="Lístek s poptávkou"><div class="ticket__card">' +
-    '<div class="tk tk--front"><div class="tk__top"><img src="assets/img/logo-compact.svg" alt="PURE HOME Ostrava" width="880" height="138"><small>Poptávka úklidu<br>' + new Date().toLocaleDateString('cs-CZ') + '</small></div>' +
+    '<div class="tk tk--front"><div class="tk__top"><img src="assets/img/logo-word.svg" alt="PURE HOME Ostrava" width="1080" height="196"><small>Poptávka úklidu<br>' + new Date().toLocaleDateString('cs-CZ') + '</small></div>' +
     '<ul class="tk__lines"></ul><div class="tk__total"><span>Orientačně</span><span class="odo"><small data-from></small><span class="odo__n" aria-hidden="true"></span><small>Kč</small><span class="sr" data-sr></span></span></div>' +
     '<p class="tk__fine">' + PR.notes.map(esc).join(' ') + '</p></div>' +
-    '<div class="tk tk--back"><div class="tk__top"><img src="assets/img/logo-compact.svg" alt="" width="880" height="138"><small data-no></small></div>' +
+    '<div class="tk tk--back"><div class="tk__top"><img src="assets/img/logo-word.svg" alt="" width="1080" height="196"><small data-no></small></div>' +
     '<p class="tk__ready">Poptávka je připravená</p><div class="tk__big"><span class="odo2"></span></div><ul class="tk__keys" data-keys></ul>' + STAMP +
     '<button type="button" class="tk__back" data-edit>Upravit poptávku</button></div>' +
     '</div></aside></div>' + ratesHTML() + '</div>';

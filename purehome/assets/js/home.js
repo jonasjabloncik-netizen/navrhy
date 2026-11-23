@@ -169,7 +169,7 @@
     '<div><dt>IČO</dt><dd>' + esc(CT.ico) + sampleTag('ico') + '</dd></div></dl></div></div>';
 
   /* ================= PATIČKA, LIŠTA, ŠTÍTEK ================= */
-  r('footer').innerHTML = '<div class="wrap"><img class="ftr__logo" src="assets/img/logo-inline.svg" alt="PURE HOME Ostrava" width="880" height="117" loading="lazy">' +
+  r('footer').innerHTML = '<div class="wrap"><img class="ftr__logo" src="assets/img/logo-full.svg" alt="PURE HOME Ostrava, profesionální úklidové služby" width="1086" height="766" loading="lazy">' +
     '<div class="ftr__grid"><div><h3>PURE HOME Ostrava</h3><p class="muted">' + esc(P.brand.claim) + '. Uklízí Iva, ' + esc(CT.area) + '.</p></div>' +
     '<div><h3>Stránky</h3>' + P.nav.map(function (n) { return '<a href="#' + n.id + '">' + esc(n.label) + '</a>'; }).join('<br>') + '<br><a href="podminky.html">Obchodní podmínky</a></div>' +
     '<div><h3>Kontakt</h3><a href="' + tel(CT.phone) + '" data-c="phone">' + esc(CT.phone) + '</a><br><a href="mailto:' + CT.email + '" data-c="email">' + esc(CT.email).replace('@', '@<wbr>') + '</a><p class="muted">IČO ' + esc(CT.ico) + '</p></div></div>' +

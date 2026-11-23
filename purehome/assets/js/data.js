@@ -1,4 +1,4 @@
-/* PURE HOME Ostrava · koncept webu v5 od MALUS/01
+/* PURE HOME Ostrava · koncept webu v7 od MALUS/01
    Veškerý obsah webu je tady. Stránky se z těchto dat vykreslují,
    takže úprava ceny, textu nebo kontaktu se dělá jen v tomto souboru.
 
@@ -36,6 +36,7 @@ window.PH = {
 
   hero: {
     line: 'Úklid domácností · Ostrava a okolí',
+    tag: 'Profesionální úklidové služby',       /* slogan z loga Ivy */
     title: 'Vrátíte se do čistého.',
     lead: 'Prémiový úklid domácností. Uklízí Iva osobně, s vlastním vybavením. Cenu znáte předem.',
     cta: 'Poptat úklid',

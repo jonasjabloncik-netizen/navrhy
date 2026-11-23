@@ -1,0 +1,124 @@
+/* KZW koncept v5 (MALUS/01). Navazuje na kzw4. */
+
+/* ---------- hero: střídání nezastavuje kurzor, jen tlačítko ---------- */
+.hx-tab.is-on b{animation:hxp var(--dur,6.5s) linear forwards}
+.hx.is-paused .hx-tab.is-on b,.hx.is-hidden-tab .hx-tab.is-on b{animation-play-state:paused}
+.hx-pause{width:auto;height:36px;border-radius:999px;padding:0 15px 0 13px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;opacity:.9;box-shadow:inset 0 0 0 1.5px currentColor;transition:background .25s,color .25s}
+.hx-pause:hover{opacity:1;background:var(--on);color:var(--bg)}
+.hx-pause svg{width:10px;height:10px;fill:currentColor}
+.hx.is-paused .hx-pause{background:var(--on);color:var(--bg)}
+
+/* ---------- hero: knedlo, zelo, wear ---------- */
+.hs-brand .hs-h{color:#000}
+.hs-brand .hs-k b{background:#000;color:var(--bg)}
+.hs-brand .hs-pics{container-type:size}
+.dish{position:absolute;inset:0;margin:auto;width:min(100cqw,calc(100cqh * 640 / 560));aspect-ratio:640/560;height:auto}
+.dish-px{position:absolute;inset:0;will-change:transform}
+.d{position:absolute;display:block;overflow:visible}
+.d svg{display:block;width:100%;height:auto;overflow:visible}
+.d-sh{position:absolute;left:19.4%;top:22%;width:68.75%;aspect-ratio:1;border-radius:50%;background:rgba(80,20,30,.16)}
+.d-plate{left:17.2%;top:17.9%;width:68.75%;height:auto}
+.d-k{width:21.9%;transform:rotate(var(--r))}
+.d-k1{left:21.1%;top:48.9%;--r:-24deg}
+.d-k2{left:27.3%;top:61.4%;--r:-4deg}
+.d-k3{left:36.7%;top:68.2%;--r:16deg}
+.d-zelo{left:53.4%;top:59.8%;width:28.1%}
+.d-wear{left:37.5%;top:27.5%;width:32%;--r:-7deg;transform:rotate(var(--r))}
+.d-steam{width:4.7%;top:12.6%;opacity:0}
+.d-s1{left:46.6%}.d-s2{left:52.4%}.d-s3{left:58.2%}
+.d-notes{left:0;top:0;width:100%;height:100%}
+.d-notes text{font-family:var(--f-display);font-weight:800;font-size:38px;fill:#111;letter-spacing:-.01em}
+.a-note{stroke-dasharray:1;stroke-dashoffset:1}
+.a-label{opacity:0}
+.hs-brand.is-active .d-sh{animation:aFade .7s ease .25s both}
+.hs-brand.is-active .d-plate{animation:aPlate .9s var(--e) .2s both}
+.hs-brand.is-active .d-k1{animation:aDrop .8s cubic-bezier(.34,1.5,.64,1) .6s both}
+.hs-brand.is-active .d-k2{animation:aDrop .8s cubic-bezier(.34,1.5,.64,1) .7s both}
+.hs-brand.is-active .d-k3{animation:aDrop .8s cubic-bezier(.34,1.5,.64,1) .8s both}
+.hs-brand.is-active .d-zelo{animation:aPop .75s cubic-bezier(.34,1.56,.64,1) 1.05s both}
+.hs-brand.is-active .d-wear{animation:aDrop .85s cubic-bezier(.34,1.42,.64,1) 1.35s both}
+.hs-brand.is-active .d-s1{animation:aSteam 2.8s ease-in-out 2s infinite}
+.hs-brand.is-active .d-s2{animation:aSteam 2.8s ease-in-out 2.45s infinite}
+.hs-brand.is-active .d-s3{animation:aSteam 2.8s ease-in-out 2.9s infinite}
+.hs-brand.is-active .a-note.n1{animation:aDraw .7s ease-out 1.7s forwards}
+.hs-brand.is-active .a-note.n2{animation:aDraw .7s ease-out 2.05s forwards}
+.hs-brand.is-active .a-note.n3{animation:aDraw .7s ease-out 2.4s forwards}
+.hs-brand.is-active .a-label.l1{animation:aFade .5s ease 1.9s forwards}
+.hs-brand.is-active .a-label.l2{animation:aFade .5s ease 2.25s forwards}
+.hs-brand.is-active .a-label.l3{animation:aFade .5s ease 2.6s forwards}
+.hs-brand.is-leaving .hs-pics{opacity:0;transform:translate3d(0,-4%,0);transition:opacity .45s ease,transform .6s cubic-bezier(.7,0,.84,0)}
+@keyframes aPlate{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+@keyframes aDrop{from{opacity:0;transform:translate3d(0,-160%,0) rotate(calc(var(--r,0deg) - 28deg))}to{opacity:1;transform:rotate(var(--r,0deg))}}
+@keyframes aPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes aSteam{0%{opacity:0;transform:translate3d(0,18%,0)}35%{opacity:.7}100%{opacity:0;transform:translate3d(0,-30%,0)}}
+@keyframes aDraw{to{stroke-dashoffset:0}}
+@keyframes aFade{from{opacity:0}to{opacity:1}}
+
+/* ---------- dílna: fotka a voucher ---------- */
+.dl2{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(32px,5vw,88px);align-items:center}
+.dl2-pic{position:relative;aspect-ratio:4/3;overflow:hidden;background:#111;margin:0}
+.dl2-pic img{width:100%;height:100%;object-fit:cover;object-position:30% 50%;transition:transform 1.6s var(--e)}
+.dl2-pic:hover img{transform:scale(1.03)}
+.dl2-pic figcaption{position:absolute;left:14px;bottom:14px;background:#fff;color:#000;font-size:12.5px;font-weight:600;padding:6px 10px 5px}
+
+/* ---------- velikost podle výšky ---------- */
+.fitf{border:1.5px solid #000;padding:22px 22px 20px;margin-bottom:22px}
+.fitf-head h3{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;letter-spacing:-.015em;padding-top:.06em}
+.fitf-head p{font-size:14px;color:#333;margin-top:8px;line-height:1.45}
+.fitf-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;margin-top:18px;align-items:start}
+.fitf-h{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.fitf-h label{font-size:14px;font-weight:600}
+.fitf-num{display:flex;align-items:baseline;gap:6px}
+.fitf-num input{width:86px;height:48px;border:1.5px solid #000;text-align:center;font-family:var(--f-display);font-weight:800;font-size:26px;padding-top:4px}
+.fitf-num span{font-size:14px;color:var(--mute)}
+.fitf-range{width:100%;margin:14px 0 4px;accent-color:#000}
+.fitf-l{font-size:12.5px;font-weight:700;color:var(--mute);margin:14px 0 6px}
+.seg{display:flex;border:1.5px solid #000}
+.seg button{flex:1;height:40px;font-size:13px;font-weight:600;transition:background .2s,color .2s}
+.seg button + button{border-left:1.5px solid #000}
+.seg button[aria-checked="true"]{background:#000;color:#fff}
+.fitf-out{display:grid;grid-template-columns:140px minmax(0,1fr);gap:14px;align-items:end;background:var(--tint);padding:14px}
+.fitf-fig{width:140px;height:auto;display:block}
+.fitf-fig .ff-you{transition:transform .5s var(--e)}
+.fitf-res > span{font-size:12.5px;font-weight:700;color:var(--mute)}
+.fitf-res b{display:block;font-family:var(--f-display);font-weight:800;font-size:64px;line-height:.9;letter-spacing:-.03em;padding-top:.08em}
+.fitf-res p{font-size:13.5px;line-height:1.45;color:#222;margin-top:8px}
+.fitf-res p + p{margin-top:6px;color:var(--mute)}
+.fitf-res .btn{margin-top:12px;height:44px;padding:0 18px;font-size:14px}
+.fitf-note{font-size:12.5px;color:var(--mute);margin-top:14px;line-height:1.45}
+.fitf-more{border-top:1px solid var(--line)}
+.fitf-more > summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:16px 0;font-weight:600;cursor:pointer}
+.fitf-more > summary::-webkit-details-marker{display:none}
+.fitf-more > summary::after{content:"+";font-size:20px;line-height:1}
+.fitf-more[open] > summary::after{content:"−"}
+.fitline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:14px}
+.fitline svg{width:20px;height:20px;flex:none}
+.fitline b{font-weight:700}
+.fitline button{font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.fitline .fl-pick{background:#000;color:#fff;text-decoration:none;height:30px;padding:0 12px;border-radius:999px;font-size:13px}
+
+@media (max-width:900px){
+  .dl2{grid-template-columns:1fr}
+  .fitf{padding:16px}
+  .fitf-grid{grid-template-columns:1fr}
+  .d-notes text{font-size:42px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hs-brand .d,.hs-brand .d-sh{animation:none!important;opacity:1!important}
+  .hs-brand .a-note{stroke-dashoffset:0!important;animation:none!important}
+  .hs-brand .a-label{opacity:1!important;animation:none!important}
+  .hs-brand .d-steam{opacity:.5!important}
+}
+.fitf-grid{grid-template-columns:1fr}
+.fitf-fig .ff-you{fill:#000}
+.fitf-fig .ff-ref{fill:#a8a8a8}
+.fitf-fig .ff-t{font-size:11px;font-weight:700;fill:#000}
+.fitf-fig .ff-s{font-size:9px;fill:#555}
+@media (max-width:900px){
+  .hx-tab span{display:none}
+  .hx-tabs{gap:6px}
+  .hx-tab{gap:0}
+  .hx-tab i{height:3px;border-radius:2px}
+  .hx-pause{width:36px;padding:0;justify-content:center}
+  .hx-pause span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+}

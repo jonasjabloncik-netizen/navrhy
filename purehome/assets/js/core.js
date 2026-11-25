@@ -1,4 +1,4 @@
-/* PURE HOME v8 · společné nástroje: výběr prvků, formátování, scroll motor, hlavička, patička, odhalování.
+/* PURE HOME v9 · společné nástroje: výběr prvků, formátování, scroll motor, hlavička, patička, odhalování.
    v6: jeden scroll motor pro všechno (žádné čtení rozvržení při scrollu), zápisy stylů jen při změně,
    výška scén podle přišpendleného panelu (100svh), na telefonu se nic nepřepočítává, když se jen
    schová nebo ukáže lišta prohlížeče. */
@@ -100,7 +100,7 @@
     var navHost = C.$('[data-render="nav"]'), menuHost = C.$('[data-render="menu"]'), foot = C.$('[data-render="menu-foot"]');
     var links = PH.nav.map(function (n) { return '<a href="' + base + '#' + n.id + '" data-nav="' + n.id + '">' + C.esc(n.label) + '</a>'; }).join('');
     navHost.innerHTML = links; menuHost.innerHTML = links;
-    foot.innerHTML = '<a class="btn" href="' + base + '#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + C.tel(PH.contact.phone) + '">Zavolat</a>' +
+    foot.innerHTML = '<a class="btn" href="' + base + '#rezervace">' + C.esc(PH.hero.cta) + '</a><a class="btn btn--ghost" href="' + C.tel(PH.contact.phone) + '">Zavolat</a>' +
       '<p class="menu__legal"><a href="podminky.html">Obchodní podmínky</a><a href="osobni-udaje.html">Osobní údaje</a></p>';
 
     function setMenu(open) {
@@ -184,7 +184,7 @@
       '<div class="ftr__grid">' +
       '<div class="ftr__about"><h3>PURE HOME Ostrava</h3><p class="muted">' + esc(PH.brand.claim) + ' a okolí. Uklízí Ivana osobně.</p>' +
       '<p class="ftr__id">' + esc(CT.owner) + '<br>IČO ' + esc(CT.ico) + '<br>' + esc(CT.seat) + '<br>' + esc(CT.vat) + '</p></div>' +
-      '<div><h3>Stránky</h3>' + PH.nav.reduce(function (a, n) { a.push(n); if (n.id === 'poptavka') a.push({ id: 'cenik', label: 'Ceník' }); return a; }, [])
+      '<div><h3>Stránky</h3>' + PH.nav.reduce(function (a, n) { a.push(n); if (n.id === 'rezervace') a.push({ id: 'cenik', label: 'Ceník' }); return a; }, [])
         .map(function (n) { return '<a href="' + base + '#' + n.id + '">' + esc(n.label) + '</a>'; }).join('<br>') + '</div>' +
       '<div><h3>Kontakt</h3><a href="' + C.tel(CT.phone) + '">' + esc(CT.phone) + '</a><br><a href="' + C.wa() + '"' + ext + '>WhatsApp</a><br><a href="mailto:' + CT.email + '">' + C.mail(CT.email) + '</a><br>' +
       '<a href="' + C.ig() + '"' + ext + '>Instagram</a><br>' + C.fb('Facebook') + '</div>' +

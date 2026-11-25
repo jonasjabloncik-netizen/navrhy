@@ -1,4 +1,4 @@
-/* PURE HOME v6 · společné nástroje: výběr prvků, formátování, scroll motor, hlavička, odhalování, kontakty.
+/* PURE HOME v8 · společné nástroje: výběr prvků, formátování, scroll motor, hlavička, patička, odhalování.
    v6: jeden scroll motor pro všechno (žádné čtení rozvržení při scrollu), zápisy stylů jen při změně,
    výška scén podle přišpendleného panelu (100svh), na telefonu se nic nepřepočítává, když se jen
    schová nebo ukáže lišta prohlížeče. */
@@ -100,7 +100,8 @@
     var navHost = C.$('[data-render="nav"]'), menuHost = C.$('[data-render="menu"]'), foot = C.$('[data-render="menu-foot"]');
     var links = PH.nav.map(function (n) { return '<a href="' + base + '#' + n.id + '" data-nav="' + n.id + '">' + C.esc(n.label) + '</a>'; }).join('');
     navHost.innerHTML = links; menuHost.innerHTML = links;
-    foot.innerHTML = '<a class="btn" href="' + base + '#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="tel:' + PH.contact.phone.replace(/\s/g, '') + '" data-c="phone-link">Zavolat</a>';
+    foot.innerHTML = '<a class="btn" href="' + base + '#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + C.tel(PH.contact.phone) + '">Zavolat</a>' +
+      '<p class="menu__legal"><a href="podminky.html">Obchodní podmínky</a><a href="osobni-udaje.html">Osobní údaje</a></p>';
 
     function setMenu(open) {
       btn.setAttribute('aria-expanded', String(open));
@@ -164,15 +165,31 @@
     els.forEach(function (e) { io.observe(e); });
   };
 
-  /* ---------- kontakty (ukázkové hodnoty se jen ohlásí) ---------- */
-  C.contacts = function () {
-    D.addEventListener('click', function (e) {
-      var a = e.target.closest('[data-c], [data-sample]');
-      if (!a) return;
-      var k = a.dataset.c || a.dataset.sample;
-      var key = k.indexOf('phone') === 0 ? 'phone' : k.indexOf('email') === 0 ? 'email' : k;
-      if (a.hasAttribute('data-sample') || (PH.contact.sample && PH.contact.sample[key])) { e.preventDefault(); C.toast(PH.concept.sampleToast); }
-    });
+  /* ---------- kontakty a odkazy ---------- */
+  C.tel = function (n) { return 'tel:' + n.replace(/\s/g, ''); };
+  C.wa = function () { return 'https://wa.me/' + PH.contact.whatsapp; };
+  C.ig = function () { return 'https://www.instagram.com/' + PH.contact.instagram + '/'; };
+  C.mail = function (e) { return C.esc(e).replace('@', '@<wbr>'); };
+  C.fb = function (label) {
+    var CT = PH.contact;
+    return CT.facebookUrl ? '<a href="' + C.esc(CT.facebookUrl) + '" target="_blank" rel="noopener">' + C.esc(label || CT.facebook) + '</a>' : '<span>' + C.esc(label ? label + ': ' + CT.facebook : CT.facebook) + '</span>';
+  };
+
+  /* ---------- patička (stejná na všech stránkách) ---------- */
+  C.footer = function (base) {
+    base = base || '';
+    var CT = PH.contact, esc = C.esc, host = C.$('[data-render="footer"]'); if (!host) return;
+    var ext = ' target="_blank" rel="noopener"';
+    host.innerHTML = '<div class="wrap"><img class="ftr__logo" src="assets/img/logo-full.svg" alt="PURE HOME Ostrava, profesionální úklidové služby" width="1086" height="766" loading="lazy">' +
+      '<div class="ftr__grid">' +
+      '<div class="ftr__about"><h3>PURE HOME Ostrava</h3><p class="muted">' + esc(PH.brand.claim) + ' a okolí. Uklízí Ivana osobně.</p>' +
+      '<p class="ftr__id">' + esc(CT.owner) + '<br>IČO ' + esc(CT.ico) + '<br>' + esc(CT.seat) + '<br>' + esc(CT.vat) + '</p></div>' +
+      '<div><h3>Stránky</h3>' + PH.nav.reduce(function (a, n) { a.push(n); if (n.id === 'poptavka') a.push({ id: 'cenik', label: 'Ceník' }); return a; }, [])
+        .map(function (n) { return '<a href="' + base + '#' + n.id + '">' + esc(n.label) + '</a>'; }).join('<br>') + '</div>' +
+      '<div><h3>Kontakt</h3><a href="' + C.tel(CT.phone) + '">' + esc(CT.phone) + '</a><br><a href="' + C.wa() + '"' + ext + '>WhatsApp</a><br><a href="mailto:' + CT.email + '">' + C.mail(CT.email) + '</a><br>' +
+      '<a href="' + C.ig() + '"' + ext + '>Instagram</a><br>' + C.fb('Facebook') + '</div>' +
+      '<div><h3>Dokumenty</h3><a href="podminky.html">Obchodní podmínky</a><br><a href="podminky.html#odstoupeni">Odstoupení od smlouvy</a><br><a href="podminky.html#formular">Formulář pro odstoupení</a><br><a href="osobni-udaje.html">Osobní údaje</a></div>' +
+      '</div><p class="ftr__note">' + esc(PH.concept.footer) + '</p></div>';
   };
 
   W.PHC = C;

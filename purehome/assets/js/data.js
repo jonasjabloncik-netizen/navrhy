@@ -1,4 +1,4 @@
-/* PURE HOME Ostrava · koncept webu v9 od MALUS/01
+/* PURE HOME Ostrava · koncept webu v10 od MALUS/01
    Veškerý obsah webu je tady. Stránky se z těchto dat vykreslují,
    takže úprava ceny, textu nebo kontaktu se dělá jen v tomto souboru.
    Právní texty (obchodní podmínky, poučení, formulář, osobní údaje) jsou v legal.js.
@@ -80,7 +80,8 @@ window.PH = {
     name: 'Ivana',
     role: 'Zakladatelka PURE HOME',
     photo: { src: 'assets/img/ivana-1086.webp', srcset: 'assets/img/ivana-720.webp 720w, assets/img/ivana-1086.webp 1086w', w: 1086, h: 1448, alt: 'Ivana, zakladatelka PURE HOME' },
-    sig: { src: 'assets/img/podpis-ivana.svg', w: 1950, h: 719, alt: 'Podpis Ivany Hořínkové' },
+    /* podpis jen křestním jménem (písmo Ms Madi převedené do křivek), ne její úřední podpis */
+    sig: { src: 'assets/img/podpis.svg', w: 2164, h: 793, alt: 'Ivana' },
     letter: [
       'Dobrý den, jsem Ivana a PURE HOME je moje firma.',
       'Ke každému úklidu přijedu sama, s vlastním vybavením a šetrnými prostředky. Než přijedu, poprosím vás o pár fotek, abychom se předem domluvili na rozsahu i ceně. Žádná překvapení, ani v ceně.',

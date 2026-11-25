@@ -438,8 +438,8 @@ ul, ol { padding: 0; list-style: none; }
 .iva__letter p { font-size: clamp(1.15rem, 1.45vw, 1.42rem); line-height: 1.55; letter-spacing: -.01em; }
 .iva__letter p + p { margin-top: 18px; }
 .iva__letter p:first-child { font-size: clamp(1.5rem, 2.2vw, 2.1rem); line-height: 1.25; letter-spacing: -.025em; }
-/* skutečný podpis (Hořínková), píše se zleva doprava */
-.sig { margin-top: 28px; width: min(250px, 58%); }
+/* podpis křestním jménem, píše se zleva doprava */
+.sig { margin-top: 28px; width: min(220px, 52%); }
 .sig img { width: 100%; height: auto; display: block; }
 .js:not(.rm) .sig img { clip-path: inset(0 100% 0 0); }
 .js:not(.rm) .sig.is-in img { clip-path: inset(0 0 0 0); transition: clip-path 2s cubic-bezier(.45, 0, .2, 1) .35s; }
@@ -1039,7 +1039,7 @@ ul, ol { padding: 0; list-style: none; }
   .iva__name { font-size: 30vw; }
   .iva__photo { position: relative; top: auto; margin-top: 34px; }
   .iva__body { margin-top: 40px; }
-  .sig { width: min(230px, 64%); }
+  .sig { width: min(200px, 56%); }
 
   .order__rates { grid-template-columns: minmax(0, 1fr); gap: 52px; }
   .rtab th small { display: none; }

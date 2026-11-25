@@ -17,7 +17,7 @@
   C.$('.hero__tag', hero).textContent = P.hero.tag;
   C.$('.hero__title', hero).textContent = P.hero.title;
   C.$('.hero__lead', hero).textContent = P.hero.lead;
-  C.$('.hero__cta', hero).innerHTML = '<a class="btn" href="#poptavka">' + C.esc(P.hero.cta) + '</a><a class="link" href="#den">' + C.esc(P.hero.more) + '</a>';
+  C.$('.hero__cta', hero).innerHTML = '<a class="btn" href="#rezervace">' + C.esc(P.hero.cta) + '</a><a class="link" href="#den">' + C.esc(P.hero.more) + '</a>';
 
   /* ---------- logo ---------- */
   var animate = !C.RM && !H.classList.contains('seen');
@@ -148,9 +148,9 @@
       return '<div class="st is-after" data-i="' + i + '"><div class="st__in">' +
         '<p class="st__when"><span>' + (i + 1) + ' / ' + phases.length + '</span><i></i>' + C.esc(ph.when) + '</p><h3 class="st__title">' + C.esc(ph.title) + '</h3><p class="st__text">' + C.esc(ph.text) + '</p>' +
         (ph.chips ? '<div class="st__chips">' + ph.chips.map(function (c) { return '<span>' + C.esc(c) + '</span>'; }).join('') + '</div>' : '') +
-        (ph.photos ? '<div class="st__cta"><a class="btn btn--ghost" href="#poptavka">Sestavit poptávku s fotkami</a></div>' : '') +
+        (ph.photos ? '<div class="st__cta"><a class="btn btn--ghost" href="#rezervace">Vybrat termín</a></div>' : '') +
         (ph.tasks ? '<ul class="st__tasks">' + ph.tasks.map(function (t, k) { return '<li style="--k:' + k + '">' + CK + '<span>' + C.esc(t) + '</span></li>'; }).join('') + '</ul>' : '') +
-        (ph.cta ? '<div class="st__cta"><a class="btn" href="#poptavka">Poptat úklid</a><a class="link" href="#iva">Poznat Ivanu <i></i></a></div>' : '') + '</div></div>';
+        (ph.cta ? '<div class="st__cta"><a class="btn" href="#rezervace">' + C.esc(P.hero.cta) + '</a><a class="link" href="#iva">Poznat Ivanu <i></i></a></div>' : '') + '</div></div>';
     }).join('');
   var stEls = C.$$('.st', storyHost), tl = C.$('.tl', storyHost), tlFill = C.$('.tl__fill', storyHost), tlItems = C.$$('.tl li', storyHost), tlBars = C.$$('.tl__bar i', storyHost);
 

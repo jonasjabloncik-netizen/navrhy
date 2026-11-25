@@ -1,10 +1,12 @@
-/* PURE HOME Ostrava · koncept webu v8 od MALUS/01
+/* PURE HOME Ostrava · koncept webu v9 od MALUS/01
    Veškerý obsah webu je tady. Stránky se z těchto dat vykreslují,
    takže úprava ceny, textu nebo kontaktu se dělá jen v tomto souboru.
    Právní texty (obchodní podmínky, poučení, formulář, osobní údaje) jsou v legal.js.
 
    Všechny kontakty, ceny, časy a údaje jsou od Ivany (podklady z 9. a 23. 11. 2026).
    K DOPLNĚNÍ před spuštěním:
+   - booking.endpoint: adresa propojení s Ivaniným Kalendářem Google (návod: kalendar-google/NAVOD.md);
+     dokud je prázdná, kalendář běží v ukázkovém režimu
    - contact.facebookUrl: odkaz na stránku PureHome Ostrava na Facebooku
    - legal.js: účinnost podmínek, konkrétní poskytovatelé a věta o cookies (návrh k potvrzení)
 */
@@ -28,7 +30,19 @@ window.PH = {
     vat: 'Neplátce DPH',
     area: 'Ostrava a okolí',
     hours: [['Pondělí–pátek', 'po domluvě'], ['Sobota', '+25\u00a0% k hodinové sazbě'], ['Neděle', 'zavřeno']],
-    payment: 'Hotově nebo převodem přes QR kód, až po úklidu'
+    payment: 'Hotově, nebo převodem pomocí QR kódu. Platí se až po úklidu.',
+    pay: [['cash', 'Hotově'], ['qr', 'Převodem pomocí QR kódu']]
+  },
+
+  /* Kalendář volných termínů. Den má dvě části: dopoledne a odpoledne (přesné časy se na webu nepíšou).
+     endpoint = adresa webové aplikace Google Apps Script napojené na Ivanin Kalendář Google.
+     Bez ní běží ukázkový režim: obsazenost je vymyšlená a rezervace se uloží jen v prohlížeči. */
+  booking: {
+    endpoint: null,
+    days: 70,                                  /* kolik dní dopředu jde rezervovat (od zítřka) */
+    halfDay: 5,                                /* úklid delší než 5 h zabere celý den */
+    closed: [0],                               /* neděle zavřeno */
+    parts: [{ id: 'am', label: 'Dopoledne' }, { id: 'pm', label: 'Odpoledne' }, { id: 'day', label: 'Celý den' }]
   },
 
   nav: [
@@ -36,7 +50,7 @@ window.PH = {
     { id: 'iva', label: 'Ivana' },
     { id: 'sluzby', label: 'Služby' },
     { id: 'rozsah', label: 'Co uděláme' },
-    { id: 'poptavka', label: 'Poptávka' },
+    { id: 'rezervace', label: 'Rezervace' },
     { id: 'kontakt', label: 'Kontakt' }
   ],
 
@@ -45,7 +59,7 @@ window.PH = {
     tag: 'Profesionální úklidové služby',       /* slogan z loga */
     title: 'Vrátíte se do čistého.',
     lead: 'Prémiový úklid domácností. Uklízí Ivana osobně, s vlastním vybavením. Cenu znáte předem.',
-    cta: 'Poptat úklid',
+    cta: 'Rezervovat úklid',
     more: 'Jak to probíhá'
   },
 
@@ -53,10 +67,10 @@ window.PH = {
   day: {
     label: 'Jak to probíhá',
     phases: [
-      { when: 'Poptávka', title: 'Pošlete pár fotek.', text: 'Stačí 5 až 8 fotek nebo krátké video. Ivana podle nich potvrdí rozsah, termín i cenu.', chips: ['Kuchyň', 'Sporák', 'Koupelna', 'Toaleta', 'Podlaha', 'Celkový pohled'], photos: true },
+      { when: 'Rezervace', title: 'Vyberte si termín.', text: 'V kalendáři vidíte volná dopoledne a odpoledne. Přidáte 5 až 8 fotek a Ivana podle nich potvrdí rozsah, termín i cenu.', chips: ['Kuchyň', 'Sporák', 'Koupelna', 'Toaleta', 'Podlaha', 'Celkový pohled'], photos: true },
       { when: 'Klíče', title: 'Nemusíte být doma.', text: 'Klíče můžete Ivaně předat předem. Jejich převzetí potvrdí předávacím protokolem, používá je jen k úklidu a nikomu je nedá.' },
       { when: 'Úklid', title: 'Ivana uklízí přesně podle domluvy.', text: 'Přijede ve sjednaný termín s vlastním vybavením a šetrnými prostředky. Od vás potřebuje jen přístup, vodu a elektřinu.', tasks: ['Podlahy vysáté a vytřené', 'Koupelna a baterie', 'Toaleta', 'Kuchyňská linka', 'Prach z přístupných ploch', 'Odpad vynesený'] },
-      { when: 'Platba', title: 'Platíte až po úklidu.', text: 'Hotově nebo převodem přes QR kód. Domluvenou cenu bez vašeho souhlasu nenavýšíme.' },
+      { when: 'Platba', title: 'Platíte až po úklidu.', text: 'Hotově, nebo převodem pomocí QR kódu. Domluvenou cenu bez vašeho souhlasu nenavýšíme.' },
       { when: 'Hotovo', title: 'Vrátíte se do čistého.', text: 'A příště stačí napsat. Každý týden, jednou za 14 dní, nebo jen když je potřeba.', cta: true }
     ]
   },
@@ -72,7 +86,7 @@ window.PH = {
       'Ke každému úklidu přijedu sama, s vlastním vybavením a šetrnými prostředky. Než přijedu, poprosím vás o pár fotek, abychom se předem domluvili na rozsahu i ceně. Žádná překvapení, ani v ceně.',
       'Uklízím tak, jak bych to chtěla mít doma.'
     ],
-    facts: [['Uklízí', 'Ivana osobně'], ['Kde', 'Ostrava a okolí'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'až po úklidu']],
+    facts: [['Uklízí', 'Ivana osobně'], ['Kde', 'Ostrava a okolí'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'po úklidu, hotově nebo QR kódem']],
     team: 'Až nás bude víc, představím vám tu každou kolegyni.'
   },
 
@@ -170,8 +184,6 @@ window.PH = {
       { id: 's6', label: 'Rodinný dům', hint: 'záleží na velikosti', regular: [6, 10], general: [10, 11] }
     ],
     sizesNote: 'Uvedené časy jsou orientační pro jednu uklízečku. Skutečná délka úklidu závisí na velikosti nemovitosti, vybavení a míře znečištění.',
-    /* Kdy se to hodí: Ivana nechce psát přesné časy, domlouvá je individuálně. */
-    dayparts: [{ id: 'am', label: 'Dopoledne' }, { id: 'pm', label: 'Odpoledne' }, { id: 'any', label: 'Je mi to jedno' }],
     frequencies: [
       { id: 'weekly', label: '1× týdně' },
       { id: 'biweekly', label: '1× za 14 dní' },
@@ -193,11 +205,6 @@ window.PH = {
         id: 'silna', label: 'Silná', row: 'Silné', regular: { weekly: 600, biweekly: 630, once: 650 }, general: 700,
         regularText: 'Dlouhodobě zanedbané plochy, výrazná mastnota, vodní kámen.',
         generalText: 'Silně zanesené povrchy, stará mastnota a výrazné usazeniny. Cenu upřesní podle fotek.'
-      },
-      {
-        id: 'extremni', label: 'Extrémní', row: 'Extrémní', refuse: true,
-        regularText: 'Biologické nečistoty, plísně, škůdci, nebezpečný odpad.',
-        generalText: 'Biologické nečistoty, plísně, škůdci, nebezpečný odpad.'
       }
     ],
     addons: [
@@ -224,7 +231,7 @@ window.PH = {
     notes: [
       'Účtuje se podle skutečně odpracovaného času, nebo podle pevné ceny domluvené předem.',
       'Sjednanou cenu bez vašeho souhlasu nenavýšíme.',
-      'Platíte až po úklidu, hotově nebo převodem přes QR kód.'
+      'Platíte až po úklidu, hotově nebo převodem pomocí QR kódu.'
     ]
   },
 
@@ -289,7 +296,7 @@ window.PH = {
       { title: 'Vaše soukromí', text: 'Fotky bytu slouží jen k nacenění. Bez vašeho svolení je nikdy nezveřejníme.' },
       { title: 'Reklamace', text: 'Když něco není v pořádku, dejte vědět co nejdřív. Oprávněnou reklamaci Ivana vyřeší nápravou nebo přiměřenou slevou, nejpozději do 30 dnů.' },
       { title: 'Co nebereme', text: 'Biologické nečistoty, plísně, škůdce ani nebezpečný odpad neuklízíme.' },
-      { title: 'Platba', text: 'Až po úklidu, hotově nebo převodem přes QR kód. Na požádání dostanete doklad.' }
+      { title: 'Platba', text: 'Až po úklidu, hotově nebo převodem pomocí QR kódu. Na požádání dostanete doklad.' }
     ]
   },
 

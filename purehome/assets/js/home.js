@@ -1,5 +1,5 @@
-/* PURE HOME v8 · obsahové sekce: Ivana, služby, rozsah s přepínačem, vybavení, pravidla, kontakt, patička.
-   v8: Ivanina fotka a skutečný podpis, skutečné kontakty a pracovní doba, nové storno podle obchodních podmínek. */
+/* PURE HOME v9 · obsahové sekce: Ivana, služby, rozsah s přepínačem, vybavení, pravidla, kontakt, patička.
+   v9: rezervace místo poptávky, způsoby platby u služeb a v kontaktu. */
 (function (W, D) {
   'use strict';
   var C = W.PHC, P = W.PH, $ = C.$, esc = C.esc, kc = C.kc;
@@ -106,7 +106,8 @@
     r('services').innerHTML = '<div class="wrap">' + h2('sluzby-t', S.title) +
       '<div class="svc">' + item(S.regular) + item(S.general) + '</div>' +
       '<p class="svc__note" data-rv>' + esc(S.note) + '</p>' +
-      '<div class="services__more" data-rv><a class="link" href="#rozsah">Co přesně uděláme <i></i></a><a class="link" href="#cenik">Celý ceník <i></i></a><a class="link" href="#poptavka">Poptat úklid <i></i></a></div></div>';
+      '<div data-rv>' + C.payHTML('Platba až po úklidu') + '</div>' +
+      '<div class="services__more" data-rv><a class="link" href="#rozsah">Co přesně uděláme <i></i></a><a class="link" href="#cenik">Celý ceník <i></i></a><a class="link" href="#rezervace">' + esc(P.hero.cta) + ' <i></i></a></div></div>';
   })();
 
   /* ================= ROZSAH: přepínač běžný / generální (řádky se nikam nepřesouvají) ================= */
@@ -167,13 +168,14 @@
     function row(dt, dd) { return '<div><dt>' + esc(dt) + '</dt><dd>' + dd + '</dd></div>'; }
     r('contact').innerHTML = '<div class="wrap"><div class="contact__grid"><div>' + h2('kontakt-t', 'Napište Ivaně. Ozve se s cenou.') +
       '<p class="lead contact__lead" data-rv>Stačí 5 až 8 fotek nebo krátké video kuchyně, koupelny, toalety a podlahy. Podle nich se domluvíte na rozsahu, termínu a ceně.</p>' +
-      '<div class="contact__cta" data-rv><a class="btn" href="#poptavka">Sestavit poptávku</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a><a class="btn btn--ghost" href="' + C.wa() + '"' + EXT + '>WhatsApp</a><a class="btn btn--ghost" href="mailto:' + CT.email + '">Napsat e-mail</a></div></div>' +
+      '<div class="contact__cta" data-rv><a class="btn" href="#rezervace">' + esc(P.hero.cta) + '</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a><a class="btn btn--ghost" href="' + C.wa() + '"' + EXT + '>WhatsApp</a><a class="btn btn--ghost" href="mailto:' + CT.email + '">Napsat e-mail</a></div></div>' +
       '<dl class="clist" data-rv style="--d:120ms">' +
       row('Telefon', '<a href="' + tel(CT.phone) + '">' + esc(CT.phone) + '</a><small>volejte, nebo pište na WhatsApp</small>') +
       row('E-mail', '<a href="mailto:' + CT.email + '">' + C.mail(CT.email) + '</a>') +
       row('Instagram', '<a href="' + C.ig() + '"' + EXT + '>@' + esc(CT.instagram) + '</a>') +
       row('Facebook', C.fb()) +
       row('Pracovní doba', '<ul class="hours">' + CT.hours.map(function (h) { return '<li><span>' + esc(h[0]) + '</span><span>' + esc(h[1]) + '</span></li>'; }).join('') + '</ul>') +
+      row('Platba', esc(CT.payment)) +
       row('Kde uklízí', esc(CT.area)) + '</dl></div></div>';
   })();
 
@@ -182,7 +184,7 @@
   r('badge').textContent = P.concept.badge;
 
   var bar = r('mbar');
-  bar.innerHTML = '<a class="btn" href="#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a>';
+  bar.innerHTML = '<a class="btn" href="#rezervace">' + esc(P.hero.cta) + '</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a>';
   bar.hidden = false;
   (function () {
     var day = $('.day'), order = r('order'), dayEnd = 0, oTop = 0, oBot = 0, on = null;

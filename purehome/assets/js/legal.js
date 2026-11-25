@@ -87,7 +87,7 @@ window.PH_LEGAL = {
       ] },
       { id: 'pristup', title: 'Kdo může mít k údajům přístup', items: [
         'Údaje mohou být v nezbytném rozsahu zpracovávány poskytovateli e-mailu, webhostingu, formuláře a dalších používaných technických služeb, případně účetnímu nebo odbornému poradci.',
-        { label: 'Konkrétní poskytovatelé:', draft: 'e-mailová schránka Google (Gmail), WhatsApp (Meta), pokud mi napíšete přes WhatsApp, a hosting webu.', tag: 'návrh k potvrzení' }
+        { label: 'Konkrétní poskytovatelé:', draft: 'Google (e-mailová schránka Gmail a Kalendář Google, kam se zapisují rezervace z webu), WhatsApp (Meta), pokud mi napíšete přes WhatsApp, a hosting webu.', tag: 'návrh k potvrzení' }
       ] },
       { id: 'prava', title: 'Vaše práva', items: [
         'Máte právo požádat o přístup ke svým údajům, jejich opravu, výmaz, omezení zpracování, případně přenositelnost údajů nebo vznést námitku, pokud to odpovídá zákonným podmínkám.',
@@ -96,7 +96,7 @@ window.PH_LEGAL = {
         'Osobní údaje nepoužívám k zasílání nevyžádaných reklamních sdělení ani k automatizovanému rozhodování.'
       ] },
       { id: 'cookies', title: 'Webové technologie a cookies', items: [
-        { draft: 'Tento web nepoužívá cookies ani analytické a reklamní nástroje. V prohlížeči si po dobu návštěvy pamatuje jen to, že jste už viděli úvodní animaci. Poptávka sestavená na webu se nikam neodesílá ani neukládá, dokud ji sami nepošlete e-mailem, přes WhatsApp nebo jinou aplikací. Přiložené fotky zůstávají ve vašem zařízení.', tag: 'návrh k potvrzení' }
+        { draft: 'Tento web nepoužívá cookies ani analytické a reklamní nástroje. V prohlížeči si po dobu návštěvy pamatuje jen to, že jste už viděli úvodní animaci. Údaje z rezervace (jméno, telefon, případně e-mail a adresa, termín a podrobnosti úklidu) se odešlou do mého Kalendáře Google, až když rezervaci sami odešlete. Fotky web nikam nenahrává, posíláte je sami e-mailem nebo přes WhatsApp.', tag: 'návrh k potvrzení' }
       ] }
     ]
   }

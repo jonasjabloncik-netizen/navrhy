@@ -1,5 +1,5 @@
 /* PURE HOME v7 · úvod s logem a „jak to probíhá"
-   Úvod: logo od Ivy se napíše tahy pera, čárou přes písmena proletí světelný paprsek a za ním
+   Úvod: logo od Ivany se napíše tahy pera, čárou přes písmena proletí světelný paprsek a za ním
    zůstane zelená linka, pak naskočí PURE HOME a OSTRAVA. Animace jsou uvnitř SVG (SMIL),
    takže běží stejně v Safari i v Chromu a po skončení zůstane obyčejné logo.
    Příběh: světlo putuje po stěně se scrollem (plynule dotahované), ale úvod a kroky se
@@ -150,7 +150,7 @@
         (ph.chips ? '<div class="st__chips">' + ph.chips.map(function (c) { return '<span>' + C.esc(c) + '</span>'; }).join('') + '</div>' : '') +
         (ph.photos ? '<div class="st__cta"><a class="btn btn--ghost" href="#poptavka">Sestavit poptávku s fotkami</a></div>' : '') +
         (ph.tasks ? '<ul class="st__tasks">' + ph.tasks.map(function (t, k) { return '<li style="--k:' + k + '">' + CK + '<span>' + C.esc(t) + '</span></li>'; }).join('') + '</ul>' : '') +
-        (ph.cta ? '<div class="st__cta"><a class="btn" href="#poptavka">Poptat úklid</a><a class="link" href="#iva">Poznat Ivu <i></i></a></div>' : '') + '</div></div>';
+        (ph.cta ? '<div class="st__cta"><a class="btn" href="#poptavka">Poptat úklid</a><a class="link" href="#iva">Poznat Ivanu <i></i></a></div>' : '') + '</div></div>';
     }).join('');
   var stEls = C.$$('.st', storyHost), tl = C.$('.tl', storyHost), tlFill = C.$('.tl__fill', storyHost), tlItems = C.$$('.tl li', storyHost), tlBars = C.$$('.tl__bar i', storyHost);
 

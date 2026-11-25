@@ -57,7 +57,7 @@
   function fill(a) {
     var it = items[a];
     siA.innerHTML = '<p class="si__brand">' + C.esc(it.brand) + ' · ' + C.esc(it.vol) + '</p><h3 class="si__name">' + C.esc(it.name) + '</h3>';
-    siT.innerHTML = '<p>' + C.esc(it.text) + '</p><p class="si__where">Kde ho Iva použije: ' + C.esc(it.where) + '</p>';
+    siT.innerHTML = '<p>' + C.esc(it.text) + '</p><p class="si__where">Kde ho Ivana použije: ' + C.esc(it.where) + '</p>';
     siN.textContent = a + 1;
   }
   function setActive(a) {

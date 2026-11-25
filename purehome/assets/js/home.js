@@ -1,6 +1,5 @@
-/* PURE HOME v6 · obsahové sekce: Iva, služby, rozsah s přepínačem, vybavení, pravidla, kontakt, patička.
-   v6: lišta na telefonu se řídí uloženými pozicemi (bez měření při scrollu), fotky vybavení se připraví
-   s předstihem a pulzující body se mimo obraz zastaví. */
+/* PURE HOME v8 · obsahové sekce: Ivana, služby, rozsah s přepínačem, vybavení, pravidla, kontakt, patička.
+   v8: Ivanina fotka a skutečný podpis, skutečné kontakty a pracovní doba, nové storno podle obchodních podmínek. */
 (function (W, D) {
   'use strict';
   var C = W.PHC, P = W.PH, $ = C.$, esc = C.esc, kc = C.kc;
@@ -10,24 +9,26 @@
   function h2(id, text, cls) { return '<h2 class="h2 ' + (cls || '') + '" id="' + id + '" data-split>' + esc(text) + '</h2>'; }
   function num(v, unit) { return '<span class="num">' + esc(v) + (unit ? '<sub>' + esc(unit) + '</sub>' : '') + '</span>'; }
   var CK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-  function tel(n) { return 'tel:' + n.replace(/\s/g, ''); }
-  function sampleTag(k) { return CT.sample && CT.sample[k] ? '<span class="sample">ukázka</span>' : ''; }
+  var tel = C.tel, EXT = ' target="_blank" rel="noopener"';
 
   C.header();
-  C.contacts();
 
-  /* ================= IVA ================= */
+  /* ================= IVANA ================= */
   (function () {
-    var I = P.iva;
+    var I = P.iva, ph = I.photo, sg = I.sig;
     r('iva').innerHTML = '<div class="wrap"><div class="iva__grid">' +
-      '<div><p class="label" data-rv>Kdo k vám přijde</p><h2 class="iva__name" id="iva-t" data-rv>' + esc(I.name) + '</h2><p class="iva__role" data-rv>' + esc(I.role) + '</p>' +
-      (I.photo ? '<figure class="iva__photo" data-rv><img src="' + esc(I.photo) + '" alt="' + esc(I.name) + '" loading="lazy"></figure>' : '') +
-      '<dl class="iva__facts" data-rv>' + I.facts.map(function (f) { return '<div><dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd></div>'; }).join('') + '</dl></div>' +
-      '<div><div class="iva__letter" data-rv>' + I.letter.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') + '</div>' +
-      '<div class="sig" data-rv aria-label="Iva"></div>' +
+      '<div class="iva__head"><p class="label" data-rv>Kdo k vám přijde</p><h2 class="iva__name" id="iva-t" data-rv>' + esc(I.name) + '</h2><p class="iva__role" data-rv>' + esc(I.role) + '</p></div>' +
+      '<figure class="iva__photo" data-rv><img src="' + ph.src + '" srcset="' + ph.srcset + '" sizes="(max-width: 820px) 92vw, 40vw" width="' + ph.w + '" height="' + ph.h + '" alt="' + esc(ph.alt) + '" loading="lazy" decoding="async"></figure>' +
+      '<div class="iva__body"><div class="iva__letter" data-rv>' + I.letter.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') + '</div>' +
+      '<div class="sig" data-rv><img src="' + sg.src + '" width="' + sg.w + '" height="' + sg.h + '" alt="' + esc(sg.alt) + '" loading="lazy" decoding="async"></div>' +
+      '<dl class="iva__facts" data-rv>' + I.facts.map(function (f) { return '<div><dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd></div>'; }).join('') + '</dl>' +
       '<p class="iva__team" data-rv>' + esc(I.team) + '</p></div></div></div>';
-    /* podpis: SVG z písma Herr Von Muellerhoff, odhalí se tahem zleva */
-    $('.sig').innerHTML = '<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="-68 -769 1015 916"><path d="M166 -277Q115 -277 115 -328Q115 -375 158.5 -447.5Q202 -520 269 -589.5Q336 -659 430 -709Q524 -759 612 -759Q661 -759 661 -697Q650 -617 601 -526.5Q552 -436 485.5 -354.5Q419 -273 325 -182Q231 -91 146 -20Q61 51 -42 130Q-52 137 -56 137L-58 136V134Q-58 130 -48 122Q148 -40 381 -298Q492 -421 566.5 -537Q641 -653 641 -719Q641 -748 608 -748Q540 -748 454 -695.5Q368 -643 300 -572.5Q232 -502 184.5 -430Q137 -358 137 -321.5Q137 -285 171 -285Q220 -285 301.5 -334.5Q383 -384 460 -465Q465 -470 469 -470Q473 -470 473 -466Q473 -462 440.5 -432.5Q408 -403 362.5 -366.5Q317 -330 262.5 -303.5Q208 -277 166 -277Z M631 -243Q622 -243 602.5 -212.5Q583 -182 568 -148Q634 -221 634 -240Q634 -243 631 -243ZM522 -264Q547 -264 547 -256Q547 -253 542.5 -247.5Q538 -242 517.5 -215Q497 -188 477 -160.5Q457 -133 434 -101Q382 -29 382 -16Q382 -15 384 -15Q438 -15 542 -121Q556 -165 588.5 -213.5Q621 -262 639 -262Q648 -262 648 -253Q648 -218 558 -124Q552 -108 552 -96.5Q552 -85 560 -85Q588 -85 641 -120L646 -111Q581 -68 552 -68Q536 -68 536 -89Q536 -98 537 -103Q431 3 369 3Q354 3 354 -18Q354 -39 392.5 -101Q431 -163 470 -213.5Q509 -264 515 -264Z M932 -119 933 -106Q772 1 737 1Q731 1 731 -6Q731 -27 747 -66L752 -80Q752 -82 748.5 -82Q745 -82 690 -42Q636 -2 619.5 -2Q603 -2 603 -32Q603 -115 697.5 -194Q792 -273 925 -273Q937 -273 937 -263Q937 -253 843 -146.5Q749 -40 749 -18Q749 -14 755 -14Q761 -14 806 -40Q851 -66 891 -92ZM773 -118Q790 -131 839 -187Q888 -243 888 -252Q888 -256 880 -256Q834 -256 773 -213.5Q712 -171 669.5 -117Q627 -63 627 -30Q627 -24 633 -24Q639 -24 652.5 -31.5Q666 -39 685.5 -52.5Q705 -66 719 -76Q767 -112 773 -118Z" fill="currentColor"/></svg>';
+    /* fotka se stáhne a dekóduje s předstihem, aby se opona neotevřela nad prázdným místem */
+    var im = $('.iva__photo img');
+    if ('IntersectionObserver' in W) {
+      var pre = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { pre.disconnect(); im.loading = 'eager'; if (im.decode) im.decode().catch(function () {}); } }, { rootMargin: '200% 0px 200% 0px' });
+      pre.observe(im);
+    }
   })();
 
 
@@ -99,11 +100,13 @@
       return '<article class="svc__item" data-rv><h3 class="svc__name">' + esc(x.name) + '</h3>' +
         '<p class="svc__from"><small>od</small>' + num(C.fmt(x.from)) + '<small>Kč<br>za hodinu</small></p>' +
         '<p class="svc__text">' + esc(x.text) + '</p>' +
-        '<dl class="svc__rates">' + x.rates.map(function (rt) { return '<div><dt>' + esc(rt[0]) + '</dt><dd>' + kc(rt[1]) + '/h</dd></div>'; }).join('') + '</dl></article>';
+        '<dl class="svc__rates">' + x.rates.map(function (rt) { return '<div><dt>' + esc(rt[0]) + '</dt><dd>' + kc(rt[1]) + '/h</dd></div>'; }).join('') + '</dl>' +
+        (x.note ? '<p class="svc__small">' + esc(x.note) + '</p>' : '') + '</article>';
     }
     r('services').innerHTML = '<div class="wrap">' + h2('sluzby-t', S.title) +
       '<div class="svc">' + item(S.regular) + item(S.general) + '</div>' +
-      '<div class="services__more" data-rv><a class="link" href="#rozsah">Co přesně uděláme <i></i></a><a class="link" href="#poptavka">Poptat úklid <i></i></a></div></div>';
+      '<p class="svc__note" data-rv>' + esc(S.note) + '</p>' +
+      '<div class="services__more" data-rv><a class="link" href="#rozsah">Co přesně uděláme <i></i></a><a class="link" href="#cenik">Celý ceník <i></i></a><a class="link" href="#poptavka">Poptat úklid <i></i></a></div></div>';
   })();
 
   /* ================= ROZSAH: přepínač běžný / generální (řádky se nikam nepřesouvají) ================= */
@@ -124,7 +127,8 @@
       '<div class="scope__col scope__col--x"><h3 class="scope__h">Navíc u generálního úklidu</h3><ul class="tasks tasks--x">' + S.general.map(function (t, i) { return '<li style="--k:' + i + '">' + DASH + '<span>' + esc(t) + '</span></li>'; }).join('') + '</ul>' +
       '<p class="scope__hint">Tyto úkony běžný úklid neobsahuje. <button type="button" data-show-general>Zobrazit generální úklid</button></p></div></div>' +
       '<div class="scope__more"><div data-rv><h3 class="h3">Na přání, k hlavnímu úklidu</h3><dl class="plist">' +
-      PR.addons.map(function (a) { return '<div><dt>' + esc(a.label) + (a.note ? '<small>' + esc(a.note) + '</small>' : '') + '</dt><dd>' + addonPrice(a) + '</dd></div>'; }).join('') + '</dl></div>' +
+      PR.addons.map(function (a) { return '<div><dt>' + esc(a.label) + (a.note ? '<small>' + esc(a.note) + '</small>' : '') + '</dt><dd>' + addonPrice(a) + '</dd></div>'; }).join('') +
+      '<div class="is-no"><dt>' + esc(PR.addonsNo) + '</dt><dd>neděláme</dd></div></dl></div>' +
       '<div data-rv style="--d:120ms"><h3 class="h3">Do úklidu nepatří</h3><ul class="xlist">' + S.excluded.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
       '<p class="refuse"><strong>Tohle nebereme.</strong> ' + esc(S.refuse) + '</p></div></div></div>';
     var root = r('scope'), seg = $('.seg', root), cols = $('.scope__cols', root), n = $('[data-n]', root), t = $('[data-t]', root);
@@ -147,37 +151,38 @@
 
   /* ================= PRAVIDLA ================= */
   (function () {
-    var R = P.rules;
-    r('rules').innerHTML = '<div class="wrap">' + h2('pravidla-t', 'Férové podmínky, napsané jasně.') +
-      '<div class="rules__grid"><div data-rv><h3 class="h3">Když potřebujete termín zrušit</h3>' +
-      '<div class="storno__bar" role="img" aria-label="Storno: více než 24 hodin předem zdarma, méně než 24 hodin 50 procent ceny, když nám neotevřete 100 procent ceny"><div><b>Zdarma</b><span>víc než 24 hodin předem</span></div><div><b>50 %</b><span>méně než 24 hodin předem</span></div><div><b>100 %</b><span>po příjezdu nám neotevřete, nejvýš domluvená částka</span></div></div>' +
-      '<div class="storno__axis" aria-hidden="true"><span>Domluva termínu</span><span>24 h před</span><span>Příjezd</span></div>' +
-      '<p class="storno__more">Když termín zruší Iva, neplatíte nic. Ve výjimečných situacích poplatek ráda odpustí.</p></div>' +
+    var R = P.rules, X = R.cancel;
+    r('rules').innerHTML = '<div class="wrap">' + h2('pravidla-t', R.title) +
+      '<div class="rules__grid"><div data-rv><h3 class="h3">' + esc(X.title) + '</h3>' +
+      '<div class="storno__bar" role="img" aria-label="Zrušení termínu: ' + esc(X.free[1]) + ' zdarma, ' + esc(X.late[1]) + ' se domluví náhradní termín">' +
+      '<div><b>' + esc(X.free[0]) + '</b><span>' + esc(X.free[1]) + '</span></div><div><b>' + esc(X.late[0]) + '</b><span>' + esc(X.late[1]) + '</span></div></div>' +
+      '<div class="storno__axis" aria-hidden="true">' + X.axis.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '<p class="storno__more">' + esc(X.more) + '</p></div>' +
       '<div class="rules__list" data-rv style="--d:120ms">' + R.items.map(function (it) { return '<div><h3>' + esc(it.title) + '</h3><p>' + esc(it.text) + '</p></div>'; }).join('') +
-      '<div><h3>Platba</h3><p>' + esc(CT.payment) + '. U rozsáhlejších zakázek se může domluvit záloha.</p></div>' +
-      '<a class="link rules__vop" href="podminky.html">Celé obchodní podmínky <i></i></a></div></div></div>';
+      '<p class="rules__links"><a class="link" href="podminky.html">Obchodní podmínky <i></i></a><a class="link" href="podminky.html#odstoupeni">Odstoupení od smlouvy <i></i></a><a class="link" href="osobni-udaje.html">Osobní údaje <i></i></a></p></div></div></div>';
   })();
 
   /* ================= KONTAKT ================= */
-  r('contact').innerHTML = '<div class="wrap"><div class="contact__grid"><div>' + h2('kontakt-t', 'Napište Ivě. Ozve se s cenou.') +
-    '<p class="lead contact__lead" data-rv>Stačí 5 až 8 fotek nebo krátké video kuchyně, koupelny, toalety a podlahy. Podle nich se domluvíte na rozsahu, termínu a ceně.</p>' +
-    '<div class="contact__cta" data-rv><a class="btn" href="#poptavka">Sestavit poptávku</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '" data-c="phone">Zavolat</a><a class="btn btn--ghost" href="mailto:' + CT.email + '" data-c="email">Napsat e-mail</a></div></div>' +
-    '<dl class="clist" data-rv style="--d:120ms">' +
-    '<div><dt>Telefon</dt><dd><a href="' + tel(CT.phone) + '" data-c="phone">' + esc(CT.phone) + '</a>' + sampleTag('phone') + '</dd></div>' +
-    '<div><dt>E-mail</dt><dd><a href="mailto:' + CT.email + '" data-c="email">' + esc(CT.email) + '</a>' + sampleTag('email') + '</dd></div>' +
-    '<div><dt>Kde uklízí</dt><dd>' + esc(CT.area) + '</dd></div>' +
-    '<div><dt>IČO</dt><dd>' + esc(CT.ico) + sampleTag('ico') + '</dd></div></dl></div></div>';
+  (function () {
+    function row(dt, dd) { return '<div><dt>' + esc(dt) + '</dt><dd>' + dd + '</dd></div>'; }
+    r('contact').innerHTML = '<div class="wrap"><div class="contact__grid"><div>' + h2('kontakt-t', 'Napište Ivaně. Ozve se s cenou.') +
+      '<p class="lead contact__lead" data-rv>Stačí 5 až 8 fotek nebo krátké video kuchyně, koupelny, toalety a podlahy. Podle nich se domluvíte na rozsahu, termínu a ceně.</p>' +
+      '<div class="contact__cta" data-rv><a class="btn" href="#poptavka">Sestavit poptávku</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a><a class="btn btn--ghost" href="' + C.wa() + '"' + EXT + '>WhatsApp</a><a class="btn btn--ghost" href="mailto:' + CT.email + '">Napsat e-mail</a></div></div>' +
+      '<dl class="clist" data-rv style="--d:120ms">' +
+      row('Telefon', '<a href="' + tel(CT.phone) + '">' + esc(CT.phone) + '</a><small>volejte, nebo pište na WhatsApp</small>') +
+      row('E-mail', '<a href="mailto:' + CT.email + '">' + C.mail(CT.email) + '</a>') +
+      row('Instagram', '<a href="' + C.ig() + '"' + EXT + '>@' + esc(CT.instagram) + '</a>') +
+      row('Facebook', C.fb()) +
+      row('Pracovní doba', '<ul class="hours">' + CT.hours.map(function (h) { return '<li><span>' + esc(h[0]) + '</span><span>' + esc(h[1]) + '</span></li>'; }).join('') + '</ul>') +
+      row('Kde uklízí', esc(CT.area)) + '</dl></div></div>';
+  })();
 
   /* ================= PATIČKA, LIŠTA, ŠTÍTEK ================= */
-  r('footer').innerHTML = '<div class="wrap"><img class="ftr__logo" src="assets/img/logo-full.svg" alt="PURE HOME Ostrava, profesionální úklidové služby" width="1086" height="766" loading="lazy">' +
-    '<div class="ftr__grid"><div><h3>PURE HOME Ostrava</h3><p class="muted">' + esc(P.brand.claim) + '. Uklízí Iva, ' + esc(CT.area) + '.</p></div>' +
-    '<div><h3>Stránky</h3>' + P.nav.map(function (n) { return '<a href="#' + n.id + '">' + esc(n.label) + '</a>'; }).join('<br>') + '<br><a href="podminky.html">Obchodní podmínky</a></div>' +
-    '<div><h3>Kontakt</h3><a href="' + tel(CT.phone) + '" data-c="phone">' + esc(CT.phone) + '</a><br><a href="mailto:' + CT.email + '" data-c="email">' + esc(CT.email).replace('@', '@<wbr>') + '</a><p class="muted">IČO ' + esc(CT.ico) + '</p></div></div>' +
-    '<p class="ftr__note">' + esc(P.concept.footer) + '</p></div>';
+  C.footer();
   r('badge').textContent = P.concept.badge;
 
   var bar = r('mbar');
-  bar.innerHTML = '<a class="btn" href="#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '" data-c="phone">Zavolat</a>';
+  bar.innerHTML = '<a class="btn" href="#poptavka">Poptat úklid</a><a class="btn btn--ghost" href="' + tel(CT.phone) + '">Zavolat</a>';
   bar.hidden = false;
   (function () {
     var day = $('.day'), order = r('order'), dayEnd = 0, oTop = 0, oBot = 0, on = null;

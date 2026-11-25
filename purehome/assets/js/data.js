@@ -1,13 +1,12 @@
-/* PURE HOME Ostrava · koncept webu v7 od MALUS/01
+/* PURE HOME Ostrava · koncept webu v8 od MALUS/01
    Veškerý obsah webu je tady. Stránky se z těchto dat vykreslují,
    takže úprava ceny, textu nebo kontaktu se dělá jen v tomto souboru.
+   Právní texty (obchodní podmínky, poučení, formulář, osobní údaje) jsou v legal.js.
 
-   UKÁZKOVÉ HODNOTY (před spuštěním nahradit skutečnými):
-   - contact.phone, contact.email, contact.ico  (kamarádka je zatím nemá)
-   - iva.photo (fotka Ivy), iva.letter je návrh textu k úpravě
-   - pricing.sizes: odhad času podle velikosti bytu je ukázkový, potvrdí Iva
-   - pricing.starts: časy začátku jsou ukázkové (pracovní doba Ivy)
-   - vop.provider.owner, vop.provider.seat, vop.validFrom
+   Všechny kontakty, ceny, časy a údaje jsou od Ivany (podklady z 9. a 23. 11. 2026).
+   K DOPLNĚNÍ před spuštěním:
+   - contact.facebookUrl: odkaz na stránku PureHome Ostrava na Facebooku
+   - legal.js: účinnost podmínek, konkrétní poskytovatelé a věta o cookies (návrh k potvrzení)
 */
 window.PH = {
   brand: {
@@ -17,17 +16,24 @@ window.PH = {
   },
 
   contact: {
-    phone: '+420 123 456 789',
-    email: 'info@purehome-ostrava.cz',
-    ico: '12345678',
-    sample: { phone: true, email: true, ico: true },
-    area: 'Ostrava a okolí do 20\u00a0km',
-    payment: 'Hotově nebo okamžitým převodem po úklidu'
+    phone: '+420 728 614 373',
+    whatsapp: '420728614373',                  /* číslo pro odkaz wa.me */
+    email: 'purehomeostrava@gmail.com',
+    instagram: 'purehomeostrava',
+    facebook: 'PureHome Ostrava',
+    facebookUrl: null,                         /* doplnit odkaz na stránku, do té doby jen název */
+    owner: 'Ivana Hořínková',
+    ico: '23691034',
+    seat: 'Skalní 293/15, 793 42 Janovice u Rýmařova',
+    vat: 'Neplátce DPH',
+    area: 'Ostrava a okolí',
+    hours: [['Pondělí–pátek', 'po domluvě'], ['Sobota', '+25\u00a0% k hodinové sazbě'], ['Neděle', 'zavřeno']],
+    payment: 'Hotově nebo převodem přes QR kód, až po úklidu'
   },
 
   nav: [
     { id: 'den', label: 'Jak to probíhá' },
-    { id: 'iva', label: 'Iva' },
+    { id: 'iva', label: 'Ivana' },
     { id: 'sluzby', label: 'Služby' },
     { id: 'rozsah', label: 'Co uděláme' },
     { id: 'poptavka', label: 'Poptávka' },
@@ -36,9 +42,9 @@ window.PH = {
 
   hero: {
     line: 'Úklid domácností · Ostrava a okolí',
-    tag: 'Profesionální úklidové služby',       /* slogan z loga Ivy */
+    tag: 'Profesionální úklidové služby',       /* slogan z loga */
     title: 'Vrátíte se do čistého.',
-    lead: 'Prémiový úklid domácností. Uklízí Iva osobně, s vlastním vybavením. Cenu znáte předem.',
+    lead: 'Prémiový úklid domácností. Uklízí Ivana osobně, s vlastním vybavením. Cenu znáte předem.',
     cta: 'Poptat úklid',
     more: 'Jak to probíhá'
   },
@@ -47,25 +53,26 @@ window.PH = {
   day: {
     label: 'Jak to probíhá',
     phases: [
-      { when: 'Poptávka', title: 'Pošlete pár fotek.', text: 'Stačí 5 až 8 fotek nebo krátké video. Iva podle nich potvrdí rozsah, termín i cenu.', chips: ['Kuchyň', 'Sporák', 'Koupelna', 'Toaleta', 'Podlaha', 'Celkový pohled'], photos: true },
-      { when: 'Klíče', title: 'Nemusíte být doma.', text: 'Klíče můžete Ivě předat předem. Jejich převzetí potvrdí předávacím protokolem, používá je jen k úklidu a nikomu je nedá.' },
-      { when: 'Úklid', title: 'Iva uklízí přesně podle domluvy.', text: 'Přijede ve sjednaný termín s vlastním vybavením a šetrnými prostředky. Od vás potřebuje jen přístup, vodu a elektřinu.', tasks: ['Podlahy vysáté a vytřené', 'Koupelna a baterie', 'Toaleta', 'Kuchyňská linka', 'Prach z přístupných ploch', 'Odpad vynesený'] },
-      { when: 'Platba', title: 'Platíte až po úklidu.', text: 'Hotově nebo okamžitým převodem. Domluvenou cenu bez vašeho souhlasu nenavýšíme.' },
+      { when: 'Poptávka', title: 'Pošlete pár fotek.', text: 'Stačí 5 až 8 fotek nebo krátké video. Ivana podle nich potvrdí rozsah, termín i cenu.', chips: ['Kuchyň', 'Sporák', 'Koupelna', 'Toaleta', 'Podlaha', 'Celkový pohled'], photos: true },
+      { when: 'Klíče', title: 'Nemusíte být doma.', text: 'Klíče můžete Ivaně předat předem. Jejich převzetí potvrdí předávacím protokolem, používá je jen k úklidu a nikomu je nedá.' },
+      { when: 'Úklid', title: 'Ivana uklízí přesně podle domluvy.', text: 'Přijede ve sjednaný termín s vlastním vybavením a šetrnými prostředky. Od vás potřebuje jen přístup, vodu a elektřinu.', tasks: ['Podlahy vysáté a vytřené', 'Koupelna a baterie', 'Toaleta', 'Kuchyňská linka', 'Prach z přístupných ploch', 'Odpad vynesený'] },
+      { when: 'Platba', title: 'Platíte až po úklidu.', text: 'Hotově nebo převodem přes QR kód. Domluvenou cenu bez vašeho souhlasu nenavýšíme.' },
       { when: 'Hotovo', title: 'Vrátíte se do čistého.', text: 'A příště stačí napsat. Každý týden, jednou za 14 dní, nebo jen když je potřeba.', cta: true }
     ]
   },
 
-  /* Sekce o Ivě. Text je návrh, Iva si ho upraví. Fotku doplníme do photo (cesta k souboru). */
+  /* Sekce o Ivaně. Text Ivana schválila, jen jméno je Ivana (ne Iva). */
   iva: {
-    name: 'Iva',
+    name: 'Ivana',
     role: 'Zakladatelka PURE HOME',
-    photo: null,
+    photo: { src: 'assets/img/ivana-1086.webp', srcset: 'assets/img/ivana-720.webp 720w, assets/img/ivana-1086.webp 1086w', w: 1086, h: 1448, alt: 'Ivana, zakladatelka PURE HOME' },
+    sig: { src: 'assets/img/podpis-ivana.svg', w: 1950, h: 719, alt: 'Podpis Ivany Hořínkové' },
     letter: [
-      'Dobrý den, jsem Iva a PURE HOME je moje firma.',
+      'Dobrý den, jsem Ivana a PURE HOME je moje firma.',
       'Ke každému úklidu přijedu sama, s vlastním vybavením a šetrnými prostředky. Než přijedu, poprosím vás o pár fotek, abychom se předem domluvili na rozsahu i ceně. Žádná překvapení, ani v ceně.',
       'Uklízím tak, jak bych to chtěla mít doma.'
     ],
-    facts: [['Uklízí', 'Iva osobně'], ['Kde', 'Ostrava a okolí do 20\u00a0km'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'až po úklidu']],
+    facts: [['Uklízí', 'Ivana osobně'], ['Kde', 'Ostrava a okolí'], ['Vybavení', 'vlastní, včetně prostředků'], ['Platba', 'až po úklidu']],
     team: 'Až nás bude víc, představím vám tu každou kolegyni.'
   },
 
@@ -75,21 +82,23 @@ window.PH = {
       name: 'Běžný úklid',
       text: 'Udržíme domácnost v pořádku. Každý týden, jednou za 14 dní, nebo jednorázově.',
       from: 400,
-      rates: [['1× týdně', 400], ['1× za 14 dní', 430], ['Jednorázově', 450]]
+      rates: [['1× týdně', 400], ['1× za 14 dní', 430], ['Jednorázově', 450]],
+      note: 'Sazby při běžném znečištění. Při zvýšeném od 480\u00a0Kč/h, při silném od 600\u00a0Kč/h.'
     },
     general: {
       name: 'Generální úklid',
       text: 'Do hloubky a do detailu. Kuchyň, koupelna, dveře, lišty, parapety i horní plochy skříní.',
       from: 500,
       rates: [['Běžné znečištění', 500], ['Zvýšené znečištění', 600], ['Silné znečištění', 700]]
-    }
+    },
+    note: 'Ceny jsou za hodinu práce a jsou konečné, Ivana není plátce DPH. V sobotu +25\u00a0% k hodinové sazbě, v neděli je zavřeno.'
   },
 
   /* Vybavení: přístroje jako výběr („mimo jiné“), body popisků jsou souřadnice na fotkách. */
   gear: {
     label: 'Vybavení',
     title: 'Profesionální vybavení.',
-    lead: 'Všechno potřebné Iva přiveze s sebou: přístroje, pomůcky i prostředky. Mimo jiné pracuje s těmito přístroji.',
+    lead: 'Všechno potřebné Ivana přiveze s sebou: přístroje, pomůcky i prostředky. Mimo jiné pracuje s těmito přístroji.',
     items: [
       { id: 'eta', kind: 'Aku vysavač', name: 'ETA Terier 3 v 1', text: 'Lehký bezsáčkový vysavač, který zvládne podlahy, koberce, spáry i čalounění.',
         stats: [['80', 'min', 'provozu na jedno nabití'], ['3 v 1', '', 'tyčový, ruční i na čalounění']],
@@ -131,7 +140,7 @@ window.PH = {
     ],
     excluded: [
       'Vnitřek trouby, lednice a kuchyňských skříněk (jde přiobjednat)',
-      'Okna, žaluzie, balkon, sklep a garáž (jde přiobjednat)',
+      'Okna, vnitřní žaluzie, balkon, sklep a garáž (jde přiobjednat)',
       'Silně připálená mastnota',
       'Dlouhodobé nánosy vodního kamene',
       'Čištění koberců a tepování čalounění',
@@ -145,43 +154,48 @@ window.PH = {
 
   shelf: {
     title: 'Šetrné prostředky. Voní malinou.',
-    text: 'Iva uklízí ekologickými prostředky Frosch s ekoznačkou EU Ecolabel. Tři z nich voní malinou. Na připálenou troubu má český Real.'
+    text: 'Ivana uklízí ekologickými prostředky Frosch s ekoznačkou EU Ecolabel. Tři z nich voní malinou. Na připálenou troubu má český Real.'
   },
   pricing: {
-    minimum: 1200,
-    hourly: { min: 2, max: 10, step: 0.5, start: 3 },
-    /* UKÁZKOVÝ odhad času podle velikosti (Iva ho potvrdí nebo upraví) */
+    minimum: 1200,                             /* z prvních poznámek (7. 11.), v nových podmínkách není: potvrdit */
+    hourly: { min: 2, max: 12, step: 0.5, start: 3 },
+    saturday: 0.25,                            /* sobota +25 % k hodinové sazbě úklidu */
+    /* Orientační časy pro jednu uklízečku (Ivana, 9. 11.). [od, do] v hodinách. */
     sizes: [
-      { id: 's1', label: 'Garsoniéra nebo 1+kk', hint: 'do 35 m²', regular: 2, general: 4 },
-      { id: 's2', label: '2+kk nebo 2+1', hint: '35 až 55 m²', regular: 3, general: 5 },
-      { id: 's3', label: '3+kk nebo 3+1', hint: '55 až 80 m²', regular: 4, general: 6.5 },
-      { id: 's4', label: '4+kk a větší', hint: '80 až 110 m²', regular: 5, general: 8 },
-      { id: 's5', label: 'Rodinný dům', hint: 'nad 110 m²', regular: 6, general: 10 }
+      { id: 's1', label: '1+kk nebo 1+1', regular: [2, 2.5], general: [3, 4] },
+      { id: 's2', label: '2+kk nebo 2+1', regular: [2.5, 3.5], general: [5, 6] },
+      { id: 's3', label: '3+kk nebo 3+1', regular: [4, 5], general: [6, 7] },
+      { id: 's4', label: '4+kk nebo 4+1', regular: [5, 6], general: [6, 8.5] },
+      { id: 's5', label: '5+kk nebo 5+1', regular: [6, 8], general: [8, 9.5] },
+      { id: 's6', label: 'Rodinný dům', hint: 'záleží na velikosti', regular: [6, 10], general: [10, 11] }
     ],
-    starts: ['7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
+    sizesNote: 'Uvedené časy jsou orientační pro jednu uklízečku. Skutečná délka úklidu závisí na velikosti nemovitosti, vybavení a míře znečištění.',
+    /* Kdy se to hodí: Ivana nechce psát přesné časy, domlouvá je individuálně. */
+    dayparts: [{ id: 'am', label: 'Dopoledne' }, { id: 'pm', label: 'Odpoledne' }, { id: 'any', label: 'Je mi to jedno' }],
     frequencies: [
-      { id: 'weekly', label: '1× týdně', rate: 400 },
-      { id: 'biweekly', label: '1× za 14 dní', rate: 430 },
-      { id: 'once', label: 'Jednorázově', rate: 450 }
+      { id: 'weekly', label: '1× týdně' },
+      { id: 'biweekly', label: '1× za 14 dní' },
+      { id: 'once', label: 'Jednorázově' }
     ],
+    /* Hodinové sazby: běžný úklid podle četnosti × znečištění, generální podle znečištění. */
     levels: [
       {
-        id: 'bezna', label: 'Běžná', regular: 400, general: 500,
+        id: 'bezna', label: 'Běžná', row: 'Běžné', regular: { weekly: 400, biweekly: 430, once: 450 }, general: 500,
         regularText: 'Udržovaná domácnost, běžný prach a nečistoty.',
         generalText: 'Domácnost se průběžně udržuje: prach, běžná mastnota a lehký vodní kámen.'
       },
       {
-        id: 'zvysena', label: 'Zvýšená', regular: 480, general: 600,
+        id: 'zvysena', label: 'Zvýšená', row: 'Zvýšené', regular: { weekly: 480, biweekly: 510, once: 530 }, general: 600,
         regularText: 'Víc usazenin a mastnoty, zvířecí chlupy.',
         generalText: 'Dlouho neuklízená domácnost: výraznější mastnota, usazený vodní kámen, víc prachu a chlupů.'
       },
       {
-        id: 'silna', label: 'Silná', regular: 600, general: 700,
+        id: 'silna', label: 'Silná', row: 'Silné', regular: { weekly: 600, biweekly: 630, once: 650 }, general: 700,
         regularText: 'Dlouhodobě zanedbané plochy, výrazná mastnota, vodní kámen.',
-        generalText: 'Silně zanesené povrchy, stará mastnota a výrazné usazeniny. Cenu upřesníme podle fotek.'
+        generalText: 'Silně zanesené povrchy, stará mastnota a výrazné usazeniny. Cenu upřesní podle fotek.'
       },
       {
-        id: 'extremni', label: 'Extrémní', refuse: true,
+        id: 'extremni', label: 'Extrémní', row: 'Extrémní', refuse: true,
         regularText: 'Biologické nečistoty, plísně, škůdci, nebezpečný odpad.',
         generalText: 'Biologické nečistoty, plísně, škůdci, nebezpečný odpad.'
       }
@@ -190,25 +204,27 @@ window.PH = {
       { id: 'trouba', label: 'Trouba', note: 'běžné znečištění', price: 300, unit: 'fixed' },
       { id: 'lednice', label: 'Lednice', note: 'vyprázdněná', price: 250, unit: 'fixed' },
       { id: 'skrinky', label: 'Kuchyňské skříňky uvnitř', price: 380, unit: 'hour' },
+      { id: 'okna', label: 'Okna včetně rámů', price: 390, unit: 'hour' },
+      { id: 'zaluzie', label: 'Vnitřní žaluzie', price: 350, unit: 'hour' },
       { id: 'balkon', label: 'Balkon', note: 'pevná cena podle fotky', price: 350, unit: 'from' },
       { id: 'sklep', label: 'Sklep', price: 450, unit: 'hour' },
-      { id: 'garaz', label: 'Garáž', price: 450, unit: 'hour' },
-      { id: 'okna', label: 'Okna včetně rámů', unit: 'tbd' },
-      { id: 'zaluzie', label: 'Žaluzie', unit: 'tbd' }
+      { id: 'garaz', label: 'Garáž', price: 450, unit: 'hour' }
     ],
-    /* Doprava se počítá od Ostravy, ne od centra: celá Ostrava a do 5 km od ní je zdarma.
-       label = krátce (ceník, lístek), pick = volba v poptávce, place = do zprávy a přehledu. */
+    addonsNo: 'Venkovní a elektrické žaluzie',
+    /* Doprava podle vzdálenosti od hranice Ostravy, jedním směrem.
+       label = krátce (lístek: „Doprava v Ostravě“), pick = volba v poptávce, place = do zprávy a přehledu. */
     travel: [
-      { id: 't5', label: 'Ostrava a do 5 km', pick: 'Ostrava a do 5 km od ní', place: 'v Ostravě nebo do 5 km od ní', price: 0 },
-      { id: 't10', label: '5–10 km', pick: '5–10 km od Ostravy', place: '5–10 km od Ostravy', price: 100 },
-      { id: 't15', label: '10–15 km', pick: '10–15 km od Ostravy', place: '10–15 km od Ostravy', price: 150 },
-      { id: 't20', label: '15–20 km', pick: '15–20 km od Ostravy', place: '15–20 km od Ostravy', price: 200 },
-      { id: 't99', label: 'nad 20 km', pick: 'Dál než 20 km od Ostravy', place: 'dál než 20 km od Ostravy', price: null }
+      { id: 't0', label: 'v Ostravě', pick: 'V Ostravě', place: 'v Ostravě', price: 0 },
+      { id: 't10', label: 'do 10 km od Ostravy', pick: 'Do 10 km od hranice Ostravy', place: 'do 10 km od hranice Ostravy', price: 100 },
+      { id: 't20', label: '10–20 km od Ostravy', pick: '10–20 km od hranice Ostravy', place: '10–20 km od hranice Ostravy', price: 200 },
+      { id: 't99', label: 'dál než 20 km', pick: 'Dál než 20 km od Ostravy', place: 'dál než 20 km od Ostravy', price: null }
     ],
+    parking: ['Placené parkování', 'podle skutečných nákladů'],
+    travelNote: 'Vzdálenost se počítá od hranice Ostravy k místu úklidu jedním směrem. Případná cena dopravy bude vždy sdělena předem.',
     notes: [
-      'Účtujeme podle skutečně odpracovaného času, nebo podle pevné ceny domluvené předem.',
+      'Účtuje se podle skutečně odpracovaného času, nebo podle pevné ceny domluvené předem.',
       'Sjednanou cenu bez vašeho souhlasu nenavýšíme.',
-      'Platíte až po úklidu, hotově nebo okamžitým převodem.'
+      'Platíte až po úklidu, hotově nebo převodem přes QR kód.'
     ]
   },
 
@@ -258,126 +274,27 @@ window.PH = {
   ],
   productsNote: 'Prostředky Frosch nesou ekoznačku EU Ecolabel a tři z nich voní malinou.',
 
-  process: [
-    {
-      title: 'Pošlete fotky',
-      text: 'Stačí 5 až 8 fotek nebo krátké video. Podle nich poznáme, co vás čeká.',
-      checklist: ['Kuchyň', 'Sporák', 'Koupelna', 'Toaleta', 'Podlaha', 'Celkový pohled']
-    },
-    {
-      title: 'Domluvíme cenu',
-      text: 'Ohodnotíme míru znečištění a domluvíme rozsah, termín a předpokládanou cenu.'
-    },
-    {
-      title: 'Přijedeme a uklidíme',
-      text: 'V domluvený čas, s vlastním vybavením a prostředky. Od vás potřebujeme jen přístup, vodu a elektřinu.'
-    },
-    {
-      title: 'Zaplatíte po úklidu',
-      text: 'Hotově nebo okamžitým převodem. Až když je hotovo.'
-    }
-  ],
-
   rules: {
-    title: 'Férová pravidla, napsaná jasně.',
-    cancel: [
-      { when: 'Víc než 24 hodin předem', what: 'zdarma' },
-      { when: 'Méně než 24 hodin předem', what: '50 % ceny' },
-      { when: 'Po příjezdu nám neotevřete', what: '100 % ceny, nejvýš domluvená částka' }
-    ],
+    title: 'Férové podmínky, napsané jasně.',
+    cancel: {
+      title: 'Když potřebujete termín zrušit',
+      free: ['Zdarma', 'zrušení nebo změna víc než 24 hodin předem'],
+      late: ['Náhradní termín', 'později, nebo když se Ivana nedostane dovnitř'],
+      axis: ['Domluva termínu', '24 h před', 'Začátek úklidu'],
+      more: 'Celou cenu neprovedeného úklidu Ivana automaticky neúčtuje. Pokud vzniknou prokazatelné náklady, může požadovat jejich přiměřenou náhradu. Když termín zruší Ivana, neplatíte nic.'
+    },
     items: [
       { title: 'Cena bez překvapení', text: 'Když je u vás víc práce, než ukázaly fotky, nejdřív se domluvíme. Bez vašeho souhlasu cenu nenavýšíme.' },
-      { title: 'Klíče v bezpečí', text: 'Převzetí klíčů potvrdíme předávacím protokolem. Klíče používáme jen k úklidu a nikomu je nepředáme.' },
+      { title: 'Klíče v bezpečí', text: 'Převzetí klíčů Ivana potvrdí předávacím protokolem. Používá je jen k úklidu a nikomu je nepředá.' },
       { title: 'Vaše soukromí', text: 'Fotky bytu slouží jen k nacenění. Bez vašeho svolení je nikdy nezveřejníme.' },
-      { title: 'Co nebereme', text: 'Biologické nečistoty, plísně, škůdce ani nebezpečný odpad neuklízíme.' }
-    ]
-  },
-
-
-  vop: {
-    title: 'Všeobecné obchodní podmínky úklidových služeb',
-    provider: { name: 'PURE HOME Ostrava', owner: null, seat: null },
-    validFrom: null,
-    sections: [
-      { title: 'Objednání služby', items: [
-        'Úklidové služby jsou poskytovány na základě individuální objednávky potvrzené oběma stranami.',
-        'Před zahájením práce se sjednává zejména termín, místo, rozsah úklidu, způsob účtování a předpokládaná cena.',
-        'Součástí objednávky jsou tyto obchodní podmínky a aktuální ceník, s nimiž je zákazník seznámen před uzavřením smlouvy.'
-      ] },
-      { title: 'Rozsah poskytovaných služeb', items: [
-        'Poskytovatel provádí pouze sjednané úklidové práce.',
-        'Běžný úklid zahrnuje vysávání, vytírání, utírání prachu, běžné čištění koupelny, WC a kuchyňských ploch.',
-        'Mytí oken, čištění vnitřků spotřebičů, skříněk, žaluzií a další speciální činnosti jsou poskytovány na základě samostatné objednávky.',
-        'Práce nad rámec původní objednávky se provádějí pouze po odsouhlasení zákazníkem.'
-      ] },
-      { title: 'Ceny a platba', items: [
-        '@prices',
-        'Minimální cena návštěvy činí 1 200 Kč.',
-        'Cena se stanovuje podle skutečně odpracovaného času, případně podle předem sjednané pevné ceny.',
-        'Případné zvýšení sjednaného rozpočtu vyžaduje předchozí souhlas zákazníka.',
-        'Platba probíhá po dokončení úklidu hotově nebo okamžitým bankovním převodem, pokud nebylo předem sjednáno jinak.',
-        'U rozsáhlejších zakázek může být sjednána záloha.'
-      ] },
-      { title: 'Stav a připravenost prostoru', items: [
-        'Zákazník je povinen poskytnout pravdivé informace o stavu prostoru a upozornit na známé závady, křehké povrchy a předměty vyžadující zvláštní zacházení.',
-        'Zákazník zajistí přístup k uklízeným prostorům, přívod vody a elektřiny a podmínky umožňující bezpečné provedení úklidu.',
-        'Poskytovatel není povinen manipulovat s těžkým nábytkem, nebezpečnými látkami, biologickým odpadem nebo jinými rizikovými předměty.'
-      ] },
-      { title: 'Zvýšené znečištění', items: [
-        'Pokud skutečný stav prostor podstatně neodpovídá předem sděleným informacím, poskytovatel může navrhnout změnu ceny nebo rozsahu úklidu.',
-        'Zvýšená cena nebo další práce se uplatní pouze po souhlasu zákazníka.',
-        'Nedojde-li k dohodě, mohou strany zakázku ukončit; vypořádání již provedené práce a případných nákladů se řídí smlouvou a právními předpisy.'
-      ] },
-      { title: 'Zrušení objednávky', items: [
-        'Storno podmínky pro jednotlivé sjednané termíny:',
-        { list: [
-          'Více než 48 hodin před termínem: bez poplatku.',
-          '24–48 hodin před termínem: bez poplatku.',
-          'Méně než 24 hodin před termínem: storno poplatek 50 % ze sjednané ceny.',
-          'Zmařený termín z důvodu neposkytnutí přístupu: storno poplatek 100 %, maximálně předem dohodnutá částka.'
-        ] },
-        'Storno poplatek se neuplatní, pokud by odporoval zákonnému právu spotřebitele odstoupit od smlouvy nebo jinému kogentnímu právnímu předpisu.',
-        'Při mimořádných okolnostech může poskytovatel poplatek prominout.',
-        'Pokud termín zruší poskytovatel, zákazníkovi storno poplatek nevzniká a případná záloha se vypořádá podle zákona.'
-      ] },
-      { title: 'Odpovědnost za škody', items: [
-        'Poskytovatel odpovídá za škody způsobené při poskytování služeb v rozsahu stanoveném právními předpisy.',
-        'Zákazník upozorní na známé poškození, nestabilní vybavení, citlivé materiály a zvláštní požadavky na čištění.',
-        'Při zjištění poškození poskytovatel bez zbytečného odkladu informuje zákazníka a obě strany podle možností zdokumentují stav.'
-      ] },
-      { title: 'Reklamace', items: [
-        'Zákazník může uplatnit reklamaci e-mailem nebo jiným sjednaným způsobem.',
-        'Doporučuje se oznámit zjevné nedostatky co nejdříve po dokončení úklidu, ideálně do 24 hodin, aby bylo možné jejich stav spolehlivě posoudit.',
-        'Toto doporučení neomezuje zákonná práva zákazníka.',
-        'O reklamaci bude vydáno příslušné potvrzení a bude vyřízena v zákonné lhůtě, zpravidla nejpozději do 30 dnů.',
-        'V případě oprávněné reklamace se způsob nápravy určí podle příslušných právních předpisů.'
-      ] },
-      { title: 'Bezpečnost a odmítnutí práce', items: [
-        'Poskytovatel může odmítnout nebo přerušit práci, pokud podmínky představují důvodné riziko pro zdraví nebo bezpečnost.',
-        'Jedná se zejména o agresivní chování, nebezpečné chemické látky, biologicky rizikový odpad, nebezpečné předměty nebo jiné závažné překážky bezpečného výkonu práce.',
-        'O důvodu přerušení bude zákazník informován.'
-      ] },
-      { title: 'Klíče a přístup do nemovitosti', items: [
-        'Převzetí klíčů se zaznamenává samostatným předávacím potvrzením.',
-        'Klíče jsou používány výhradně k provedení sjednaných služeb a jsou zabezpečeny proti neoprávněnému použití.',
-        'Poskytovatel nesmí bez oprávnění předávat klíče třetím osobám.',
-        'Po skončení spolupráce budou klíče vráceny dohodnutým způsobem.'
-      ] },
-      { title: 'Fotodokumentace a soukromí', items: [
-        'Fotodokumentace pro účely nacenění, doložení stavu nebo řešení případných škod se pořizuje pouze v přiměřeném a potřebném rozsahu a v souladu s právními předpisy.',
-        'Fotografie interiéru nesmějí být použity k reklamě ani zveřejněny bez samostatného příslušného svolení zákazníka.',
-        'Osobní údaje zákazníků jsou zpracovávány podle samostatných informací o ochraně osobních údajů.'
-      ] },
-      { title: 'Závěrečná ustanovení', items: [
-        'Tyto obchodní podmínky se použijí na objednávky, u nichž byly zákazníkovi poskytnuty před uzavřením smlouvy a staly se součástí smluvního ujednání.',
-        'Změny podmínek nemají zpětný účinek na již uzavřené objednávky bez odpovídající dohody stran.'
-      ] }
+      { title: 'Reklamace', text: 'Když něco není v pořádku, dejte vědět co nejdřív. Oprávněnou reklamaci Ivana vyřeší nápravou nebo přiměřenou slevou, nejpozději do 30 dnů.' },
+      { title: 'Co nebereme', text: 'Biologické nečistoty, plísně, škůdce ani nebezpečný odpad neuklízíme.' },
+      { title: 'Platba', text: 'Až po úklidu, hotově nebo převodem přes QR kód. Na požádání dostanete doklad.' }
     ]
   },
 
   concept: {
     badge: 'Koncept od MALUS/01',
-    footer: 'Návrh webu od studia MALUS/01. Pracovní verze. Produktové fotky patří jejich výrobcům (ETA, Kärcher, Frosch, Real). Text o Ivě je návrh k úpravě.',
-    sampleToast: 'V konceptu je zatím ukázkový kontakt. Před spuštěním doplníme skutečný.'
+    footer: 'Návrh webu od studia MALUS/01. Pracovní verze. Produktové fotky patří jejich výrobcům (ETA, Kärcher, Frosch, Real).'
   }
 };
